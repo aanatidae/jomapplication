@@ -1,0 +1,16 @@
+{
+  "name": "jom",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "npm@11.17.0",
+  "engines": { "node": ">=24 <25", "npm": ">=11 <12" },
+  "workspaces": ["apps/mobile"],
+  "scripts": {
+    "start": "npm run start --workspace mobile",
+    "android": "npm run android --workspace mobile",
+    "lint": "npm run lint --workspace mobile",
+    "typecheck": "npm run typecheck --workspace mobile",
+    "test": "npm run test --workspace mobile",
+    "check": "npm run lint && npm run typecheck && npm run test"
+  }
+}

@@ -1,0 +1,453 @@
+# TODOLIST.md
+
+This is the implementation checklist for Jom!. `PLAN.md` explains the architecture, reasoning, milestones, and acceptance criteria. This file tracks concrete work.
+
+Rules for Codex:
+
+- Push only to `https://github.com/aanatidae/jomapplication`, and only after the user gives explicit full consent and approval for the push. On 2026-10-15 the user authorized committing and pushing the current Phase 0/1 work; this is not standing approval for future pushes.
+- Work in phase order unless a dependency requires a small earlier spike.
+- Do not mark an item complete until its acceptance evidence exists.
+- Update `PLAN.md` whenever an important design or architecture decision changes.
+- For UI tasks, read the relevant installed skills listed in `AGENTS.md` before implementation.
+- Before a phase is marked complete, run its tests and manually inspect the user-visible behavior.
+- Do not fabricate real-world safety/accessibility data. Use clearly labelled simulated data until verified pilot data exists.
+
+## Phase 0 — Repository audit and technical spikes
+
+Native verification targets: **Android Studio emulator + physical Android phone**, with Expo Go permitted for testing (user-confirmed 2026-10-15). Check ADB connectivity before claiming mobile/map acceptance.
+
+- [x] Inspect Git status and preserve all unrelated user changes.
+- [x] Inventory current files, packages, app entry points, and existing prototypes.
+- [x] Determine whether the repo is empty, partial, or already has a preferred stack.
+- [x] Read `AGENTS.md` fully.
+- [x] Read `PLAN.md` fully.
+- [x] Read `mobile-native/SKILL.md`.
+- [x] Read `impeccable/SKILL.md`.
+- [x] Read `ui-skills-root/SKILL.md`.
+- [x] Read `emil-design-eng/SKILL.md`.
+- [x] Read `apple-design/SKILL.md`.
+- [x] Read `pick-ui-library/SKILL.md`.
+- [x] Read `prototype/SKILL.md`.
+- [x] Verify the current Expo SDK if Expo is used.
+- [ ] Run a small map-rendering spike on the target Expo environment.
+- [x] Run a FastAPI + NetworkX route-response spike.
+- [x] Record map-library decision in `PLAN.md` Decision Log.
+- [x] Record any stack changes in `PLAN.md`.
+- [x] Update `PLAN.md` Context and Orientation with actual repository paths.
+
+Evidence (2026-10-15): API 3 tests + Ruff pass; mobile lint/typecheck, Expo install check, Doctor 21/21 and Android Hermes export pass. Expo Go screen opens and emits Native map ready on Android Studio AVD. Map tiles/markers/polyline are still blank, so map acceptance remains unchecked. Screenshot: `docs/demo/emulator-phase0.png`. Physical phone not connected.
+
+### Phase 0 acceptance
+
+- [x] Mobile spike opens without crashing.
+- [ ] Map or approved map fallback renders.
+- [x] API `GET /health` returns HTTP 200.
+- [x] Tiny graph spike returns a route.
+- [x] Baseline commands are recorded in `README.md` or `PLAN.md`.
+
+## Phase 1 — Project scaffold and quality gates
+
+- [x] Create/confirm root package/workspace configuration.
+- [x] Create/confirm `apps/mobile`.
+- [x] Configure Expo Router.
+- [x] Enable TypeScript strict mode.
+- [x] Configure ESLint.
+- [x] Add stable `lint`, `typecheck`, and `test` scripts.
+- [x] Create/confirm `services/api`.
+- [x] Configure FastAPI.
+- [x] Configure Ruff.
+- [x] Configure Pytest.
+- [x] Add `.env.example`.
+- [x] Add `.gitignore` coverage for secrets, environments, build outputs, and local data.
+- [x] Add Planner screen shell.
+- [x] Add Community screen shell.
+- [x] Add Profile screen shell.
+- [x] Add health endpoint.
+- [x] Add baseline API test.
+- [x] Add root README startup instructions.
+
+### Phase 1 acceptance
+
+- [x] Mobile app starts locally.
+- [x] API starts locally.
+- [x] Mobile lint passes.
+- [x] Mobile typecheck passes.
+- [x] Mobile tests pass.
+- [x] API Ruff check passes.
+- [x] API Pytest suite passes.
+
+Verified 2026-10-15: root npm ci and npm run check pass (3 navigation tests); API Ruff and Pytest pass (3 tests); localhost health returns HTTP 200 with expected JSON. Expo Doctor 21/21 and Android Hermes export pass. Planner, Community, Profile, and return to Planner exercised in Android Studio Expo Go; all three also reachable at 320dp width / font scale 2.0. Original device settings restored. Root env template and ignore rules verified. Evidence: docs/demo/phase1/. Phase 1 complete; Phase 0 map rendering and physical-phone validation remain separately open. No commit or push performed.
+
+## Phase 2 — Design system and planner prototype
+
+### Skill intake
+
+- [ ] Re-read `prototype` immediately before first high-fidelity flow.
+- [ ] Use `pick-ui-library` before adding a component library.
+- [ ] Apply `impeccable`, `mobile-native`, `apple-design`, `emil-design-eng`, and `ui-skills-root` to the design system.
+
+### Design tokens
+
+- [ ] Define typography scale.
+- [ ] Define spacing scale.
+- [ ] Define radius scale.
+- [ ] Define elevation/shadow strategy.
+- [ ] Define neutral palette and one Jom! accent.
+- [ ] Define semantic safety/accessibility/verification tokens.
+- [ ] Define icon sizing rules.
+- [ ] Define touch-target rules.
+- [ ] Define reduced-motion behavior.
+
+### Reusable components
+
+- [ ] Build primary button.
+- [ ] Build secondary/tertiary button.
+- [ ] Build icon button.
+- [ ] Build route profile chip/segmented control.
+- [ ] Build badge/tag.
+- [ ] Build confidence/verification badge.
+- [ ] Build place/origin-destination input.
+- [ ] Build bottom-sheet shell or chosen route-comparison container.
+- [ ] Build route option card.
+- [ ] Build route reason row/badge.
+- [ ] Build loading skeleton/progress state.
+- [ ] Build empty/error state primitives.
+
+### Planner mock flow
+
+- [ ] Build map-first Planner layout.
+- [ ] Add origin selection UI.
+- [ ] Add destination selection UI.
+- [ ] Add Fastest profile.
+- [ ] Add Safer-at-Night profile.
+- [ ] Add Step-Free profile.
+- [ ] Add route comparison with 2–3 mock routes.
+- [ ] Show ETA and distance.
+- [ ] Show detour difference from fastest.
+- [ ] Show explanation reasons.
+- [ ] Show confidence/freshness.
+- [ ] Ensure map remains readable behind overlays.
+- [ ] Ensure one-handed control placement.
+
+### Phase 2 QA
+
+- [ ] Read and apply `break-ui/SKILL.md`.
+- [ ] Test smallest supported phone size.
+- [ ] Test large font scaling.
+- [ ] Test long place names.
+- [ ] Test many route reasons.
+- [ ] Test empty route list.
+- [ ] Test dark/light system contrast if both modes are supported.
+- [ ] Verify no status depends only on colour.
+
+## Phase 3 — Pilot graph and route engine
+
+### Pilot data
+
+- [ ] Create deterministic simulated pilot graph fixture.
+- [ ] Clearly mark simulated fixture as demo data.
+- [ ] Add nodes for intersections/entrances/ramps/elevators/crossings.
+- [ ] Add at least three alternative paths for one demo trip.
+- [ ] Add a shortest-time path.
+- [ ] Add a longer better-lit/public path.
+- [ ] Add a step-free path.
+- [ ] Add at least one stairs edge.
+- [ ] Add at least one closed/blocked edge fixture.
+- [ ] Add at least one unknown-accessibility edge.
+- [ ] Add verification/confidence metadata.
+
+### Routing modules
+
+- [ ] Implement graph loader.
+- [ ] Implement route-profile configuration.
+- [ ] Implement normalized edge penalties.
+- [ ] Implement `is_edge_allowed`.
+- [ ] Implement `edge_cost`.
+- [ ] Implement Fastest profile.
+- [ ] Implement Safer-at-Night profile.
+- [ ] Implement Step-Free profile.
+- [ ] Implement route generation.
+- [ ] Implement route ranking.
+- [ ] Implement route reason generation.
+- [ ] Implement route warning generation.
+- [ ] Implement confidence calculation.
+- [ ] Implement deterministic tie-breaking.
+
+### Routing tests
+
+- [ ] Test Fastest chooses shortest ETA.
+- [ ] Test Safer at Night chooses better-lit route in demo scenario.
+- [ ] Test Step-Free excludes stairs.
+- [ ] Test closed path exclusion.
+- [ ] Test unknown accessibility reduces confidence.
+- [ ] Test route reasons reflect real edge attributes.
+- [ ] Test deterministic output for ties.
+- [ ] Test impossible route returns clear domain error.
+
+## Phase 4 — Routing API
+
+- [ ] Define `RouteProfile`.
+- [ ] Define `RoutePreferences`.
+- [ ] Define `RoutePoint`.
+- [ ] Define `RouteRequest`.
+- [ ] Define `RouteReason`.
+- [ ] Define `RouteOption`.
+- [ ] Define `RouteResponse`.
+- [ ] Implement `POST /v1/routes`.
+- [ ] Validate profile values.
+- [ ] Validate origin/destination.
+- [ ] Add node/coordinate snapping strategy.
+- [ ] Return 1–3 route options.
+- [ ] Return geometry.
+- [ ] Return ETA and distance.
+- [ ] Return reasons/warnings.
+- [ ] Return confidence and verification summary.
+- [ ] Add clean no-route response.
+- [ ] Add request/response API tests.
+- [ ] Document sample route request in README.
+
+## Phase 5 — Mobile/API integration
+
+- [ ] Create typed routing API service.
+- [ ] Add environment-based API base URL.
+- [ ] Add planner state/hook/store.
+- [ ] Connect origin/destination to request model.
+- [ ] Connect profile selector to API request.
+- [ ] Render API route geometry.
+- [ ] Render route options from API.
+- [ ] Select a route from the comparison sheet.
+- [ ] Highlight selected route on the map.
+- [ ] Show API reasons.
+- [ ] Show warnings.
+- [ ] Show confidence.
+- [ ] Show last-verified state when present.
+- [ ] Implement loading state.
+- [ ] Implement timeout state.
+- [ ] Implement API error state.
+- [ ] Implement no-route state.
+- [ ] Implement retry.
+- [ ] Implement location-permission-denied state.
+- [ ] Ensure route scoring logic exists only on server.
+
+### Phase 5 acceptance
+
+- [ ] Same trip returns visibly different route for Fastest vs Safer at Night.
+- [ ] Same trip excludes stairs in Step-Free.
+- [ ] UI explanation matches API response.
+- [ ] No manual code/data edit is needed during demo.
+
+## Phase 6 — Onboarding and preferences
+
+- [ ] Design onboarding with explicit user needs.
+- [ ] Add “prefer well-lit paths”.
+- [ ] Add “avoid isolated routes” if supported by data.
+- [ ] Add “avoid stairs”.
+- [ ] Add “avoid steep slopes”.
+- [ ] Add “prefer ramps/elevators”.
+- [ ] Add “prefer covered/shaded paths”.
+- [ ] Add “prefer active/public areas”.
+- [ ] Add maximum acceptable detour.
+- [ ] Add optional age bracket only if retained.
+- [ ] Do not add full IC number.
+- [ ] Persist preferences locally.
+- [ ] Add editable Profile preferences screen.
+- [ ] Feed applicable preferences into routing request.
+- [ ] Add Custom profile if P0 routing remains stable.
+
+## Phase 7 — Community route sharing
+
+- [ ] Design Community feed.
+- [ ] Build community route card.
+- [ ] Build route detail.
+- [ ] Build Share Route form.
+- [ ] Add route title.
+- [ ] Add purpose tags.
+- [ ] Add notes.
+- [ ] Add accessibility tags.
+- [ ] Add route warnings.
+- [ ] Add last-walked date.
+- [ ] Add optional photo picker.
+- [ ] Show verification state.
+- [ ] Add save/bookmark action if time permits.
+- [ ] Add confirm action if time permits.
+- [ ] Add report-content action.
+
+## Phase 8 — Barrier reporting
+
+- [ ] Build Report Barrier entry point from active route/map.
+- [ ] Add category: blocked/broken walkway.
+- [ ] Add category: lift unavailable.
+- [ ] Add category: missing/blocked ramp.
+- [ ] Add category: construction.
+- [ ] Add category: poor lighting.
+- [ ] Add category: flooded path.
+- [ ] Add category: unsafe crossing.
+- [ ] Add category: incorrect map connection.
+- [ ] Capture map location/segment.
+- [ ] Add optional photo.
+- [ ] Add description.
+- [ ] Add temporary/permanent selector.
+- [ ] Add timestamp.
+- [ ] Show newly submitted report as community submitted, never verified.
+- [ ] Add success state.
+- [ ] Add error/retry state.
+
+## Phase 9 — Supabase
+
+### Schema
+
+- [ ] Add profiles migration.
+- [ ] Add route posts migration.
+- [ ] Add route post images migration if needed.
+- [ ] Add barrier reports migration.
+- [ ] Add route confirmations migration if needed.
+- [ ] Add verification status fields.
+- [ ] Add freshness/expiry fields.
+- [ ] Add indexes required by primary queries.
+
+### Security
+
+- [ ] Enable RLS for user/community tables.
+- [ ] User can update/delete own profile.
+- [ ] User can update/delete own route posts according to product rules.
+- [ ] User can update/delete own barrier reports according to product rules.
+- [ ] Public/community reads obey intended visibility.
+- [ ] Service-role key is server-only and absent from mobile bundle.
+- [ ] Validate image MIME type/size rules.
+- [ ] Add basic abuse/rate-limit plan for future production use.
+
+### Client integration
+
+- [ ] Configure Supabase client.
+- [ ] Add auth flow or hackathon-safe guest/demo fallback.
+- [ ] Persist preferences.
+- [ ] Persist route posts.
+- [ ] Persist barrier reports.
+- [ ] Upload route/report photos.
+- [ ] Load Community feed from Supabase.
+- [ ] Verify persistence after app restart.
+
+## Phase 10 — Confidence, freshness, and verification UX
+
+- [ ] Define confidence levels.
+- [ ] Define verification labels.
+- [ ] Define stale-data threshold for demo.
+- [ ] Display `Community submitted`.
+- [ ] Display `Confirmed by multiple users` when supported.
+- [ ] Display `Township/venue verified` when supported.
+- [ ] Display `Accessibility unknown`.
+- [ ] Display last-verified time.
+- [ ] Add stale-data warning.
+- [ ] Add temporary report expiry behavior.
+- [ ] Ensure confidence is not presented as probability of personal safety.
+
+## Phase 11 — Motion and interaction polish
+
+### Skill workflow
+
+- [ ] Read `animation-vocabulary/SKILL.md`.
+- [ ] Read `animate-expo/SKILL.md`.
+- [ ] Read `animate/SKILL.md`.
+- [ ] Run `find-animation-opportunities`.
+- [ ] Implement only high-value animation opportunities.
+- [ ] Run `improve-animations`.
+- [ ] Run `review-animations`.
+
+### Candidate interactions
+
+- [ ] Profile-switch transition.
+- [ ] Route-line emphasis transition.
+- [ ] Route comparison sheet transition.
+- [ ] Route card selection feedback.
+- [ ] Barrier report success feedback.
+- [ ] Community post save/confirm feedback.
+- [ ] Haptics only where useful.
+- [ ] Respect Reduce Motion.
+- [ ] Verify motion does not block input.
+
+## Phase 12 — Accessibility and UI stress testing
+
+- [ ] Apply `break-ui` again to all core screens.
+- [ ] Screen reader labels on profile controls.
+- [ ] Screen reader labels on route cards.
+- [ ] Screen reader labels on map-related actions.
+- [ ] Large text does not clip critical content.
+- [ ] 44×44 minimum touch targets.
+- [ ] Non-colour route/verification indicators.
+- [ ] Keyboard does not cover fields/actions.
+- [ ] Small-screen layout works.
+- [ ] Long destination names work.
+- [ ] Long community route notes work.
+- [ ] Offline/API-down state works.
+- [ ] Permission-denied state works.
+- [ ] Unknown-data state works.
+- [ ] No-route state works.
+- [ ] Empty Community state works.
+- [ ] Photo upload failure works.
+
+## Phase 13 — Demo scenarios and hardening
+
+### Scenario A — Night route
+
+- [ ] Seed deterministic start/destination.
+- [ ] Fastest route is shorter.
+- [ ] Safer-at-Night route is longer but better lit/public.
+- [ ] Explanation displays the actual trade-off.
+- [ ] Confidence/freshness is visible.
+
+### Scenario B — Step-free route
+
+- [ ] Fastest path contains stairs.
+- [ ] Step-Free excludes stairs.
+- [ ] Accessible alternative is visibly different.
+- [ ] Explain why the alternative was chosen.
+
+### Scenario C — Community update
+
+- [ ] Create/share a community route.
+- [ ] Submit a temporary barrier report.
+- [ ] New submission is visibly unverified.
+- [ ] Community screen reflects the change.
+
+### Recovery
+
+- [ ] Create deterministic demo seed/reset command.
+- [ ] Document demo reset procedure.
+- [ ] Add API-offline demo fallback only if needed.
+- [ ] Clearly label fallback data as demo/simulated.
+
+## Phase 14 — Final quality gates
+
+- [ ] Mobile lint passes.
+- [ ] Mobile typecheck passes.
+- [ ] Mobile tests pass.
+- [ ] API Ruff passes.
+- [ ] API Pytest passes.
+- [ ] API health endpoint passes.
+- [ ] Route API contract test passes.
+- [ ] Fresh-start README instructions verified by another team member.
+- [ ] No secrets committed.
+- [ ] No full IC field anywhere.
+- [ ] No UI text guarantees route safety.
+- [ ] No missing accessibility field is shown as accessible.
+- [ ] No community submission is auto-labelled verified.
+- [ ] Known limitations documented.
+- [ ] Demo screenshots captured.
+- [ ] Five-minute demo rehearsed.
+- [ ] `PLAN.md` Outcomes & Retrospective updated.
+- [ ] `TODOLIST.md` reflects actual final scope.
+
+## Stretch goals — only after the MVP is stable
+
+- [ ] Age-Friendly route profile.
+- [ ] Covered/shaded routing using verified data.
+- [ ] Rain/heat-aware route preferences.
+- [ ] Indoor waypoint navigation.
+- [ ] Live elevator status integration.
+- [ ] Operator dashboard.
+- [ ] Aggregated infrastructure issue heatmap.
+- [ ] Contributor reputation.
+- [ ] AI-assisted photo tagging with human verification.
+- [ ] Haptic turn-by-turn guidance.
+- [ ] Screen-reader-first navigation mode.
+- [ ] Multilingual UI.
