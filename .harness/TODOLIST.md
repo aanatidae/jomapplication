@@ -146,45 +146,47 @@ Verified 2026-10-16: centralized native tokens and all required primitives exist
 
 ### Pilot data
 
-- [ ] Create deterministic simulated pilot graph fixture.
-- [ ] Clearly mark simulated fixture as demo data.
-- [ ] Add nodes for intersections/entrances/ramps/elevators/crossings.
-- [ ] Add at least three alternative paths for one demo trip.
-- [ ] Add a shortest-time path.
-- [ ] Add a longer better-lit/public path.
-- [ ] Add a step-free path.
-- [ ] Add at least one stairs edge.
-- [ ] Add at least one closed/blocked edge fixture.
-- [ ] Add at least one unknown-accessibility edge.
-- [ ] Add verification/confidence metadata.
+- [x] Create deterministic simulated pilot graph fixture.
+- [x] Clearly mark simulated fixture as demo data.
+- [x] Add nodes for intersections/entrances/ramps/elevators/crossings.
+- [x] Add at least three alternative paths for one demo trip.
+- [x] Add a shortest-time path.
+- [x] Add a longer better-lit/public path.
+- [x] Add a step-free path.
+- [x] Add at least one stairs edge.
+- [x] Add at least one closed/blocked edge fixture.
+- [x] Add at least one unknown-accessibility edge.
+- [x] Add verification/confidence metadata.
 
 ### Routing modules
 
-- [ ] Implement graph loader.
-- [ ] Implement route-profile configuration.
-- [ ] Implement normalized edge penalties.
-- [ ] Implement `is_edge_allowed`.
-- [ ] Implement `edge_cost`.
-- [ ] Implement Fastest profile.
-- [ ] Implement Safer-at-Night profile.
-- [ ] Implement Step-Free profile.
-- [ ] Implement route generation.
-- [ ] Implement route ranking.
-- [ ] Implement route reason generation.
-- [ ] Implement route warning generation.
-- [ ] Implement confidence calculation.
-- [ ] Implement deterministic tie-breaking.
+- [x] Implement graph loader.
+- [x] Implement route-profile configuration.
+- [x] Implement normalized edge penalties.
+- [x] Implement `is_edge_allowed`.
+- [x] Implement `edge_cost`.
+- [x] Implement Fastest profile.
+- [x] Implement Safer-at-Night profile.
+- [x] Implement Step-Free profile.
+- [x] Implement route generation.
+- [x] Implement route ranking.
+- [x] Implement route reason generation.
+- [x] Implement route warning generation.
+- [x] Implement confidence calculation.
+- [x] Implement deterministic tie-breaking.
 
 ### Routing tests
 
-- [ ] Test Fastest chooses shortest ETA.
-- [ ] Test Safer at Night chooses better-lit route in demo scenario.
-- [ ] Test Step-Free excludes stairs.
-- [ ] Test closed path exclusion.
-- [ ] Test unknown accessibility reduces confidence.
-- [ ] Test route reasons reflect real edge attributes.
-- [ ] Test deterministic output for ties.
-- [ ] Test impossible route returns clear domain error.
+- [x] Test Fastest chooses shortest ETA.
+- [x] Test Safer at Night chooses better-lit route in demo scenario.
+- [x] Test Step-Free excludes stairs.
+- [x] Test closed path exclusion.
+- [x] Test unknown accessibility reduces confidence.
+- [x] Test route reasons reflect real edge attributes.
+- [x] Test deterministic output for ties.
+- [x] Test impossible route returns clear domain error.
+
+Verified 2026-10-16: versioned SIMULATED_DEMO graph (11 nodes / 14 directed segments), strict loader, centralized prototype weights, exposure-normalized costs, NetworkX Yen candidates, deterministic cost/time/distance/segment-ID ties, hard traversal/accessibility constraints, derived reasons, warnings and weakest-edge data confidence. Same trip selects A=8min/600m, B=10min/720m, C=12min/830m in inspected offline CLI output. Unknown attributes stay unknown; Step-Free never silently falls back through stairs/unknown transitions. Ruff passes; Pytest 92 passed (89 new routing + 3 existing); mobile lint/typecheck/14 tests pass. Evidence and exact formulas: `docs/demo/route-fixture-notes.md` and `docs/demo/phase3-routing-results.txt`. Internal result/profile models exist; public HTTP contracts, /v1/routes and mobile integration remain later phases. No dependencies changed, no commit/push.
 
 ## Phase 4 — Routing API
 

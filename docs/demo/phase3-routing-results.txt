@@ -1,0 +1,33 @@
+SIMULATED / DEMO - local metre coordinates; not real-world guidance
+
+FASTEST
+8 min / 600 m
+transit_stop -> stairs_junction -> residential_block
+Shortest travel time
+Contains stairs
+Accessible entrance recorded
+Data confidence: High; as of 2026-10-16 12:00:00+00:00
+
+SAFER_AT_NIGHT
+10 min / 720 m
+transit_stop -> community_plaza -> security_post -> residential_block
++2 min vs fastest
+Better lighting than fastest
+Passes active public areas
+Near a verified staffed security/public point
+No stairs recorded
+Avoids staircase on fastest route
+Data confidence: Medium; as of 2026-10-16 12:00:00+00:00
+Data warning: Accessibility information incomplete on 2 segment(s)
+
+STEP_FREE
+12 min / 830 m
+transit_stop -> ramp -> curb_crossing -> mall_entrance -> residential_block
++4 min vs fastest
+Better lighting than fastest
+No stairs recorded
+Avoids staircase on fastest route
+Uses ramp
+Uses curb cuts
+Accessible entrance recorded
+Data confidence: High; as of 2026-10-16 12:00:00+00:00

@@ -1,0 +1,603 @@
+{
+  "schema_version": 1,
+  "dataset_id": "jom_simulated_pilot_v1",
+  "data_kind": "SIMULATED_DEMO",
+  "description": "Entirely synthetic pedestrian graph for offline algorithm demonstrations. All attributes and venue verification states are simulated; no geographic or real-world safety/accessibility claims.",
+  "coordinate_system": "local_metres_not_geographic",
+  "reference_time": "2026-10-16T12:00:00Z",
+  "demo_origin": "transit_stop",
+  "demo_destination": "residential_block",
+  "nodes": [
+    {
+      "id": "transit_stop",
+      "name": "Transit Stop",
+      "kind": "transit",
+      "coordinates": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "stairs_junction",
+      "name": "Stair Junction",
+      "kind": "intersection",
+      "coordinates": [
+        200,
+        0
+      ]
+    },
+    {
+      "id": "community_plaza",
+      "name": "Community Plaza",
+      "kind": "plaza",
+      "coordinates": [
+        0,
+        180
+      ]
+    },
+    {
+      "id": "security_post",
+      "name": "Security Post",
+      "kind": "security",
+      "coordinates": [
+        200,
+        120
+      ]
+    },
+    {
+      "id": "ramp",
+      "name": "Ramp Connection",
+      "kind": "ramp",
+      "coordinates": [
+        0,
+        -150
+      ]
+    },
+    {
+      "id": "curb_crossing",
+      "name": "Curb Crossing",
+      "kind": "crossing",
+      "coordinates": [
+        160,
+        -150
+      ]
+    },
+    {
+      "id": "mall_entrance",
+      "name": "Mall Entrance",
+      "kind": "entrance",
+      "coordinates": [
+        280,
+        -100
+      ]
+    },
+    {
+      "id": "residential_block",
+      "name": "Residential Block",
+      "kind": "entrance",
+      "coordinates": [
+        400,
+        0
+      ]
+    },
+    {
+      "id": "park_gate",
+      "name": "Park Gate",
+      "kind": "park",
+      "coordinates": [
+        200,
+        300
+      ]
+    },
+    {
+      "id": "elevator",
+      "name": "Elevator Connection",
+      "kind": "elevator",
+      "coordinates": [
+        200,
+        100
+      ]
+    },
+    {
+      "id": "disconnected_gate",
+      "name": "Disconnected Gate",
+      "kind": "park",
+      "coordinates": [
+        1000,
+        1000
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "segment_id": "a1",
+      "start_node": "transit_stop",
+      "end_node": "stairs_junction",
+      "geometry": [
+        [
+          0,
+          0
+        ],
+        [
+          200,
+          0
+        ]
+      ],
+      "distance_m": 300,
+      "estimated_time_s": 240,
+      "lighting_score": 0.2,
+      "crossing_score": 0.5,
+      "visibility_activity_score": 0.2,
+      "security_facility_distance_m": 500,
+      "security_facility_verified": true,
+      "stairs": false,
+      "ramp": false,
+      "curb_cut": false,
+      "slope_percent": 2,
+      "width_category": "standard",
+      "surface_quality": "firm",
+      "elevator_required": false,
+      "accessible_entrance": true,
+      "is_closed": false,
+      "source": "synthetic_fixture_author",
+      "verification_level": "venue_verified",
+      "confidence_score": 0.95,
+      "last_updated_at": "2026-10-13T12:00:00Z"
+    },
+    {
+      "segment_id": "a2",
+      "start_node": "stairs_junction",
+      "end_node": "residential_block",
+      "geometry": [
+        [
+          200,
+          0
+        ],
+        [
+          400,
+          0
+        ]
+      ],
+      "distance_m": 300,
+      "estimated_time_s": 240,
+      "lighting_score": 0.2,
+      "crossing_score": 0.5,
+      "visibility_activity_score": 0.2,
+      "security_facility_distance_m": 500,
+      "security_facility_verified": true,
+      "stairs": true,
+      "ramp": false,
+      "curb_cut": false,
+      "slope_percent": 12,
+      "width_category": "standard",
+      "surface_quality": "firm",
+      "elevator_required": false,
+      "accessible_entrance": true,
+      "is_closed": false,
+      "source": "synthetic_fixture_author",
+      "verification_level": "venue_verified",
+      "confidence_score": 0.95,
+      "last_updated_at": "2026-10-13T12:00:00Z"
+    },
+    {
+      "segment_id": "b1",
+      "start_node": "transit_stop",
+      "end_node": "community_plaza",
+      "geometry": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          180
+        ]
+      ],
+      "distance_m": 240,
+      "estimated_time_s": 200,
+      "lighting_score": 0.95,
+      "crossing_score": 0.9,
+      "visibility_activity_score": 0.9,
+      "security_facility_distance_m": 50,
+      "security_facility_verified": true,
+      "stairs": false,
+      "ramp": false,
+      "curb_cut": false,
+      "slope_percent": null,
+      "width_category": "standard",
+      "surface_quality": "firm",
+      "elevator_required": false,
+      "accessible_entrance": true,
+      "is_closed": false,
+      "source": "synthetic_fixture_author",
+      "verification_level": "venue_verified",
+      "confidence_score": 0.95,
+      "last_updated_at": "2026-10-13T12:00:00Z"
+    },
+    {
+      "segment_id": "b2",
+      "start_node": "community_plaza",
+      "end_node": "security_post",
+      "geometry": [
+        [
+          0,
+          180
+        ],
+        [
+          200,
+          120
+        ]
+      ],
+      "distance_m": 240,
+      "estimated_time_s": 200,
+      "lighting_score": 0.95,
+      "crossing_score": 0.9,
+      "visibility_activity_score": 0.9,
+      "security_facility_distance_m": 50,
+      "security_facility_verified": true,
+      "stairs": false,
+      "ramp": false,
+      "curb_cut": false,
+      "slope_percent": 2,
+      "width_category": "standard",
+      "surface_quality": "firm",
+      "elevator_required": false,
+      "accessible_entrance": true,
+      "is_closed": false,
+      "source": "synthetic_fixture_author",
+      "verification_level": "venue_verified",
+      "confidence_score": 0.95,
+      "last_updated_at": "2026-10-13T12:00:00Z"
+    },
+    {
+      "segment_id": "b3",
+      "start_node": "security_post",
+      "end_node": "residential_block",
+      "geometry": [
+        [
+          200,
+          120
+        ],
+        [
+          400,
+          0
+        ]
+      ],
+      "distance_m": 240,
+      "estimated_time_s": 200,
+      "lighting_score": 0.95,
+      "crossing_score": 0.9,
+      "visibility_activity_score": 0.9,
+      "security_facility_distance_m": 50,
+      "security_facility_verified": true,
+      "stairs": false,
+      "ramp": false,
+      "curb_cut": false,
+      "slope_percent": 2,
+      "width_category": "standard",
+      "surface_quality": "firm",
+      "elevator_required": false,
+      "accessible_entrance": null,
+      "is_closed": false,
+      "source": "synthetic_fixture_author",
+      "verification_level": "venue_verified",
+      "confidence_score": 0.95,
+      "last_updated_at": "2026-10-13T12:00:00Z"
+    },
+    {
+      "segment_id": "c1",
+      "start_node": "transit_stop",
+      "end_node": "ramp",
+      "geometry": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          -150
+        ]
+      ],
+      "distance_m": 200,
+      "estimated_time_s": 180,
+      "lighting_score": 0.6,
+      "crossing_score": 0.7,
+      "visibility_activity_score": 0.5,
+      "security_facility_distance_m": 500,
+      "security_facility_verified": true,
+      "stairs": false,
+      "ramp": true,
+      "curb_cut": false,
+      "slope_percent": 3,
+      "width_category": "wide",
+      "surface_quality": "smooth",
+      "elevator_required": false,
+      "accessible_entrance": true,
+      "is_closed": false,
+      "source": "synthetic_fixture_author",
+      "verification_level": "venue_verified",
+      "confidence_score": 0.95,
+      "last_updated_at": "2026-10-13T12:00:00Z"
+    },
+    {
+      "segment_id": "c2",
+      "start_node": "ramp",
+      "end_node": "curb_crossing",
+      "geometry": [
+        [
+          0,
+          -150
+        ],
+        [
+          160,
+          -150
+        ]
+      ],
+      "distance_m": 210,
+      "estimated_time_s": 180,
+      "lighting_score": 0.6,
+      "crossing_score": 0.7,
+      "visibility_activity_score": 0.5,
+      "security_facility_distance_m": 500,
+      "security_facility_verified": true,
+      "stairs": false,
+      "ramp": false,
+      "curb_cut": true,
+      "slope_percent": 2,
+      "width_category": "wide",
+      "surface_quality": "smooth",
+      "elevator_required": false,
+      "accessible_entrance": true,
+      "is_closed": false,
+      "source": "synthetic_fixture_author",
+      "verification_level": "venue_verified",
+      "confidence_score": 0.95,
+      "last_updated_at": "2026-10-13T12:00:00Z"
+    },
+    {
+      "segment_id": "c3",
+      "start_node": "curb_crossing",
+      "end_node": "mall_entrance",
+      "geometry": [
+        [
+          160,
+          -150
+        ],
+        [
+          280,
+          -100
+        ]
+      ],
+      "distance_m": 200,
+      "estimated_time_s": 180,
+      "lighting_score": 0.6,
+      "crossing_score": 0.7,
+      "visibility_activity_score": 0.5,
+      "security_facility_distance_m": 500,
+      "security_facility_verified": true,
+      "stairs": false,
+      "ramp": false,
+      "curb_cut": true,
+      "slope_percent": 2,
+      "width_category": "wide",
+      "surface_quality": "smooth",
+      "elevator_required": false,
+      "accessible_entrance": true,
+      "is_closed": false,
+      "source": "synthetic_fixture_author",
+      "verification_level": "venue_verified",
+      "confidence_score": 0.95,
+      "last_updated_at": "2026-10-13T12:00:00Z"
+    },
+    {
+      "segment_id": "c4",
+      "start_node": "mall_entrance",
+      "end_node": "residential_block",
+      "geometry": [
+        [
+          280,
+          -100
+        ],
+        [
+          400,
+          0
+        ]
+      ],
+      "distance_m": 220,
+      "estimated_time_s": 180,
+      "lighting_score": 0.6,
+      "crossing_score": 0.7,
+      "visibility_activity_score": 0.5,
+      "security_facility_distance_m": 500,
+      "security_facility_verified": true,
+      "stairs": false,
+      "ramp": false,
+      "curb_cut": false,
+      "slope_percent": 2,
+      "width_category": "wide",
+      "surface_quality": "smooth",
+      "elevator_required": false,
+      "accessible_entrance": true,
+      "is_closed": false,
+      "source": "synthetic_fixture_author",
+      "verification_level": "venue_verified",
+      "confidence_score": 0.95,
+      "last_updated_at": "2026-10-13T12:00:00Z"
+    },
+    {
+      "segment_id": "closed_shortcut",
+      "start_node": "transit_stop",
+      "end_node": "residential_block",
+      "geometry": [
+        [
+          0,
+          0
+        ],
+        [
+          400,
+          0
+        ]
+      ],
+      "distance_m": 90,
+      "estimated_time_s": 60,
+      "lighting_score": 0.2,
+      "crossing_score": 0.5,
+      "visibility_activity_score": 0.2,
+      "security_facility_distance_m": 500,
+      "security_facility_verified": true,
+      "stairs": false,
+      "ramp": false,
+      "curb_cut": false,
+      "slope_percent": 2,
+      "width_category": "standard",
+      "surface_quality": "firm",
+      "elevator_required": false,
+      "accessible_entrance": true,
+      "is_closed": true,
+      "source": "synthetic_fixture_author",
+      "verification_level": "venue_verified",
+      "confidence_score": 0.95,
+      "last_updated_at": "2026-10-13T12:00:00Z"
+    },
+    {
+      "segment_id": "u1",
+      "start_node": "transit_stop",
+      "end_node": "park_gate",
+      "geometry": [
+        [
+          0,
+          0
+        ],
+        [
+          200,
+          300
+        ]
+      ],
+      "distance_m": 450,
+      "estimated_time_s": 420,
+      "lighting_score": null,
+      "crossing_score": 0.5,
+      "visibility_activity_score": 0.2,
+      "security_facility_distance_m": 500,
+      "security_facility_verified": false,
+      "ramp": false,
+      "curb_cut": false,
+      "slope_percent": null,
+      "width_category": "standard",
+      "surface_quality": "firm",
+      "elevator_required": false,
+      "accessible_entrance": null,
+      "is_closed": false,
+      "source": "synthetic_community_report",
+      "verification_level": "community",
+      "confidence_score": 0.3,
+      "last_updated_at": "2026-07-01T12:00:00Z"
+    },
+    {
+      "segment_id": "u2",
+      "start_node": "park_gate",
+      "end_node": "residential_block",
+      "geometry": [
+        [
+          200,
+          300
+        ],
+        [
+          400,
+          0
+        ]
+      ],
+      "distance_m": 450,
+      "estimated_time_s": 420,
+      "lighting_score": null,
+      "crossing_score": 0.5,
+      "visibility_activity_score": 0.2,
+      "security_facility_distance_m": 500,
+      "security_facility_verified": false,
+      "stairs": null,
+      "ramp": false,
+      "curb_cut": false,
+      "slope_percent": null,
+      "width_category": "standard",
+      "surface_quality": "firm",
+      "elevator_required": false,
+      "accessible_entrance": null,
+      "is_closed": false,
+      "source": "synthetic_community_report",
+      "verification_level": "community",
+      "confidence_score": 0.3,
+      "last_updated_at": "2026-07-01T12:00:00Z"
+    },
+    {
+      "segment_id": "lift1",
+      "start_node": "transit_stop",
+      "end_node": "elevator",
+      "geometry": [
+        [
+          0,
+          0
+        ],
+        [
+          200,
+          100
+        ]
+      ],
+      "distance_m": 100,
+      "estimated_time_s": 60,
+      "lighting_score": 0.2,
+      "crossing_score": 0.5,
+      "visibility_activity_score": 0.2,
+      "security_facility_distance_m": 500,
+      "security_facility_verified": true,
+      "stairs": false,
+      "ramp": false,
+      "curb_cut": false,
+      "slope_percent": 2,
+      "width_category": "standard",
+      "surface_quality": "firm",
+      "elevator_required": true,
+      "accessible_entrance": true,
+      "is_closed": false,
+      "source": "synthetic_fixture_author",
+      "verification_level": "venue_verified",
+      "confidence_score": 0.95,
+      "last_updated_at": "2026-10-13T12:00:00Z",
+      "elevator_status": "out_of_service"
+    },
+    {
+      "segment_id": "lift2",
+      "start_node": "elevator",
+      "end_node": "residential_block",
+      "geometry": [
+        [
+          200,
+          100
+        ],
+        [
+          400,
+          0
+        ]
+      ],
+      "distance_m": 100,
+      "estimated_time_s": 60,
+      "lighting_score": 0.2,
+      "crossing_score": 0.5,
+      "visibility_activity_score": 0.2,
+      "security_facility_distance_m": 500,
+      "security_facility_verified": true,
+      "stairs": false,
+      "ramp": false,
+      "curb_cut": false,
+      "slope_percent": 2,
+      "width_category": "standard",
+      "surface_quality": "firm",
+      "elevator_required": false,
+      "accessible_entrance": true,
+      "is_closed": false,
+      "source": "synthetic_fixture_author",
+      "verification_level": "venue_verified",
+      "confidence_score": 0.95,
+      "last_updated_at": "2026-10-13T12:00:00Z"
+    }
+  ]
+}
