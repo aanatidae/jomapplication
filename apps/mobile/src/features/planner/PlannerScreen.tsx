@@ -1,3 +1,7 @@
+import { setReportRoute } from '../barriers/model';
+import { router } from 'expo-router';
+import { SecondaryButton } from '../../components/Buttons';
+import { setSharePath } from '../community/data';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { theme, type } from '../../theme/tokens';
@@ -27,6 +31,18 @@ export function PlannerScreen() {
         <RouteProfileChip key={profile} route={{ mode: profileLabels[profile] }} selected={planner.selectedProfile === profile}
           onPress={() => planner.setProfile(profile)} />)}
     </View>
+    {planner.selectedRoute && <View style={styles.priority}><SecondaryButton label="Share selected route" onPress={() => {
+      const selected = routes.find(r => r.id === planner.selectedRoute?.id);
+      if (!selected) return;
+      setSharePath({ id: selected.id, label: selected.mode, origin: planner.origin, destination: planner.destination, geometry: selected.geometry, distanceM: selected.distance, durationMinutes: selected.minutes, coordinateSystem: 'schematic_demo' });
+      router.push('/share-route');
+    }}/></View>}
+    <View style={styles.priority}><SecondaryButton label="Report Barrier" onPress={() => {
+      const selected = routes.find(r => r.id === planner.selectedRoute?.id);
+      setReportRoute(selected ? { id: selected.id, label: selected.mode, origin: planner.origin, destination: planner.destination, geometry: selected.geometry, distanceM: selected.distance, durationMinutes: selected.minutes, coordinateSystem: 'schematic_demo' } : null);
+      router.push('/report-barrier');
+    }}/><SecondaryButton label="Local reports" onPress={() => router.push('/barrier-reports')}/></View>
+    {planner.status === 'empty' && <Text style={[type.caption, { padding: theme.space.md }]}>Your saved preferences may limit available routes. You can adjust them in Profile.</Text>}
     {planner.status === 'ready' ? <RouteComparisonSheet routes={routes} selected={planner.selectedRoute?.id ?? ''}
       onSelect={planner.selectRoute} expanded={expanded} onToggle={() => setExpanded(v => !v)} hideProfiles /> :
       <ApiPlannerState status={planner.status} error={planner.error?.kind} profile={planner.selectedProfile} onRetry={planner.retry} />}

@@ -10,6 +10,12 @@ from .confidence import compute_route_confidence
 from .errors import NoRouteError, RoutingInputError, SearchLimitError
 from .explanations import build_route_reasons, verification_summary
 from .models import Edge, RouteProfile, RouteResult
+from .preferences import (
+    DEFAULT_PREFERENCES,
+    RoutingPreferences,
+    preference_allowed,
+    preference_cost,
+)
 from .profiles import COST_SCALE, MAX_CANDIDATES, PROFILES
 from .scoring import edge_cost, is_edge_allowed
 
@@ -32,6 +38,7 @@ def _weighted_graph(
     as_of: datetime,
     entrances: frozenset[str],
     crossings: frozenset[str],
+    preferences: RoutingPreferences = DEFAULT_PREFERENCES,
 ) -> nx.DiGraph:
     weighted = nx.DiGraph()
     weighted.add_nodes_from(sorted(graph.nodes))
@@ -40,9 +47,20 @@ def _weighted_graph(
         edge = data["record"]
         entrance = edge.segment_id in entrances
         crossing = edge.segment_id in crossings
-        if is_edge_allowed(edge, config, entrance, crossing):
+        if is_edge_allowed(edge, config, entrance, crossing) and preference_allowed(
+            edge, preferences
+        ):
             # Integer nanocosts make equal-cost groups exact; result cost is in normalized units.
-            units = max(1, round(edge_cost(edge, config, as_of, entrance, crossing) * COST_SCALE))
+            units = max(
+                1,
+                round(
+                    (
+                        edge_cost(edge, config, as_of, entrance, crossing)
+                        + preference_cost(edge, preferences)
+                    )
+                    * COST_SCALE
+                ),
+            )
             weighted.add_edge(a, b, cost=units, time=edge.estimated_time_s)
     return weighted
 
@@ -94,6 +112,7 @@ def compute_routes(
     *,
     max_results: int = 3,
     as_of: datetime | None = None,
+    preferences: RoutingPreferences = DEFAULT_PREFERENCES,
 ) -> tuple[RouteResult, ...]:
     """Accept a loader-produced graph. Demo time defaults to the dataset's fixed reference."""
     if origin not in graph or destination not in graph or origin == destination:
@@ -122,7 +141,12 @@ def compute_routes(
         if config.max_time_ratio is not None
         else None
     )
-    weighted = _weighted_graph(graph, profile, as_of, entrances, crossings)
+    if preferences.max_detour_minutes is not None:
+        preference_cap = (
+            sum(e.estimated_time_s for e in baseline) + preferences.max_detour_minutes * 60
+        )
+        cap = min(cap, preference_cap) if cap is not None else preference_cap
+    weighted = _weighted_graph(graph, profile, as_of, entrances, crossings, preferences)
     paths = _ranked_candidates(weighted, graph, origin, destination, max_results, cap)
     return tuple(
         _result(graph, weighted, path, profile, baseline, as_of, entrances, crossings)

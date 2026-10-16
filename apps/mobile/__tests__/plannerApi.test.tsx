@@ -104,3 +104,13 @@ it('keeps Step-Free selected when no verified path exists', async () => {
   expect(screen.getByRole('radio', { name: 'Step-Free', checked: true })).toBeTruthy();
   expect(screen.getByRole('image').props.accessibilityLabel).toContain('No route is displayed');
 });
+
+it('includes saved supported preferences in the typed routing request', async () => {
+  const { PreferencesProvider } = require('../src/features/preferences/PreferencesProvider');
+  const { preferenceRepository } = require('../src/features/preferences/repository');
+  const { defaultPreferences } = require('../src/features/preferences/model');
+  await preferenceRepository.save({ onboardingCompleted: true, preferences: { ...defaultPreferences, avoidStairs: true, preferWellLit: true } });
+  render(<PreferencesProvider><PlannerScreen/></PreferencesProvider>);
+  await screen.findByText('Fastest · Option 1');
+  expect(JSON.parse(fetcher.mock.calls[0][1].body).preferences).toMatchObject({ avoid_stairs: true, prefer_well_lit: true });
+});

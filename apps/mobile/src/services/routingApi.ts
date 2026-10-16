@@ -1,8 +1,8 @@
 export type RouteProfile = 'fastest' | 'safer_at_night' | 'step_free';
 export type RoutePoint = { node_id: string };
 export type RoutePreferences = {
-  prefer_well_lit?: null; avoid_stairs?: null; avoid_steep_slopes?: null;
-  prefer_public_areas?: null; prefer_covered_paths?: null; max_detour_minutes?: null;
+  prefer_well_lit?: boolean; avoid_stairs?: boolean; avoid_steep_slopes?: boolean;
+  prefer_public_areas?: boolean; max_detour_minutes?: number;
 };
 export type RouteRequest = {
   origin: RoutePoint; destination: RoutePoint; profile: RouteProfile;

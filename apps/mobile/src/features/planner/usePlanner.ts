@@ -1,3 +1,5 @@
+import { usePreferences } from '../preferences/PreferencesProvider';
+import { toRoutePreferences } from '../preferences/model';
 import { useEffect, useRef, useState } from 'react';
 import { planRoutes, RoutingApiError, type RouteOption, type RouteProfile, type RouteResponse } from '../../services/routingApi';
 
@@ -10,6 +12,8 @@ export const profileLabels: Record<RouteProfile, string> = {
 };
 type Result = { key: string; status: 'loading' | 'ready' | 'empty' | 'error'; routes: RouteOption[]; error?: RoutingApiError };
 export function usePlanner() {
+  const { preferences } = usePreferences();
+  const preferenceKey = JSON.stringify(toRoutePreferences(preferences));
   const [origin, setOrigin] = useState('Transit Stop');
   const [destination, setDestination] = useState('Residential Block');
   const [selectedProfile, setProfile] = useState<RouteProfile>('fastest');
@@ -17,15 +21,15 @@ export function usePlanner() {
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState<Result>({ key: '', status: 'loading', routes: [] });
   const cache = useRef(new Map<string, RouteResponse>());
-  const key = `${origin}|${destination}|${selectedProfile}|${attempt}`;
-  const cacheKey = `${origin}|${destination}|${selectedProfile}`;
+  const key = `${origin}|${destination}|${selectedProfile}|${preferenceKey}|${attempt}`;
+  const cacheKey = `${origin}|${destination}|${selectedProfile}|${preferenceKey}`;
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
     if (origin === destination) return () => { active = false; controller.abort(); };
     const cached = cache.current.get(cacheKey);
     const request = cached ? Promise.resolve(cached) : planRoutes({
-      origin: { node_id: pilotPlaces[origin] }, destination: { node_id: pilotPlaces[destination] }, profile: selectedProfile,
+      origin: { node_id: pilotPlaces[origin] }, destination: { node_id: pilotPlaces[destination] }, profile: selectedProfile, preferences: JSON.parse(preferenceKey),
     }, { signal: controller.signal });
     request.then(response => {
       if (!active) return;
@@ -38,7 +42,7 @@ export function usePlanner() {
       setResult({ key, status: failure.kind === 'no_route' ? 'empty' : 'error', routes: [], error: failure });
     });
     return () => { active = false; controller.abort(); };
-  }, [key, cacheKey, origin, destination, selectedProfile]);
+  }, [key, cacheKey, origin, destination, selectedProfile, preferenceKey]);
   const current: Result = origin === destination ? { key, status: 'empty', routes: [] } :
     result.key === key ? result : { key, status: 'loading', routes: [] };
   const selectedRoute = current.routes.find(r => r.id === selectedId) ?? current.routes[0];

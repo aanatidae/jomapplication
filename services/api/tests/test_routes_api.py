@@ -69,7 +69,7 @@ def test_coordinates_and_unimplemented_preferences_are_rejected():
     body["origin"] = {"latitude": 3, "longitude": 101}
     assert client.post("/v1/routes", json=body).status_code == 422
     body = payload()
-    body["preferences"] = {"avoid_stairs": True}
+    body["preferences"] = {"prefer_covered_paths": True}
     assert client.post("/v1/routes", json=body).status_code == 422
 
 

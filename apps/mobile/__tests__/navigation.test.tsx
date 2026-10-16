@@ -19,14 +19,15 @@ const routes = {
   profile: ProfileScreen,
 };
 
-it('opens Planner and lets users visit Community, Profile, and return to Planner', () => {
+it('opens Planner and lets users visit Community, Profile, and return to Planner', async () => {
   const result = renderRouter(routes, { initialUrl: '/' });
   expect(screen.getByRole('header', { name: 'Planner' })).toBeTruthy();
   expect(screen.getByRole('tab', { name: 'Planner', selected: true })).toBeTruthy();
 
   fireEvent.press(screen.getByRole('tab', { name: 'Community' }));
   expect(result.getPathname()).toBe('/community');
-  expect(screen.getByRole('header', { name: 'Community' })).toBeTruthy();
+  expect(await screen.findByRole('header', { name: 'Community' })).toBeTruthy();
+  await screen.findByText('Local knowledge for your next walk.');
 
   fireEvent.press(screen.getByRole('tab', { name: 'Profile' }));
   expect(result.getPathname()).toBe('/profile');
@@ -37,8 +38,9 @@ it('opens Planner and lets users visit Community, Profile, and return to Planner
   expect(screen.getByRole('header', { name: 'Planner' })).toBeTruthy();
 });
 
-it.each(['/community', '/profile'])('supports opening %s directly', (initialUrl) => {
+it.each(['/community', '/profile'])('supports opening %s directly', async (initialUrl) => {
   const result = renderRouter(routes, { initialUrl });
   expect(result.getPathname()).toBe(initialUrl);
   expect(screen.getAllByRole('tab')).toHaveLength(3);
+  if (initialUrl === '/community') await screen.findByText('Local knowledge for your next walk.');
 });

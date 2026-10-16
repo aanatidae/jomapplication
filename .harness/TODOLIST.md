@@ -256,59 +256,65 @@ Verified 2026-10-16: Phase 4 passed independently before mobile integration. Fin
 
 ## Phase 6 — Onboarding and preferences
 
-- [ ] Design onboarding with explicit user needs.
-- [ ] Add “prefer well-lit paths”.
-- [ ] Add “avoid isolated routes” if supported by data.
-- [ ] Add “avoid stairs”.
-- [ ] Add “avoid steep slopes”.
-- [ ] Add “prefer ramps/elevators”.
-- [ ] Add “prefer covered/shaded paths”.
-- [ ] Add “prefer active/public areas”.
-- [ ] Add maximum acceptable detour.
-- [ ] Add optional age bracket only if retained.
-- [ ] Do not add full IC number.
-- [ ] Persist preferences locally.
-- [ ] Add editable Profile preferences screen.
-- [ ] Feed applicable preferences into routing request.
-- [ ] Add Custom profile if P0 routing remains stable.
+- [x] Design onboarding with explicit user needs.
+- [x] Add “prefer well-lit paths”.
+- [ ] Add “avoid isolated routes” if supported by data. Deferred: no supported isolated-path attribute; prefer active/public areas is available.
+- [x] Add “avoid stairs”.
+- [x] Add “avoid steep slopes”.
+- [x] Add “prefer ramps/elevators”.
+- [x] Add “prefer covered/shaded paths”.
+- [x] Add “prefer active/public areas”.
+- [x] Add maximum acceptable detour.
+- [ ] Add optional age bracket only if retained. Omitted: direct needs suffice; no demographic information is collected.
+- [x] Do not add full IC number.
+- [x] Persist preferences locally.
+- [x] Add editable Profile preferences screen.
+- [x] Feed applicable preferences into routing request.
+- [ ] Add Custom profile if P0 routing remains stable. Deferred: preserve three public profile contracts; supported preferences already apply across them.
+
+Verified Phase 6 (2026-10-16): three-step onboarding, back/skip/reset, centralized needs model, AsyncStorage completion/settings and restart persistence, editable Profile, mapped supported preferences and preference-aware cache. No IC/age data; covered/shaded and ramps/elevators labelled inactive. Custom/isolated/age conditional items intentionally unchecked. Required acceptance is complete. Final lint/types/65 mobile tests; API Ruff/119 tests; Android first-run/restart/real routing and 320dp/200% QA. See docs/demo/phase678/results.md.
 
 ## Phase 7 — Community route sharing
 
-- [ ] Design Community feed.
-- [ ] Build community route card.
-- [ ] Build route detail.
-- [ ] Build Share Route form.
-- [ ] Add route title.
-- [ ] Add purpose tags.
-- [ ] Add notes.
-- [ ] Add accessibility tags.
-- [ ] Add route warnings.
-- [ ] Add last-walked date.
-- [ ] Add optional photo picker.
-- [ ] Show verification state.
-- [ ] Add save/bookmark action if time permits.
-- [ ] Add confirm action if time permits.
-- [ ] Add report-content action.
+- [x] Design Community feed.
+- [x] Build community route card.
+- [x] Build route detail.
+- [x] Build Share Route form.
+- [x] Add route title.
+- [x] Add purpose tags.
+- [x] Add notes.
+- [x] Add accessibility tags.
+- [x] Add route warnings.
+- [x] Add last-walked date.
+- [x] Add optional photo picker.
+- [x] Show verification state.
+- [ ] Add save/bookmark action if time permits. Deferred optional action; no fake saved state.
+- [ ] Add confirm action if time permits. Deferred optional action; no fake confirmation counts or promotion.
+- [x] Add report-content action.
+
+Verified Phase 7 (2026-10-16): seeded/local feed/cards/detail/map, structured title/purpose/notes/accessibility/warnings/date/optional-photo sharing, validation, success/retry, new route appears Community submitted. Local repository list/get/create and serialized durable storage; never auto-verified. Local report-content flag is implemented with explicit no-moderation disclosure. Optional bookmark/confirm left unchecked. Required acceptance complete; final lint/types/65 tests and native normal/stress flow pass.
 
 ## Phase 8 — Barrier reporting
 
-- [ ] Build Report Barrier entry point from active route/map.
-- [ ] Add category: blocked/broken walkway.
-- [ ] Add category: lift unavailable.
-- [ ] Add category: missing/blocked ramp.
-- [ ] Add category: construction.
-- [ ] Add category: poor lighting.
-- [ ] Add category: flooded path.
-- [ ] Add category: unsafe crossing.
-- [ ] Add category: incorrect map connection.
-- [ ] Capture map location/segment.
-- [ ] Add optional photo.
-- [ ] Add description.
-- [ ] Add temporary/permanent selector.
-- [ ] Add timestamp.
-- [ ] Show newly submitted report as community submitted, never verified.
-- [ ] Add success state.
-- [ ] Add error/retry state.
+- [x] Build Report Barrier entry point from active route/map.
+- [x] Add category: blocked/broken walkway.
+- [x] Add category: lift unavailable.
+- [x] Add category: missing/blocked ramp.
+- [x] Add category: construction.
+- [x] Add category: poor lighting.
+- [x] Add category: flooded path.
+- [x] Add category: unsafe crossing.
+- [x] Add category: incorrect map connection.
+- [x] Capture map location/segment.
+- [x] Add optional photo.
+- [x] Add description.
+- [x] Add temporary/permanent selector.
+- [x] Add timestamp.
+- [x] Show newly submitted report as community submitted, never verified.
+- [x] Add success state.
+- [x] Add error/retry state.
+
+Verified Phase 8 (2026-10-16): Planner entry, all eight categories, current-route waypoint or explicit demo fallback, required details, optional reused photo, duration state/timestamp/24-hour temporary reconfirmation, review/success/failure/retry, repository and inspectable local report list. All creates community_submitted, no engine mutation. Required acceptance complete; final lint/types/65 mobile tests, Ruff/119 backend tests, Android happy flow and 320dp/200% long-description submission pass. Clean npm ci and final Android export pass. Phase 9 and final animation remain untouched.
 
 ## Phase 9 — Supabase
 

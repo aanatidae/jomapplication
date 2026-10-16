@@ -11,6 +11,7 @@ from ..models.routes import RouteGeometry, RouteOption, RouteRequest, RouteRespo
 from ..routing.engine import compute_routes
 from ..routing.errors import NoRouteError, RoutingInputError, SearchLimitError
 from ..routing.graph_loader import load_graph
+from ..routing.preferences import RoutingPreferences
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -33,15 +34,22 @@ def routes(
     try:
         # departure_time is trip metadata, not the data-quality clock. Keep the fixed demo
         # reference time; profiles already encode intent, and no live conditions exist.
-        results = compute_routes(graph, origin, destination, request.profile)
+        preferences = (
+            RoutingPreferences(**request.preferences.model_dump(exclude={"prefer_covered_paths"}))
+            if request.preferences
+            else RoutingPreferences()
+        )
+        results = compute_routes(
+            graph, origin, destination, request.profile, preferences=preferences
+        )
         return RouteResponse(
             dataset_id=graph.graph["dataset_id"],
             reference_time=graph.graph["reference_time"],
             routes=tuple(
                 RouteOption(
-                    **result.model_dump(exclude={
-                        "geometry", "node_path", "segment_ids", "dataset_id", "data_kind"
-                    }),
+                    **result.model_dump(
+                        exclude={"geometry", "node_path", "segment_ids", "dataset_id", "data_kind"}
+                    ),
                     geometry=RouteGeometry(coordinates=result.geometry),
                 )
                 for result in results

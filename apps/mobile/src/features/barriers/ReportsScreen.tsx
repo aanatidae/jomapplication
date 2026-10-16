@@ -1,0 +1,22 @@
+import { useEffect, useState } from 'react';
+import { Text } from 'react-native';
+import { router } from 'expo-router';
+import { SecondaryButton } from '../../components/Buttons';
+import { ErrorText, FormPage } from '../../components/Forms';
+import { type } from '../../theme/tokens';
+import { barrierRepository } from './repository';
+import type { BarrierReport, BarrierReportRepository } from './model';
+import { ReportSummary } from './ReportSummary';
+export function ReportsScreen({ repository = barrierRepository }: { repository?: BarrierReportRepository }) {
+  const [reports, setReports] = useState<BarrierReport[]>([]); const [status, setStatus] = useState('loading'); const [attempt, setAttempt] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(20);
+  useEffect(() => { let active = true;
+    repository.listReports().then(rows => { if (active) { setReports(rows); setStatus('ready'); } }).catch(() => { if (active) setStatus('error'); });
+    return () => { active = false; };
+  }, [repository, attempt]);
+  return <FormPage title="Local barrier reports"><SecondaryButton label="Back to Planner" onPress={() => router.replace('/')}/>
+    <Text style={type.caption}>Reports from this device only. These do not automatically alter routes. Expired reports need reconfirmation.</Text>
+    {status === 'loading' ? <Text style={type.body}>Loading reports…</Text> : status === 'error' ? <><ErrorText text="Couldn't load reports."/><SecondaryButton label="Retry" onPress={() => setAttempt(n => n + 1)}/></> : reports.length ? reports.slice(0, visibleCount).map(report => <ReportSummary key={report.id} report={report}/>) : <Text style={type.body}>No reports yet. Start Report Barrier from Planner to add a route issue.</Text>}
+    {reports.length > visibleCount && <SecondaryButton label="Show more" onPress={() => setVisibleCount(n => n + 20)}/>}
+  </FormPage>;
+}

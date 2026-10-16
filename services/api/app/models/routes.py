@@ -17,13 +17,12 @@ class RoutePoint(ApiModel):
 
 
 class RoutePreferences(ApiModel):
-    # Reserved contract: reject non-empty preferences until the engine supports them.
-    prefer_well_lit: Literal[None] = None
-    avoid_stairs: Literal[None] = None
-    avoid_steep_slopes: Literal[None] = None
-    prefer_public_areas: Literal[None] = None
+    prefer_well_lit: bool = Field(default=False, strict=True)
+    avoid_stairs: bool = Field(default=False, strict=True)
+    avoid_steep_slopes: bool = Field(default=False, strict=True)
+    prefer_public_areas: bool = Field(default=False, strict=True)
     prefer_covered_paths: Literal[None] = None
-    max_detour_minutes: Literal[None] = None
+    max_detour_minutes: int | None = Field(default=None, ge=0, le=60, strict=True)
 
 
 class RouteRequest(ApiModel):

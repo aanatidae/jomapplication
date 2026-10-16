@@ -5,8 +5,10 @@ Pedestrian-first walking route planning. Project guidance lives in `.harness/AGE
 ## Current scope
 
 The planner calls FastAPI's Phase 3 engine for three profiles and displays simulated
-pilot routes on the Phase 2 schematic map. Community and Profile remain shells;
-onboarding, persistence, live geography and animation polish are later phases.
+pilot routes on the Phase 2 schematic map. Three-step onboarding and editable Profile
+preferences persist locally. Community routes and barrier reports can be created and
+viewed through local repositories. Supabase, live geography and animation polish
+remain later phases. See [Phases 6–8 verification](docs/demo/phase678/results.md).
 The native provider spike remains at `/spikes/map`, with its earlier blank-map issue separately tracked.
 
 ## Requirements
@@ -140,8 +142,18 @@ Supported profiles: `fastest`, `safer_at_night`, `step_free`. Inputs are node ID
 no coordinate snapping/geocoding is supported for this synthetic local-metre graph.
 Optional timezone-aware `departure_time` is accepted as metadata; it does not change
 the fixed demo data-quality clock or simulate live conditions. `preferences` may be
-omitted, null, or empty; reserved preference fields only accept null until Custom is implemented.
-Unsupported values are rejected rather than silently ignored.
+omitted, null, or empty, or contain supported explicit needs:
+
+```json
+{"prefer_well_lit": true, "avoid_stairs": true, "avoid_steep_slopes": false,
+ "prefer_public_areas": false, "max_detour_minutes": 5}
+```
+
+Boolean fields are strict booleans; detour is an optional integer from 0–60 minutes
+relative to the fastest usable route. Constraints are never relaxed to meet a detour
+limit. Covered/shaded and ramps/elevators preferences are stored locally and clearly
+labelled inactive; they are not sent. `prefer_covered_paths` remains a null-only
+reserved API field. Custom is deferred. Unsupported values are rejected.
 
 Results contain 1–3 options in deterministic engine order. HTTP 422 means invalid
 input/profile or identical endpoints. HTTP 404 with `detail` identifies an unknown
@@ -184,7 +196,7 @@ The startup script uses IPv4-first localhost resolution. In another terminal, op
 
 If Expo Go is not installed, `npm run android` can install/open the SDK-compatible version. Stop an already running Metro server before running that command. The helper resolves Expo whether npm nests or hoists workspace dependencies.
 
-Planner opens by default. Use bottom navigation to reach Community and Profile, then return to Planner.
+First launch shows onboarding; complete or skip it to reach Planner. Use bottom navigation for Community and Profile. Development builds expose Profile → Restart onboarding demo and isolated stress previews. These do not reset community routes or barrier reports.
 The routing API must be running for route results; location permission, login and a database are not required.
 
 ## Physical Android phone
@@ -204,7 +216,7 @@ npm test
 ```
 
 `npm run check` runs the three mobile gates sequentially. App-specific equivalents are `npm run lint --workspace mobile`, `npm run typecheck --workspace mobile`, and `npm test --workspace mobile` (or `npm --prefix apps/mobile run <script>`).
-Jest mocks the HTTP boundary and covers the API client, real planner feature, preserved preview and navigation.
+Jest covers the typed HTTP boundary, real planner, onboarding/restart, Profile editing, repository persistence, sharing/reporting validation and verification rules, photo recovery and stress fixtures.
 API tests cover the domain, HTTP route contract, health and preserved Phase 0 spike.
 
 Additional Expo checks:
@@ -217,10 +229,12 @@ npm exec --workspace mobile -- expo export --platform android
 ## Layout
 
 ```text
-apps/mobile/src/app/(main)/   Planner, Community, Profile and navigation shell
+apps/mobile/src/app/(main)/   Planner, onboarding-linked flows, Community, Profile and navigation
 apps/mobile/src/app/spikes/   Preserved Phase 0 map spike
-apps/mobile/src/components/   Shared shell component
-apps/mobile/__tests__/        Router tests, outside the routes directory
+apps/mobile/src/components/   Shared native form, button, summary and shell primitives
+apps/mobile/src/features/     Planner, preferences, community, barriers and dev QA
+apps/mobile/src/services/     Typed routing and injectable local storage services
+apps/mobile/__tests__/        User-flow, repository and routing tests
 services/api/app/             FastAPI application
 services/api/tests/           Pytest checks
 supabase/                    Reserved; no integration yet
