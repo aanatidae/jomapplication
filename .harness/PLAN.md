@@ -16,6 +16,10 @@ The product concept is validated by the team's 168-response survey. The survey f
 
 ## Progress
 
+- [x] (2026-10-16) User explicitly authorized committing and pushing the verified Phase 2 work with “commit and push”. Destination confirmed as `https://github.com/aanatidae/jomapplication`, current branch `main`, attribution Saw Jun Yang (aanatidae). Authorization covers this Phase 2 publication only; future pushes still require consent.
+
+- [x] (2026-10-16) Phase 2 complete within the mock-planner scope. Re-read harness and seven required skills before edits; applied break-ui after main implementation. Clean Git baseline; revalidated Phase 1 lint/types, 3 navigation tests, 3 API tests and Ruff. Central native tokens/primitives, local place selection, three profiles, route cards/geometry, quality labels and degraded controls implemented. Final `npm run check` passes (lint, strict types, 14 tests); native Android manual/stress QA passes, independent finish review SHIP after permission recovery fix. Evidence: `docs/demo/phase2/results.md` and native PNG/XML pairs. No commit or push performed.
+
 - [x] (2026-10-15) User explicitly requested commit and push of the current verified work. Confirmed destination repository is empty; initialized root Git on main and preserved the template's nested Git metadata under ignored `.local/git-metadata/mobile.git`. Configured local attribution to authenticated human maintainer Saw Jun Yang (aanatidae), with GitHub account-linked noreply email. No assistant author/co-author metadata is added. This authorization covers the current publication only.
 
 - [x] (2026-10-15) Phase 1 complete: npm workspace and single root lockfile; Planner/Community/Profile shell; environment template and ignore coverage; all quality gates and emulator navigation verified. User explicitly scoped this work to Phase 1; unresolved Phase 0 map rendering remains separately tracked.
@@ -28,13 +32,13 @@ The product concept is validated by the team's 168-response survey. The survey f
 - [x] (2026-10-15) All seven required design/mobile SKILL.md files read; production design deferred.
 - [ ] Mapping and Expo compatibility spike completed and decision recorded.
 - [x] (2026-10-15) Repository scaffold and local development environment working (Phase 1).
-- [ ] Design system and mobile navigation shell implemented.
+- [x] (2026-10-16) Design system and mobile navigation shell implemented (Phase 2).
 - [ ] Pilot pedestrian graph and routing engine implemented.
 - [ ] Fastest profile verified with deterministic tests.
 - [ ] Safer-at-Night profile verified with deterministic tests.
 - [ ] Step-Free profile verified with deterministic tests.
 - [ ] Mobile route-planning flow integrated with the routing API.
-- [ ] Explainable route comparison UI implemented.
+- [x] (2026-10-16) Explainable route comparison UI implemented with deterministic demo fixtures (Phase 2); API integration remains later work.
 - [ ] Onboarding and preference management implemented.
 - [ ] Community route sharing implemented.
 - [ ] Barrier reporting implemented.
@@ -45,6 +49,14 @@ The product concept is validated by the team's 168-response survey. The survey f
 - [ ] Build, test, lint, documentation, and submission hardening completed.
 
 ## Surprises & Discoveries
+
+- (2026-10-16) Final Phase 2 evidence: Android Studio AVD `Medium_Phone_API_37.0`, Expo Go 57, ADB localhost reverse. Exercised profiles, collapsed/expanded cards, local selection/search and manual error retry; captured all seven degraded states. Tested 320dp × 640dp, 200% OS font scaling, long place/confidence labels, 6–7 reasons, fully overlapping route lines, keyboard-open picker, and 720dp wide layout. Original 1080×2400 / density 420 / font_scale 1.0 restored. Accessibility roles/labels/states verified in tests/native trees; no physical phone, iOS or spoken TalkBack audit is claimed.
+- (2026-10-16) Independent native reviewer found “Use manual origin” initially only dismissed the permission message. Fixed it to open the origin picker; cancellation retains the state, selection updates the origin. Added regression assertion and native picker → keyboard filter → selected origin evidence. Reviewer verdict pass: resolved, SHIP for Phase 2. Earlier keyboard captures contained Gboard's font-update banner; `keyboard-filter-final.png` is unobscured.
+- (2026-10-16) Contrast verification strengthened the outline from 1.62:1 to 3.58:1 on white. Muted text is at least 5.43:1 on the used content surfaces; white/teal 6.94:1; warning text on selected 5.96:1. Route lines hidden in loading/empty/data/error states so unavailable results cannot appear selected. Long community fixture freshness explicitly remains unverified.
+
+- (2026-10-16) Baseline Jest transforms fail inside the Windows sandbox with EPERM on its temporary cache; identical host-run tests pass. Impeccable context launcher still fails with `cache_directory_failed`; read harness, existing source, new-work, craft-floor, Android and Operate guidance directly. ui-skills registry lookup initially failed under restricted DNS; host lookup succeeded, selected `callstackincubator/react-native-best-practices` from react-native category. No runtime dependency was added.
+- (2026-10-16) Android cold boot produced a transient System UI ANR before Expo loaded. Waited for boot and reopened Expo through localhost ADB reverse. Initial screenshot captured before rendering was invalid; do not treat it as planner evidence.
+- (2026-10-16) First 320dp / 200% text inspection exposed map legend/footer overlapping endpoints. Moved labels into normal layout outside the geometry canvas; decorative park label omitted at large text. Text, routes, and endpoints retain separate space. Unknown accessibility takes priority over the long confidence stress fixture; QA controls gated by `__DEV__`.
 
 - Phase 1 verification: npm run check passes lint, strict typecheck and 3 Router navigation tests. API Ruff and 3 Pytest tests pass; HTTP GET /health returns 200 with {"status":"ok"}. Expo Doctor passes 21/21; final Android Hermes export passes. Existing httpx/Starlette test-client deprecation warning remains non-fatal.
 - Phase 1 manual QA: Planner -> Community -> Profile -> Planner verified through ADB UI-tree-derived taps. Screenshots/UI trees saved under `docs/demo/phase1/`. At 320dp and font scale 2.0, horizontal labels originally fragmented; responsive navigation now stacks, all screens remain reachable, and original AVD settings were restored. Full production-screen stress tests are deferred with the design system; these shells have no user-data fields, keyboard, API states or community lists yet.
@@ -70,6 +82,11 @@ The product concept is validated by the team's 168-response survey. The survey f
   Evidence: The product documentation explicitly treats a manually audited pilot graph as sufficient for the MVP and requires confidence/freshness indicators.
 
 ## Decision Log
+
+- Decision (2026-10-16, Phase 2): use built-in React Native Pressable/Text/View/Modal/ScrollView/Switch/KeyboardAvoidingView and existing safe-area package. pick-ui-library's curated web packages do not cover native planner primitives; no Base UI, sheet library, icon font or state library added. A scrollable comparison surface with an explicit expand/collapse button avoids custom gesture/motion dependencies and keeps all content reachable with large text. Real sheet gesture polish remains later-phase work.
+- Decision (2026-10-16, Phase 2): use a labelled local schematic map composed from native geometry, with a thicker selected path drawn last, A/B endpoints and textual selected-mode legend. Preserve native map spike and its unresolved Phase 0 provider issue. Schematic is never geographic guidance; all four mock places share illustrative geometry and fixed ETAs, not calculated trips.
+- Decision (2026-10-16, Phase 2): central tokens in `apps/mobile/src/theme/tokens.ts`; light outdoor-readable scheme, deep teal #006653, ink #172F2C, warm neutral #F5F5EF, system font, 14/16/18/24/32 type, 4/8/12/16/24/32/48 spacing, 8/12/16/24 radii, 16/24/32 icon sizes, 48dp minimum controls. Solid surfaces, restrained sheet shadow; no decorative movement. Instant transitions respect reduced motion without extra subscriptions. Light-only matches existing Expo configuration; dark theme and RTL are not claimed supported.
+- Decision (2026-10-16, Phase 2): user supplied a detailed map-first production prototype brief and explicitly requested completion with findings fixed. Apply prototype's working interactive mock/recon principles and break-ui's adversarial fixture workflow directly; do not replace this requested milestone with a separate multi-variant design selection or stop before authorized fixes. Skills are guidance subordinate to the explicit scope. No later-phase functionality, routing calculation, APIs, persistence, auth, or live data introduced.
 
 - Decision: Establish a root npm workspace with one root package-lock.json, preserving the Phase 0 npm choice instead of switching to pnpm. Keep Expo Router routes in `apps/mobile/src/app`; preserve the map spike under `/spikes/map` and use a plain three-screen shell as the default entry point. Keep native map dependencies installed but out of scaffold screen rendering.
   Rationale: Minimize package-manager churn and let scaffold acceptance proceed independently of the known Phase 0 map-provider issue. Navigation tests use Jest 29 + jest-expo 57 + React Native Testing Library 13, matching SDK 57 rather than SDK 58 documentation.
@@ -119,6 +136,10 @@ The product concept is validated by the team's 168-response survey. The survey f
   Date/Author: 2026-10-15 / Initial plan.
 
 ## Outcomes & Retrospective
+
+Phase 2 is complete against the user's design-system and deterministic mock-planner requirements. Tokens live in `apps/mobile/src/theme/tokens.ts`; semantic reusable buttons, profile chips, cards, reason/confidence badges, place picker, comparison surface and state primitive live under components/planner. Planner route stays thin. Selection updates selected card ordering and thicker schematic geometry; all 8/10/12 minute trade-offs, distances, reasons and demo freshness are visible. Community/Profile retain their shells with shared tokens. No component dependency added. Release builds omit QA controls and ignore fixture query parameters. `DESIGN.md`, `PRODUCT.md` and `.impeccable/design.json` describe the implemented system and explicitly defer to the harness.
+
+Final gates: `npm run check` passed on host (mobile lint, strict typecheck, 14 interaction/navigation tests); `git diff --check` passed. Native manual QA and break-ui findings/fixes are recorded in `docs/demo/phase2/results.md`. Independent review found one recovery-action mismatch; corrected, tested, manually captured and scored resolved with scoped SHIP verdict. Phase 0 native provider tiles remain unverified and physical phone/spoken TalkBack checks remain limitations, not claimed completions. The schematic is intentionally local demo data. Later routing, API, Supabase, authentication, community and animation phases remain untouched. All work remains local and reviewable; no commit or push performed.
 
 Phase 1 is complete against its scaffold acceptance criteria. The npm workspace installs from one root lockfile; the mobile shell and FastAPI health service run locally; all three screens are reachable; lint, strict types, 3 mobile tests, Ruff and 3 API tests pass. README commands, environment template, ignore coverage, SDK compatibility and Android export are verified. Native manual checks used Android Studio's existing emulator with Expo Go, including 320dp/200% font scaling. Physical phone not connected; this is not claimed as tested. No new routing engine work, Supabase integration, design system, identity collection, or animations were introduced. Phase 0's map-provider rendering issue and dependency audit remediation remain open and do not prevent the Phase 1 shell checks. Git metadata and attribution were left untouched; no commit or push performed.
 

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-16T11:41:04.8086248+08:00",
+  "title": "Design System: Jom! Phase 2",
+  "extensions": {
+    "colorMeta": {
+      "accent": {
+        "role": "primary",
+        "displayName": "Deep teal"
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Warm neutral"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Deep green ink"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Jom! planner wordmark; native system font with scaling."
+      },
+      "heading": {
+        "displayName": "Heading",
+        "purpose": "Screen and comparison headings, prominent ETA."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Readable descriptions and button sizing."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Secondary facts, reasons, confidence, freshness."
+      }
+    },
+    "shadows": [
+      {
+        "name": "sheet",
+        "value": "shadowColor: #172F2C; shadowOffset: {width: 0, height: -3}; shadowOpacity: 0.08; shadowRadius: 12; elevation: 3",
+        "purpose": "React Native comparison sheet only; native values, not a CSS shadow."
+      }
+    ],
+    "motion": [
+      {
+        "name": "duration",
+        "value": "0",
+        "purpose": "Immediate authored state changes; no looping skeletons. Native modal animationType is none."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stackNavigation",
+        "value": "window width / fontScale < 180 (React Native condition)"
+      },
+      {
+        "name": "compactMap",
+        "value": "fontScale > 1.5 (React Native condition)"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Browser preview of native primary control; px represents unscaled dp. Native system text scaling and accessibility require device verification. No authored hover treatment.",
+      "html": "<button class=\"jom-primary\">Compare routes</button>",
+      "css": ".jom-primary { background:#006653; color:#FFFFFF; min-width:48px; min-height:48px; padding:12px 16px; border:2px solid transparent; border-radius:12px; font:600 16px/23px system-ui,sans-serif; text-align:center; } .jom-primary:active { opacity:0.7; } .jom-primary:focus-visible { border-color:#163FAD; } .jom-primary:disabled { background:#E2E6DF; color:#59645D; }"
+    },
+    {
+      "name": "Selected Route Card",
+      "kind": "card",
+      "refersTo": "route-card-selected",
+      "description": "Browser preview of selected native route card; facts below are explicitly demo values, not routing results.",
+      "html": "<button class=\"jom-route\" role=\"radio\" aria-checked=\"true\"><span class=\"jom-top\"><strong>Fastest</strong><span>Selected</span></span><span class=\"jom-eta\">8 min</span><span>Demo data only</span></button>",
+      "css": ".jom-route { display:flex; flex-direction:column; gap:8px; padding:16px; min-height:48px; border:2px solid #006653; border-radius:16px; background:#E4F1E9; color:#172F2C; text-align:left; font:400 16px/23px system-ui,sans-serif; } .jom-top { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; } .jom-top strong { font-size:18px; line-height:24px; font-weight:600; } .jom-top span { font-size:14px; line-height:20px; font-weight:600; } .jom-eta { font-size:24px; line-height:30px; font-weight:700; letter-spacing:-0.4px; } .jom-route:active { opacity:0.7; } .jom-route:focus-visible { border-color:#163FAD; }"
+    }
+  ],
+  "narrative": {
+    "overview": "Phase 2 native Android mock planner with solid surfaces, system typography, a deep teal accent, explicit selection labels, and plain-language route trade-offs. Light only. The harness remains the execution authority; this snapshot does not certify native QA.",
+    "keyCharacteristics": [
+      "Map-first local schematic",
+      "System text scaling",
+      "48dp minimum controls",
+      "No authored motion",
+      "Explicit demo and uncertainty labels",
+      "Map legend/footer outside geometry; A/B markers scale with system text",
+      "Community and unknown confidence use warning color plus text",
+      "Navigation tabs expose a 2dp focus border"
+    ],
+    "rules": [],
+    "dos": [
+      "Do reuse central tokens and preserve system scaling.",
+      "Do expose selection and confidence with text.",
+      "Do label fixed routes and schematic geography as demo information.",
+      "Do keep demo URL fixtures and state controls development-only; release ignores fixture parameters."
+    ],
+    "donts": [
+      "Don't guarantee safety.",
+      "Don't convert unknown accessibility into accessible data.",
+      "Don't treat a preview or export as native acceptance evidence."
+    ]
+  }
+}

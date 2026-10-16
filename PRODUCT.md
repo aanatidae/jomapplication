@@ -1,0 +1,13 @@
+# Jom! — Phase 2 mock scope
+
+Jom! is a pedestrian-first mobile route planner for the Sime Darby Property University Hackathon 2026, PEOPLE challenge. The intended product helps people compare walking routes by time, environmental safety indicators, accessibility, route conditions, and explicit preferences. These facts come from `.harness/AGENTS.md` and `.harness/PLAN.md`; the harness remains the project execution authority.
+
+The intended MVP claim is: the same origin and destination can produce different, explainable routes for different needs. Required profiles are Fastest, Safer at Night, and Step-Free. Route comparisons should expose ETA, distance, detour, reasons, confidence, and freshness. The full planned MVP also includes preferences, community route sharing, and barrier reports; these are later work, not Phase 2 completion claims.
+
+Phase 2 implements a local interactive mock: a map-first planner, four selectable demo places, fixed illustrative geometry and route values, profile selection, comparison expansion/collapse, and development controls for degraded and stress states. Development-only URL fixtures select demo states, worst-case data, or a collapsed comparison; release ignores those parameters and hides the controls. It uses native React Native primitives, Expo SDK 57, TypeScript, and Expo Router. Community and Profile remain shell destinations. Changing places does not calculate a trip. The schematic provides no geographic guidance; live routing, geocoding, location acquisition, authentication, persistence, and submission flows are outside this phase.
+
+Design priorities established by the harness are one-handed use, outdoor readability, accessibility, and rapid comparison. The current system is light only, uses the system font, a deep teal accent, 48dp controls, and immediate state changes without authored animation. Native QA and milestone acceptance must be read from the harness; this file makes no manual-test pass claim.
+
+Product constraints: never guarantee safety; environmental indicators can change. Unknown accessibility remains unknown. Community data is unverified until explicitly confirmed under the eventual verification rules. Do not collect a full Malaysian IC number or infer route needs from identity. Allow manual origin selection and do not store full route history by default. Do not score neighbourhoods using resident demographics.
+
+The harness records a 168-response validation survey as a product input. Survey exports were absent at the repository audit, so this document does not independently verify its findings or add research claims.

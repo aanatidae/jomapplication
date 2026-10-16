@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
+import { theme, type } from '../theme/tokens';
 
 type ScreenShellProps = PropsWithChildren<{ title: string; description: string }>;
 
@@ -14,7 +15,7 @@ export function ScreenShell({ title, description, children }: ScreenShellProps) 
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 24, gap: 16 },
-  title: { fontSize: 28, fontWeight: '600', color: '#171717' },
-  description: { fontSize: 18, color: '#333333' },
+  content: { padding: theme.space.lg, gap: theme.space.md },
+  title: type.heading,
+  description: type.body,
 });

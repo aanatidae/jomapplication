@@ -82,63 +82,65 @@ Verified 2026-10-15: root npm ci and npm run check pass (3 navigation tests); AP
 
 ### Skill intake
 
-- [ ] Re-read `prototype` immediately before first high-fidelity flow.
-- [ ] Use `pick-ui-library` before adding a component library.
-- [ ] Apply `impeccable`, `mobile-native`, `apple-design`, `emil-design-eng`, and `ui-skills-root` to the design system.
+- [x] Re-read `prototype` immediately before first high-fidelity flow.
+- [x] Use `pick-ui-library` before adding a component library.
+- [x] Apply `impeccable`, `mobile-native`, `apple-design`, `emil-design-eng`, and `ui-skills-root` to the design system.
 
 ### Design tokens
 
-- [ ] Define typography scale.
-- [ ] Define spacing scale.
-- [ ] Define radius scale.
-- [ ] Define elevation/shadow strategy.
-- [ ] Define neutral palette and one Jom! accent.
-- [ ] Define semantic safety/accessibility/verification tokens.
-- [ ] Define icon sizing rules.
-- [ ] Define touch-target rules.
-- [ ] Define reduced-motion behavior.
+- [x] Define typography scale.
+- [x] Define spacing scale.
+- [x] Define radius scale.
+- [x] Define elevation/shadow strategy.
+- [x] Define neutral palette and one Jom! accent.
+- [x] Define semantic safety/accessibility/verification tokens.
+- [x] Define icon sizing rules.
+- [x] Define touch-target rules.
+- [x] Define reduced-motion behavior.
 
 ### Reusable components
 
-- [ ] Build primary button.
-- [ ] Build secondary/tertiary button.
-- [ ] Build icon button.
-- [ ] Build route profile chip/segmented control.
-- [ ] Build badge/tag.
-- [ ] Build confidence/verification badge.
-- [ ] Build place/origin-destination input.
-- [ ] Build bottom-sheet shell or chosen route-comparison container.
-- [ ] Build route option card.
-- [ ] Build route reason row/badge.
-- [ ] Build loading skeleton/progress state.
-- [ ] Build empty/error state primitives.
+- [x] Build primary button.
+- [x] Build secondary/tertiary button.
+- [x] Build icon button.
+- [x] Build route profile chip/segmented control.
+- [x] Build badge/tag.
+- [x] Build confidence/verification badge.
+- [x] Build place/origin-destination input.
+- [x] Build bottom-sheet shell or chosen route-comparison container.
+- [x] Build route option card.
+- [x] Build route reason row/badge.
+- [x] Build loading skeleton/progress state.
+- [x] Build empty/error state primitives.
 
 ### Planner mock flow
 
-- [ ] Build map-first Planner layout.
-- [ ] Add origin selection UI.
-- [ ] Add destination selection UI.
-- [ ] Add Fastest profile.
-- [ ] Add Safer-at-Night profile.
-- [ ] Add Step-Free profile.
-- [ ] Add route comparison with 2–3 mock routes.
-- [ ] Show ETA and distance.
-- [ ] Show detour difference from fastest.
-- [ ] Show explanation reasons.
-- [ ] Show confidence/freshness.
-- [ ] Ensure map remains readable behind overlays.
-- [ ] Ensure one-handed control placement.
+- [x] Build map-first Planner layout.
+- [x] Add origin selection UI.
+- [x] Add destination selection UI.
+- [x] Add Fastest profile.
+- [x] Add Safer-at-Night profile.
+- [x] Add Step-Free profile.
+- [x] Add route comparison with 2–3 mock routes.
+- [x] Show ETA and distance.
+- [x] Show detour difference from fastest.
+- [x] Show explanation reasons.
+- [x] Show confidence/freshness.
+- [x] Ensure map remains readable behind overlays.
+- [x] Ensure one-handed control placement.
 
 ### Phase 2 QA
 
-- [ ] Read and apply `break-ui/SKILL.md`.
-- [ ] Test smallest supported phone size.
-- [ ] Test large font scaling.
-- [ ] Test long place names.
-- [ ] Test many route reasons.
-- [ ] Test empty route list.
-- [ ] Test dark/light system contrast if both modes are supported.
-- [ ] Verify no status depends only on colour.
+- [x] Read and apply `break-ui/SKILL.md`.
+- [x] Test smallest supported phone size.
+- [x] Test large font scaling.
+- [x] Test long place names.
+- [x] Test many route reasons.
+- [x] Test empty route list.
+- [x] Test dark/light system contrast if both modes are supported.
+- [x] Verify no status depends only on colour.
+
+Verified 2026-10-16: centralized native tokens and all required primitives exist; three profiles and selected geometry/cards, local place search, comparison expansion, demo quality/freshness and all degraded states exercised. `npm run check` passes lint, strict types and 14 mobile tests. Android Studio Expo Go QA covered 320dp × 640dp, 200% font scaling, long destination/confidence, many reasons, overlapping paths, keyboard and retry. Original settings restored. Light-only configuration retained, so dual-theme check is not applicable. Independent finish review: permission recovery corrected and scored resolved; scoped SHIP. Evidence: `docs/demo/phase2/results.md` and PNG/XML pairs. No physical phone or spoken TalkBack audit claimed. Native provider map acceptance remains Phase 0; later-phase checkboxes remain untouched. No commit or push performed.
 
 ## Phase 3 — Pilot graph and route engine
 

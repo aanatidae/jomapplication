@@ -1,10 +1,11 @@
-import { ScreenShell } from '../../components/ScreenShell';
+import { useLocalSearchParams } from 'expo-router';
+import { PlannerScreen } from '../../features/planner/PlannerScreen';
+import { demoStates } from '../../features/planner/mockRoutes';
 
-export default function PlannerScreen() {
-  return (
-    <ScreenShell
-      title="Planner"
-      description="Walking route planning will be available here. No routes or live location data are loaded in this scaffold."
-    />
-  );
+export default function PlannerRoute() {
+  const params = useLocalSearchParams<{ demoState?: string; worstCase?: string; collapsed?: string }>();
+  const state = __DEV__ ? demoStates.find(item => item.id === params.demoState)?.id ?? 'ready' : 'ready';
+  const worstCase = __DEV__ && params.worstCase === '1';
+  const expanded = !(__DEV__ && params.collapsed === '1');
+  return <PlannerScreen key={`${state}-${worstCase}-${expanded}`} initialState={state} initialWorstCase={worstCase} initialExpanded={expanded} />;
 }
