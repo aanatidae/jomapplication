@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react-native';
-import { PlannerScreen } from '../src/features/planner/PlannerScreen';
+import { DemoPlannerScreen as PlannerScreen } from '../src/features/planner/DemoPlannerScreen';
 
 function demoControls() { fireEvent.press(screen.getByRole('button', { name: 'Demo controls' })); }
 function preview(label: string) { fireEvent.press(screen.getByRole('button', { name: label })); }
@@ -64,7 +64,7 @@ it('collapses to the selected card, then expands all three routes', () => {
   fireEvent.press(screen.getByRole('radio', { name: 'Step-Free' }));
   expect(screen.getByText('12 min')).toBeTruthy();
   expect(screen.queryByText('8 min')).toBeNull();
-  preview('Compare all 3 routes');
+  preview('Compare 3 routes');
   expect(screen.getAllByRole('radio')).toHaveLength(6);
 });
 

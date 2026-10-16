@@ -6,14 +6,15 @@ import type { MockRoute } from './mockRoutes';
 
 export function RouteOptionCard({ route, selected, onPress }: { route: MockRoute; selected: boolean; onPress: () => void }) {
   const [focused, setFocused] = useState(false);
-  const detour = route.minutes === 8 ? 'Fastest option' : `+${route.minutes - 8} min vs fastest`;
+  const detour = route.detour ?? '';
   return <Pressable accessibilityRole="radio" accessibilityState={{ selected, checked: selected }}
-    accessibilityLabel={`${route.mode}, ${route.minutes} minutes, ${route.distance} metres, ${detour}. ${route.reasons.join('. ')}. ${route.confidence}. ${route.freshness}`}
+    accessibilityLabel={`${route.mode}, ${route.minutes} minutes, ${route.distance} metres. ${detour} ${route.reasons.join('. ')}. ${route.confidence}. ${route.freshness}. ${(route.warnings ?? []).join('. ')}`}
     onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} onPress={onPress}
     style={({ pressed }) => [styles.card, selected && styles.selected, focused && styles.focus, pressed && styles.pressed]}>
     <View style={styles.top}><Text style={[type.title, styles.grow]}>{route.mode}</Text><Text style={type.label}>{selected ? 'Selected' : 'Select route'}</Text></View>
     <View style={styles.metrics}><Text style={type.heading}>{route.minutes} min</Text><Text style={type.body}>{route.distance} m</Text><Text style={type.caption}>{detour}</Text></View>
     <View style={styles.reasons}>{route.reasons.map((reason, i) => <RouteReasonBadge key={`${i}-${reason}`} label={reason} />)}</View>
+    {route.warnings?.map((warning, i) => <Text key={i} style={[type.caption, { color: theme.color.warning }]}>{warning}</Text>)}
     <ConfidenceBadge label={route.confidence} quality={route.quality} />
     <Text style={type.caption}>{route.freshness}</Text>
   </Pressable>;

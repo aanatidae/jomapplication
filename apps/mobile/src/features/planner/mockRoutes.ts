@@ -1,15 +1,15 @@
-export type RouteProfile = 'fastest' | 'night' | 'stepFree';
+export type RouteProfile = string;
 export type Point = readonly [number, number];
 export type MockRoute = {
   id: RouteProfile; mode: string; minutes: number; distance: number;
   reasons: string[]; confidence: string; freshness: string;
-  quality: 'verified' | 'community' | 'unknown'; geometry: readonly Point[];
+  warnings?: string[]; detour?: string; quality: 'verified' | 'community' | 'unknown' | 'data'; geometry: readonly Point[];
 };
 export const places = ['Transit Stop', 'Community Mall', 'Residential Block', 'Park Entrance'] as const;
 export const routes: readonly MockRoute[] = [
-  { id: 'fastest', mode: 'Fastest', minutes: 8, distance: 600, reasons: ['Shortest travel time', '1 staircase'], confidence: 'High confidence', freshness: 'Demo verification: 3 days ago', quality: 'verified', geometry: [[0.16, 0.75], [0.40, 0.75], [0.40, 0.30], [0.82, 0.30]] },
-  { id: 'night', mode: 'Safer at Night', minutes: 10, distance: 720, reasons: ['Better lighting', 'Passes active public areas', 'Near staffed security'], confidence: 'Community submitted', freshness: 'Demo report: 1 day ago · Unverified', quality: 'community', geometry: [[0.16, 0.75], [0.16, 0.15], [0.65, 0.15], [0.65, 0.30], [0.82, 0.30]] },
-  { id: 'stepFree', mode: 'Step-Free', minutes: 12, distance: 830, reasons: ['No stairs', 'Uses ramp', 'Accessible entrance'], confidence: 'High confidence', freshness: 'Demo verification: 3 days ago', quality: 'verified', geometry: [[0.16, 0.75], [0.65, 0.75], [0.65, 0.52], [0.82, 0.52], [0.82, 0.30]] },
+  { id: 'fastest', detour: 'Fastest option', mode: 'Fastest', minutes: 8, distance: 600, reasons: ['Shortest travel time', '1 staircase'], confidence: 'High confidence', freshness: 'Demo verification: 3 days ago', quality: 'verified', geometry: [[0.16, 0.75], [0.40, 0.75], [0.40, 0.30], [0.82, 0.30]] },
+  { id: 'night', detour: '+2 min vs fastest', mode: 'Safer at Night', minutes: 10, distance: 720, reasons: ['Better lighting', 'Passes active public areas', 'Near staffed security'], confidence: 'Community submitted', freshness: 'Demo report: 1 day ago · Unverified', quality: 'community', geometry: [[0.16, 0.75], [0.16, 0.15], [0.65, 0.15], [0.65, 0.30], [0.82, 0.30]] },
+  { id: 'stepFree', detour: '+4 min vs fastest', mode: 'Step-Free', minutes: 12, distance: 830, reasons: ['No stairs', 'Uses ramp', 'Accessible entrance'], confidence: 'High confidence', freshness: 'Demo verification: 3 days ago', quality: 'verified', geometry: [[0.16, 0.75], [0.65, 0.75], [0.65, 0.52], [0.82, 0.52], [0.82, 0.30]] },
 ];
 export const longPlace = 'Community Mall — North entrance beside the pedestrian bridge, accessible drop-off and transit interchange';
 export type DemoState = 'ready' | 'loading' | 'empty' | 'mapUnavailable' | 'permissionDenied' | 'dataUnavailable' | 'unknown' | 'error';

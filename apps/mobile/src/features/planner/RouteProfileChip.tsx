@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 import { theme, type } from '../../theme/tokens';
 import type { MockRoute } from './mockRoutes';
 
-export function RouteProfileChip({ route, selected, onPress }: { route: MockRoute; selected: boolean; onPress: () => void }) {
+export function RouteProfileChip({ route, selected, onPress }: { route: Pick<MockRoute, 'mode'>; selected: boolean; onPress: () => void }) {
   const [focused, setFocused] = useState(false);
   return <Pressable accessibilityRole="radio" accessibilityLabel={route.mode} accessibilityState={{ selected, checked: selected }}
     onPress={onPress} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}

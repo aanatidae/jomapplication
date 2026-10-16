@@ -16,6 +16,11 @@ The product concept is validated by the team's 168-response survey. The survey f
 
 ## Progress
 
+- [x] (2026-10-16) User explicitly authorized committing and pushing verified Phase 4/5 work with “commit and push”. Confirmed destination `https://github.com/aanatidae/jomapplication`, branch `main`, attribution Saw Jun Yang (aanatidae). This authorization covers the Phase 4/5 publication only; future pushes require consent.
+
+- [x] (2026-10-16) Phase 4 complete before Phase 5 implementation: reused Phase 3 loader/models/engine/config/explanations/confidence; added typed HTTP boundary and POST /v1/routes, deterministic 1–3 options, node validation and sanitized errors. Baseline Git clean; baseline Ruff/92 tests passed. Phase 4 first gate: Ruff + 106 tests passed (14 contract cases); final gate after retryable-search coverage: Ruff + 107 tests (15 contract + 92 preserved). GET /health verified over live HTTP. README contains request/response and native-development CORS decision.
+- [x] (2026-10-16) Phase 5 complete for the simulated pilot: typed routingApi client, environment URL, 10-second timeout, runtime response checks, cancellation, feature hook with per-trip/profile cache and stale-response suppression, real pilot place IDs, independent profile/alternative selection, backend reasons/warnings/confidence/freshness and schematic geometry. Final npm run check passes lint/types/35 tests. Native Android Studio Expo Go verified same trip Fastest 8min/600m, Night 10min/720m, Step-Free 12min/830m with distinct preferred lines and HTTP calls; no scenario code/data edits. Alternative selection, real no-route, network failure/retry, delayed loading/timeout/retry and 320dp/200% text verified. Evidence: docs/demo/phase45/results.md, HTTP JSON and PNG/XML pairs. Physical phone/iOS/spoken TalkBack untested; geographic provider issue remains Phase 0. No dependencies, unrelated work, later-phase implementation, commit or push changed.
+
 - [x] (2026-10-16) User explicitly authorized committing and pushing verified Phase 3 work with “commit and push”. Confirmed destination `https://github.com/aanatidae/jomapplication`, branch `main`, attribution Saw Jun Yang (aanatidae). This authorization covers the Phase 3 publication only; future pushes require consent.
 
 - [x] (2026-10-16) Phase 3 complete: strict simulated pilot loader, normalized profile scoring, algorithmic candidates, hard Step-Free constraints, deterministic ranking, truthful explanations and isolated data confidence. Before edits read the full harness and inspected API/Git; clean at Phase 2 commit `20d67b9`. Revalidated baseline mobile lint/types/14 tests, API Ruff/3 tests. Final Ruff and 92 API tests pass (89 new routing tests + 3 preserved); npm run check passes lint/types/14 mobile tests. Inspected offline CLI results A=8min/600m, B=10min/720m, C=12min/830m. Documentation/output: `docs/demo/route-fixture-notes.md`, `docs/demo/phase3-routing-results.txt`. No mobile/API integration, dependency changes, commit or push. Backend-only scope requires no new UI/motion skill.
@@ -41,7 +46,7 @@ The product concept is validated by the team's 168-response survey. The survey f
 - [x] (2026-10-16) Fastest profile verified with deterministic tests.
 - [x] (2026-10-16) Safer-at-Night profile verified with deterministic tests.
 - [x] (2026-10-16) Step-Free profile verified with deterministic tests and hard exclusions.
-- [ ] Mobile route-planning flow integrated with the routing API.
+- [x] (2026-10-16) Mobile route-planning flow integrated with the routing API (Phase 5).
 - [x] (2026-10-16) Explainable route comparison UI implemented with deterministic demo fixtures (Phase 2); API integration remains later work.
 - [ ] Onboarding and preference management implemented.
 - [ ] Community route sharing implemented.
@@ -53,6 +58,11 @@ The product concept is validated by the team's 168-response survey. The survey f
 - [ ] Build, test, lint, documentation, and submission hardening completed.
 
 ## Surprises & Discoveries
+
+- (2026-10-16, Phase 4/5) Phase 3 geometry is local metres, not geographic coordinates. Native provider tiles remain unresolved, but Phase 2 already adopted a labelled native schematic renderer; projecting returned local geometry preserves that decision without inventing lat/lng or geocoding. Community Mall uses the actual mall_entrance node; default demonstration is transit_stop → residential_block.
+- (2026-10-16, Phase 4/5) Existing domain reasons/warnings/verification summaries are strings and confidence is a typed record. Public API reuses these conventions rather than duplicating explanation models or scoring. Preferences are unsupported by the engine: reserved fields accept only null and non-empty values return 422, avoiding silently ignored route needs.
+- (2026-10-16, Phase 5) Native failure QA exposed Expo LogBox overlaying Retry when expected network/no-route events used console.warn. Changed expected diagnostics to console.info; clients only see actionable recovery copy. Fixed progressbar accessibility, singular route-option copy, and hid markers along with unavailable geometry. Added numbered route labels so alternatives have identities beyond colour; removed the mock 8-minute baseline calculation from shared cards.
+- (2026-10-16, Phase 4/5) Full TestClient/Jest suites used the established host workaround; sandbox baseline TestClient stalled. Impeccable context launcher again failed cache_directory_failed, so read PRODUCT/DESIGN and craft-floor/harden/operate directly. ui-skills CLI selected Callstack React Native guidance. No added motion, library or dependency. The existing Metro on 8081 was preserved; isolated test Metro used localhost:8082 and ADB reverse. Slow HTTP fixture on 8001 was stopped and API reverse restored after timeout QA.
 
 - (2026-10-16, Phase 3) Final gates: Ruff clean; Pytest 92/92, including all health/spike regressions; mobile lint/strict TypeScript/14 tests pass. Preserved httpx/Starlette TestClient deprecation warning is non-fatal. Routing tests run offline in sandbox; full legacy TestClient/Jest gates use the documented host workaround. No application foundation regression found. New files are limited to routing domain, pilot JSON, routing tests and demo docs; only harness files modified among existing tracked files.
 
@@ -92,6 +102,12 @@ The product concept is validated by the team's 168-response survey. The survey f
   Evidence: The product documentation explicitly treats a manually audited pilot graph as sufficient for the MVP and requires confidence/freshness indicators.
 
 ## Decision Log
+
+- Decision (2026-10-16, Phase 4): HTTP models live in services/api/app/models/routes.py, router/dependency in app/api/routes.py. Reuse RouteProfile and RouteConfidence directly. Request: origin/destination {node_id}, profile fastest|safer_at_night|step_free, optional aware departure_time and empty/null preferences. Node IDs resolve directly against cached frozen pilot graph; coordinates/snapping are deliberately unsupported for local synthetic data. departure_time is metadata; fixed demo reference time remains the confidence clock. Reserved preference fields accept null only until engine support exists.
+- Decision (2026-10-16, Phase 4): response {dataset_id,data_kind,reference_time,routes:[{id,profile,geometry,distance_m,estimated_time_s,total_cost,reasons,warnings,confidence,verification_summary}]}; geometry {type:LineString,coordinate_system:local_metres_not_geographic,coordinates:[[x,y],...]}. Reasons/warnings and verification are existing domain strings, confidence contains level/factors/as_of. Preserve engine ordering and 1–3 limit; omit internal node/segment paths and raw weight breakdowns. 422 invalid shape/profile/preferences/same endpoints; 404 unknown nodes or no route with distinct details and explicit Step-Free unavailability; 503 search budget; sanitized 500 unexpected calculation failure, details logged server-side. Never fall back through stairs. No browser CORS enabled: native Expo does not require it; a future browser client must use an explicit allowlist.
+- Decision (2026-10-16, Phase 5): use EXPO_PUBLIC_API_BASE_URL in apps/mobile/.env.local or process environment. Root .env.example documents public config; no default machine IP in source. ADB reverse supports loopback API on Android emulator/USB phone; emulator alias 10.0.2.2 and trusted-network physical-phone setup are documented. Service owns fetch, JSON serialization, response validation, friendly error categories, external cancellation and 10,000ms timeout including response-body reads.
+- Decision (2026-10-16, Phase 5): usePlanner owns trip/profile/results/selected route/loading/error/retry. Clear stale display immediately via request-keyed results, abort on cleanup and ignore obsolete completions. Small in-memory per-trip/profile cache is sufficient for fixed demo data; Retry bypasses that entry. Cards select alternative IDs independently of profile intent. No state library or client scoring added. toDisplayRoutes only formats metrics and projects API local metres into the existing schematic with fixed pilot bounds. Selected line is thicker/drawn last, numbered options identify alternatives, and map legend/card radio states expose selection textually.
+- Decision (2026-10-16, Phase 5): retain Phase 2 mock/state stress fixtures in an explicitly development-only DemoPlannerScreen via query parameters. Default and release planner always use HTTP, with no silent mock fallback. Manual places are always available; no live location permission exists or is added. Existing permission-denied preview remains a regression fixture. Long backend explanations/warnings/freshness wrap and scroll in the preserved visual system; no important backend text is truncated.
 
 - Decision (2026-10-16, Phase 3): version-1 strict JSON `services/api/data/pilot/simulated_demo.json`, labelled SIMULATED_DEMO, with 11 generic nodes, 14 directed segments and local metre coordinates. Use frozen NetworkX DiGraph and immutable Pydantic records; reject duplicate nodes/segment IDs/directed pairs, unknown endpoints, self-loops, nonfinite/invalid attributes, unzoned timestamps and mismatched geometry endpoints. Reverse travel requires explicit reverse records. No verified real-world pilot data exists.
 - Decision (2026-10-16, Phase 3): NetworkX Yen `shortest_simple_paths` on canonically constructed, hard-filtered graphs; up to 3 candidates, sorted by integer nanocost, time, distance and segment IDs. Inspect entire boundary-cost tie group even for K=1. Budget 2,000 examined candidates raises SearchLimitError rather than silently returning incomplete ranking. Stable SHA-256 path/profile/dataset IDs. Baseline comes from the actual fastest usable path.
@@ -153,6 +169,8 @@ The product concept is validated by the team's 168-response survey. The survey f
 
 ## Outcomes & Retrospective
 
+Phases 4 and 5 are complete for the requested simulated pilot. Full mobile → FastAPI → existing engine → geometry/cards flow works on Android Studio Expo Go. Same primary trip selects three distinct preferred paths at 8/10/12 minutes, with truthful server reasons, explicit unknown accessibility and data-quality freshness. Native QA verified an alternative route, single-option Step-Free, no-route without fallback, connection failure/retry, loading, actual 10-second timeout/retry and long text at 320dp/200% scale. Final gates: Ruff clean, 107 backend tests (15 HTTP contract cases), npm run check clean with 35 mobile tests, live health 200. Evidence is docs/demo/phase45/. No new dependencies or domain scoring changes. Phase 0 geographic provider rendering, physical phone, iOS and spoken TalkBack remain separately unverified; no later phases implemented. Work remains local, uncommitted and unpushed.
+
 Phase 3 is fully complete for the offline domain scope. The 11-node/14-segment versioned synthetic graph produces the intended three preferred families for one trip: Fastest A (8min,600m), Safer at Night B (10min,720m,+2min, lighting/public/verified-proximity indicators), Step-Free C (12min,830m,+4min, stairs excluded, ramp/curb cuts/recorded entrances). Unknown values are preserved; no eligible Step-Free path yields NoRouteError rather than an inaccessible fallback. Confidence is data quality with a fixed demo reference time; B is Medium because two segments have incomplete accessibility metadata. A/C are High data confidence, not safety/accessibility guarantees.
 
 Final validation: `./.venv/Scripts/python.exe -m ruff check services/api` clean; `./.venv/Scripts/python.exe -m pytest services/api/tests` 92 passed (89 new domain cases, 3 existing); `npm run check` passes lint, typecheck, 14 tests; `git diff --check` clean. Offline CLI output inspected and saved. Internal models live alongside the routing domain to avoid creating premature public HTTP contracts. Existing main.py endpoints and every mobile file remain unchanged. No dependency installed. Prototype weights, thresholds, directed-only topology, 2,000-candidate budget and nanocost precision are documented limitations; no real pilot claims or nationwide scalability claims. Native map-provider/hardware limitations remain separate earlier-phase work. No commit or push performed for Phase 3.
@@ -167,7 +185,7 @@ Phase 0 implementation: API health and deterministic route HTTP spike work; thre
 
 ## Context and Orientation
 
-Phase 3 paths: `services/api/app/routing/` (`models`, `graph_loader`, `profiles`, `scoring`, `engine`, `explanations`, `confidence`, `errors`, offline `demo`); `services/api/data/pilot/simulated_demo.json`; `services/api/tests/test_routing.py`; `docs/demo/route-fixture-notes.md`; `docs/demo/phase3-routing-results.txt`. To inspect without starting a server: `./.venv/Scripts/python.exe -m services.api.app.routing.demo`. The public `/v1/routes` endpoint and mobile transport integration remain Phase 4/5 work; their checklist items remain unchecked.
+Phase 3 paths: `services/api/app/routing/` (`models`, `graph_loader`, `profiles`, `scoring`, `engine`, `explanations`, `confidence`, `errors`, offline `demo`); `services/api/data/pilot/simulated_demo.json`; `services/api/tests/test_routing.py`; `docs/demo/route-fixture-notes.md`; `docs/demo/phase3-routing-results.txt`. To inspect without starting a server: `./.venv/Scripts/python.exe -m services.api.app.routing.demo`. Phase 4/5 now add app/models/routes.py and app/api/routes.py, tests/test_routes_api.py, mobile src/services/routingApi.ts and planner usePlanner/routePresentation/ApiPlannerState; HTTP and native evidence live in docs/demo/phase45/.
 
 Phase 1 paths: root `package.json`/`package-lock.json` (npm workspace); `scripts/expo.cjs` (portable Expo resolution); `apps/mobile/src/app/(main)/` (Planner, Community, Profile and responsive navigation); `apps/mobile/src/components/ScreenShell.tsx`; `apps/mobile/__tests__/navigation.test.tsx`; `services/api/tests/test_health.py`; root `.env.example` and `.gitignore`. The original map spike was preserved at `apps/mobile/src/app/spikes/map.tsx`; `/` now opens Planner. The app-local lockfile was superseded by the verified root lockfile.
 
@@ -466,7 +484,7 @@ Acceptance is a fresh-clone rehearsal in which another team member can start the
 
 ## Concrete Steps
 
-### Current verified Phase 1 workflow (2026-10-15)
+### Current verified Phase 4/5 workflow (2026-10-16)
 
 From root (npm workspaces, not pnpm):
 
@@ -489,7 +507,7 @@ Python (Windows):
 
 On macOS/Linux use `.venv/bin/python`. The frozen Python requirements were verified against the local environment with pip --no-index; initial creation/download was done in Phase 0. Health: GET http://127.0.0.1:8000/health -> 200 {"status":"ok"}.
 
-Android: start the AVD in Android Studio; set ANDROID_HOME to the actual SDK path; run `adb -s <serial> reverse tcp:8081 tcp:8081`, then `npm start`, then open exp://127.0.0.1:8081 in Expo Go. The startup helper uses IPv4-first localhost and resolves Expo whether nested or hoisted. For a physical phone use its ADB serial. No credentials or environment copy needed for Phase 1. See README for exact PowerShell commands.
+Android: start the AVD in Android Studio; set ANDROID_HOME to the actual SDK path; run `adb -s <serial> reverse tcp:8081 tcp:8081`, then `npm start`, then open exp://127.0.0.1:8081 in Expo Go. The startup helper uses IPv4-first localhost and resolves Expo whether nested or hoisted. For a physical phone use its ADB serial. For Phase 5 copy .env.example to apps/mobile/.env.local, set EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:8000, and also reverse tcp:8000 tcp:8000. No credentials needed. See README for emulator-alias and physical-device alternatives.
 
 ### Historical Phase 0 commands (superseded by Phase 1)
 
@@ -513,62 +531,9 @@ From root:
 
 Verified HTTP requests: `GET /health` -> 200 and `POST /spikes/route` with `{}` -> 200, 120 seconds and 3 LineString coordinates. No mobile unit suite exists yet. Production startup and native map checks are separate from successful bundle export.
 
-The exact commands must be updated after Milestone 0 if the repository already uses different tooling. For an empty repository, use this baseline.
+### Current routing demo
 
-From repository root, initialize the JavaScript workspace:
-
-    corepack enable
-    pnpm init
-    pnpm add -w -D prettier
-
-Create the Expo app:
-
-    pnpm dlx create-expo-app@latest apps/mobile --template
-    cd apps/mobile
-    pnpm install
-    cd ../..
-
-Add the routing service folders and a Python virtual environment:
-
-    python -m venv .venv
-
-On Windows PowerShell, install API dependencies using:
-
-    .\.venv\Scripts\python.exe -m pip install fastapi uvicorn networkx pydantic
-    .\.venv\Scripts\python.exe -m pip install pytest ruff httpx
-
-On macOS/Linux, use:
-
-    ./.venv/bin/python -m pip install fastapi uvicorn networkx pydantic
-    ./.venv/bin/python -m pip install pytest ruff httpx
-
-After the API exists, start it from repository root with the OS-appropriate Python path:
-
-    .\.venv\Scripts\python.exe -m uvicorn services.api.app.main:app --reload --port 8000
-
-Expected health check:
-
-    GET http://127.0.0.1:8000/health
-    200 {"status":"ok"}
-
-Start the Expo app from repository root:
-
-    pnpm --dir apps/mobile start
-
-Before each milestone is marked complete, run:
-
-    pnpm --dir apps/mobile lint
-    pnpm --dir apps/mobile typecheck
-    pnpm --dir apps/mobile test
-
-and:
-
-    .\.venv\Scripts\python.exe -m ruff check services/api
-    .\.venv\Scripts\python.exe -m pytest services/api/tests
-
-If the Expo template uses different script names, add stable aliases rather than relying on undocumented one-off commands.
-
-Every time the plan changes materially, update this section with the commands that now actually work.
+Start Uvicorn in terminal 1 and npm start in terminal 2 using the commands above. Set EXPO_PUBLIC_API_BASE_URL before starting Expo. Android USB/emulator: reverse API 8000 and Metro 8081. Select Transit Stop → Residential Block and switch Fastest → Safer at Night → Step-Free; observe 8/10/12 minutes and distinct selected geometry. No code/data edits required. The final QA used isolated Metro 8082 to preserve an existing user server; that port also needs its own ADB reverse if reused.
 
 ## Validation and Acceptance
 
@@ -687,3 +652,5 @@ Prefer stable, well-supported dependencies. Do not add a large UI kit until `pic
 ## Revision Notes
 
 2026-10-15: Initial ExecPlan created from the Jom! product documentation, survey findings, hackathon MVP requirements, AGENTS.md conventions, and OpenAI ExecPlan guidance. The plan intentionally starts with repository and map-SDK discovery because the actual implementation repository has not yet been inspected.
+
+2026-10-16: Phases 4/5 implemented and verified; HTTP contract, error/CORS decisions, node-only resolution, environment URL, planner state/cache, local geometry projection and timeout documented. Current commands supersede scaffold-era pnpm examples.

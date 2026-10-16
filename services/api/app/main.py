@@ -1,4 +1,4 @@
-"""Phase 0 transport spike; not the production routing contract."""
+"""Jom! routing API with the preserved Phase 0 transport spike."""
 
 from itertools import pairwise
 
@@ -6,7 +6,10 @@ import networkx as nx
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-app = FastAPI(title="Jom! technical spike")
+from .api.routes import router
+
+app = FastAPI(title="Jom! routing API")
+app.include_router(router)
 
 
 class SpikeRequest(BaseModel):

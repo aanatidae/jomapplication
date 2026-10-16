@@ -1,0 +1,87 @@
+export type RouteProfile = 'fastest' | 'safer_at_night' | 'step_free';
+export type RoutePoint = { node_id: string };
+export type RoutePreferences = {
+  prefer_well_lit?: null; avoid_stairs?: null; avoid_steep_slopes?: null;
+  prefer_public_areas?: null; prefer_covered_paths?: null; max_detour_minutes?: null;
+};
+export type RouteRequest = {
+  origin: RoutePoint; destination: RoutePoint; profile: RouteProfile;
+  departure_time?: string; preferences?: RoutePreferences | null;
+};
+export type RouteOption = {
+  id: string; profile: RouteProfile;
+  geometry: { type: 'LineString'; coordinate_system: 'local_metres_not_geographic'; coordinates: [number, number][] };
+  distance_m: number; estimated_time_s: number; total_cost: number;
+  reasons: string[]; warnings: string[];
+  confidence: { level: 'High' | 'Medium' | 'Low'; factors: string[]; as_of: string };
+  verification_summary: string;
+};
+export type RouteResponse = {
+  dataset_id: string; data_kind: 'SIMULATED_DEMO'; reference_time: string; routes: RouteOption[];
+};
+export type RoutingErrorKind = 'timeout' | 'no_route' | 'outside_network' | 'network' | 'invalid_response' | 'server' | 'configuration';
+export class RoutingApiError extends Error {
+  constructor(public readonly kind: RoutingErrorKind) { super(kind); }
+}
+
+const record = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
+const strings = (value: unknown): value is string[] => Array.isArray(value) && value.every(v => typeof v === 'string');
+const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+const date = (v: unknown) => typeof v === 'string' && Number.isFinite(Date.parse(v));
+function validRoute(value: unknown): value is RouteOption {
+  if (!record(value) || !record(value.geometry) || !record(value.confidence)) return false;
+  const g = value.geometry; const c = value.confidence;
+  return typeof value.id === 'string' && value.id.length > 0 &&
+    ['fastest', 'safer_at_night', 'step_free'].includes(String(value.profile)) &&
+    g.type === 'LineString' && g.coordinate_system === 'local_metres_not_geographic' &&
+    Array.isArray(g.coordinates) && g.coordinates.length >= 2 && g.coordinates.every(p => Array.isArray(p) && p.length === 2 && p.every(finite)) &&
+    finite(value.distance_m) && value.distance_m > 0 && finite(value.estimated_time_s) && value.estimated_time_s > 0 &&
+    finite(value.total_cost) && value.total_cost >= 0 && strings(value.reasons) && strings(value.warnings) &&
+    ['High', 'Medium', 'Low'].includes(String(c.level)) && strings(c.factors) && date(c.as_of) &&
+    typeof value.verification_summary === 'string';
+}
+export function parseRouteResponse(value: unknown): RouteResponse {
+  if (!record(value) || typeof value.dataset_id !== 'string' || value.data_kind !== 'SIMULATED_DEMO' ||
+      !date(value.reference_time) || !Array.isArray(value.routes) || value.routes.length > 3 ||
+      !value.routes.every(validRoute) || new Set(value.routes.map(r => r.id)).size !== value.routes.length) {
+    throw new RoutingApiError('invalid_response');
+  }
+  return value as RouteResponse;
+}
+
+export async function planRoutes(request: RouteRequest, options: {
+  baseUrl?: string; timeoutMs?: number; signal?: AbortSignal;
+} = {}): Promise<RouteResponse> {
+  const baseUrl = options.baseUrl ?? process.env.EXPO_PUBLIC_API_BASE_URL;
+  if (!baseUrl || !/^https?:\/\//.test(baseUrl)) throw new RoutingApiError('configuration');
+  const controller = new AbortController();
+  let timedOut = false;
+  const abort = () => controller.abort();
+  options.signal?.addEventListener('abort', abort);
+  if (options.signal?.aborted) controller.abort();
+  const timer = setTimeout(() => { timedOut = true; controller.abort(); }, options.timeoutMs ?? 10000);
+  try {
+    const response = await fetch(`${baseUrl.replace(/\/$/, '')}/v1/routes`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request), signal: controller.signal,
+    });
+    if (!response.ok) {
+      const body: unknown = await response.json().catch(() => null);
+      if (response.status === 404 && record(body) && typeof body.detail === 'string') {
+        throw new RoutingApiError(body.detail.includes('outside') ? 'outside_network' : 'no_route');
+      }
+      throw new RoutingApiError('server');
+    }
+    const result = parseRouteResponse(await response.json());
+    if (result.routes.some(r => r.profile !== request.profile)) throw new RoutingApiError('invalid_response');
+    return result;
+  } catch (error) {
+    if (timedOut) throw new RoutingApiError('timeout');
+    if (error instanceof RoutingApiError) throw error;
+    if (error instanceof SyntaxError) throw new RoutingApiError('invalid_response');
+    throw new RoutingApiError('network');
+  } finally {
+    clearTimeout(timer);
+    options.signal?.removeEventListener('abort', abort);
+  }
+}

@@ -5,6 +5,13 @@ import CommunityScreen from '../src/app/(main)/community';
 import PlannerScreen from '../src/app/(main)/index';
 import ProfileScreen from '../src/app/(main)/profile';
 
+jest.mock('../src/features/planner/PlannerScreen', () => ({
+  PlannerScreen: () => {
+    const { Text } = require('react-native');
+    return <Text accessibilityRole="header">Planner</Text>;
+  },
+}));
+
 const routes = {
   _layout: MainLayout,
   index: PlannerScreen,

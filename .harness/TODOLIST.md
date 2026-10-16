@@ -190,55 +190,69 @@ Verified 2026-10-16: versioned SIMULATED_DEMO graph (11 nodes / 14 directed segm
 
 ## Phase 4 — Routing API
 
-- [ ] Define `RouteProfile`.
-- [ ] Define `RoutePreferences`.
-- [ ] Define `RoutePoint`.
-- [ ] Define `RouteRequest`.
-- [ ] Define `RouteReason`.
-- [ ] Define `RouteOption`.
-- [ ] Define `RouteResponse`.
-- [ ] Implement `POST /v1/routes`.
-- [ ] Validate profile values.
-- [ ] Validate origin/destination.
-- [ ] Add node/coordinate snapping strategy.
-- [ ] Return 1–3 route options.
-- [ ] Return geometry.
-- [ ] Return ETA and distance.
-- [ ] Return reasons/warnings.
-- [ ] Return confidence and verification summary.
-- [ ] Add clean no-route response.
-- [ ] Add request/response API tests.
-- [ ] Document sample route request in README.
+- [x] Define `RouteProfile`.
+- [x] Define `RoutePreferences`.
+- [x] Define `RoutePoint`.
+- [x] Define `RouteRequest`.
+- [x] Define `RouteReason`.
+- [x] Define `RouteOption`.
+- [x] Define `RouteResponse`.
+- [x] Implement `POST /v1/routes`.
+- [x] Validate profile values.
+- [x] Validate origin/destination.
+- [x] Add node/coordinate snapping strategy.
+- [x] Return 1–3 route options.
+- [x] Return geometry.
+- [x] Return ETA and distance.
+- [x] Return reasons/warnings.
+- [x] Return confidence and verification summary.
+- [x] Add clean no-route response.
+- [x] Add request/response API tests.
+- [x] Document sample route request in README.
 
 ## Phase 5 — Mobile/API integration
 
-- [ ] Create typed routing API service.
-- [ ] Add environment-based API base URL.
-- [ ] Add planner state/hook/store.
-- [ ] Connect origin/destination to request model.
-- [ ] Connect profile selector to API request.
-- [ ] Render API route geometry.
-- [ ] Render route options from API.
-- [ ] Select a route from the comparison sheet.
-- [ ] Highlight selected route on the map.
-- [ ] Show API reasons.
-- [ ] Show warnings.
-- [ ] Show confidence.
-- [ ] Show last-verified state when present.
-- [ ] Implement loading state.
-- [ ] Implement timeout state.
-- [ ] Implement API error state.
-- [ ] Implement no-route state.
-- [ ] Implement retry.
-- [ ] Implement location-permission-denied state.
-- [ ] Ensure route scoring logic exists only on server.
+- [x] Create typed routing API service.
+- [x] Add environment-based API base URL.
+- [x] Add planner state/hook/store.
+- [x] Connect origin/destination to request model.
+- [x] Connect profile selector to API request.
+- [x] Render API route geometry.
+- [x] Render route options from API.
+- [x] Select a route from the comparison sheet.
+- [x] Highlight selected route on the map.
+- [x] Show API reasons.
+- [x] Show warnings.
+- [x] Show confidence.
+- [x] Show last-verified state when present.
+- [x] Implement loading state.
+- [x] Implement timeout state.
+- [x] Implement API error state.
+- [x] Implement no-route state.
+- [x] Implement retry.
+- [x] Implement location-permission-denied state.
+- [x] Ensure route scoring logic exists only on server.
 
 ### Phase 5 acceptance
 
-- [ ] Same trip returns visibly different route for Fastest vs Safer at Night.
-- [ ] Same trip excludes stairs in Step-Free.
-- [ ] UI explanation matches API response.
-- [ ] No manual code/data edit is needed during demo.
+- [x] Same trip returns visibly different route for Fastest vs Safer at Night.
+- [x] Same trip excludes stairs in Step-Free.
+- [x] UI explanation matches API response.
+- [x] No manual code/data edit is needed during demo.
+
+Verified 2026-10-16: Phase 4 passed independently before mobile integration. Final Ruff clean; 107 backend tests (15 HTTP contract + 92 preserved); npm run check passes lint/types/35 mobile tests. Native Android Studio Expo Go: default trip produces Fastest 8min/600m, Safer at Night 10min/720m, Step-Free 12min/830m and distinct selected geometry; real alternative selection, single-option result, unknown accessibility, no-route, network error/retry, 10-second timeout/retry and 320dp/200% text verified. Evidence: docs/demo/phase45/results.md, http-validation.json and PNG/XML pairs. No live location permission is used; manual origins always work and the existing denied-permission development preview is preserved. Node-only inputs, local schematic geometry, no silent fallback or scoring duplication. README/.env.example and PLAN progress/discoveries/decisions/outcomes updated. Physical phone/iOS/spoken TalkBack and Phase 0 geographic provider remain limitations, not claimed passes. No commit/push or later phases.
+
+### Additional Phase 4/5 acceptance evidence
+
+- [x] HTTP validates unsupported profiles, unknown endpoints, same nodes, aware timestamps and unsupported preferences.
+- [x] Geometry, ETA, distance, reasons, warnings, confidence and verification summary returned in deterministic order.
+- [x] No-route and Step-Free unavailability handled without a stairs fallback; unexpected errors sanitized; search budget returns 503.
+- [x] GET /health still returns 200 with expected JSON; README documents the contract and native CORS decision.
+- [x] Environment URL, typed client, 10-second timeout and malformed response checks verified.
+- [x] Loading, timeout, API error, no-route, Retry and unknown accessibility tested at feature/HTTP boundaries.
+- [x] Numbered API geometry, selected card/map emphasis and confidence/freshness verified natively.
+- [x] Manual Fastest / Safer-at-Night / Step-Free scenarios pass without code/data edits.
+- [x] Harness updated; all relevant backend/mobile gates pass.
 
 ## Phase 6 — Onboarding and preferences
 

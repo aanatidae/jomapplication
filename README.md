@@ -4,7 +4,10 @@ Pedestrian-first walking route planning. Project guidance lives in `.harness/AGE
 
 ## Current scope
 
-Phase 1 provides a plain Expo Router shell with reachable Planner, Community, and Profile screens, plus the FastAPI health endpoint and quality gates. Routing profiles, persistence, production UI, and animations are later phases. The simulated Phase 0 map spike is preserved at `/spikes/map`; its blank map tiles/overlays remain an unresolved Phase 0 issue.
+The planner calls FastAPI's Phase 3 engine for three profiles and displays simulated
+pilot routes on the Phase 2 schematic map. Community and Profile remain shells;
+onboarding, persistence, live geography and animation polish are later phases.
+The native provider spike remains at `/spikes/map`, with its earlier blank-map issue separately tracked.
 
 ## Requirements
 
@@ -23,9 +26,130 @@ python -m venv .venv
 
 The root npm workspace owns the single `package-lock.json`. Run installation from the root; do not create an app-local lockfile. On macOS/Linux, replace `./.venv/Scripts/python.exe` with `./.venv/bin/python`.
 
-No credentials or environment files are required for Phase 1. `.env.example` documents a future public API URL; it is not yet consumed. Expo client values belong in `apps/mobile/.env.local` when API integration is added. Never put server secrets in `EXPO_PUBLIC_*` values.
+Copy `.env.example` to `apps/mobile/.env.local` before starting Expo. The client reads
+`EXPO_PUBLIC_API_BASE_URL`; restart Expo after changing it. Never put secrets in public values.
+
+### Run API and mobile together
+
+Terminal 1 (root):
+
+```powershell
+./.venv/Scripts/python.exe -m uvicorn services.api.app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Terminal 2 (root):
+
+```powershell
+npm start
+```
+
+Use `EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:8000` with iOS Simulator or Android
+ADB reverse: `adb -s <serial> reverse tcp:8000 tcp:8000` (in addition to Metro's 8081).
+Android Studio emulator without reverse can use `http://10.0.2.2:8000`.
+A USB-connected physical Android phone can also use ADB reverse and localhost.
+For a phone over Wi-Fi, localhost refers to the phone: set the URL to your computer's
+LAN address, start Uvicorn with `--host 0.0.0.0`, and allow port 8000 only on your
+trusted development network. No developer LAN IP is committed. Metro LAN setup is
+separate from the API URL. This is development setup, not deployment configuration.
+
+Default demo trip: Transit Stop → Residential Block. Fastest is 8 min/600 m,
+Safer at Night 10 min/720 m, Step-Free 12 min/830 m. Profiles work without code edits.
+Places use actual pilot node IDs; Community Mall maps to `mall_entrance`.
+The service timeout is 10 seconds. Errors/no-route states preserve the trip and offer
+Retry; profile controls and manual place selection remain usable during requests.
+No live location permission is requested. Returned reasons/warnings are the source
+of truth, including unknown accessibility. Confidence and verification are simulated
+data quality, never a safety guarantee. Development-only Phase 2 fixture previews
+remain available via explicit `?demoState=...` URLs; the default planner has no offline mock fallback.
 
 ## Start the API
+
+### Routing HTTP contract (Phase 4)
+
+`POST /v1/routes` calls the existing Phase 3 engine. Example (curl in a POSIX shell):
+
+```sh
+curl -X POST http://127.0.0.1:8000/v1/routes \
+  -H 'Content-Type: application/json' \
+  -d '{"origin":{"node_id":"transit_stop"},"destination":{"node_id":"residential_block"},"profile":"safer_at_night"}'
+```
+
+Example response (actual preferred option shown; other alternatives omitted):
+
+```json
+{
+  "dataset_id": "jom_simulated_pilot_v1",
+  "data_kind": "SIMULATED_DEMO",
+  "reference_time": "2026-10-16T12:00:00Z",
+  "routes": [
+    {
+      "id": "safer_at_night-359b3ec3f8111840",
+      "profile": "safer_at_night",
+      "geometry": {
+        "type": "LineString",
+        "coordinate_system": "local_metres_not_geographic",
+        "coordinates": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            180.0
+          ],
+          [
+            200.0,
+            120.0
+          ],
+          [
+            400.0,
+            0.0
+          ]
+        ]
+      },
+      "distance_m": 720.0,
+      "estimated_time_s": 600.0,
+      "total_cost": 1.308333332,
+      "reasons": [
+        "+2 min vs fastest",
+        "Better lighting than fastest",
+        "Passes active public areas",
+        "Near a verified staffed security/public point",
+        "No stairs recorded",
+        "Avoids staircase on fastest route"
+      ],
+      "warnings": [
+        "SIMULATED / DEMO graph; not for navigation or real-world safety claims.",
+        "Environmental indicators are not guarantees; conditions may change.",
+        "Accessibility information incomplete on 2 segment(s)"
+      ],
+      "confidence": {
+        "level": "Medium",
+        "factors": [
+          "Accessibility information incomplete on 2 segment(s)"
+        ],
+        "as_of": "2026-10-16T12:00:00Z"
+      },
+      "verification_summary": "SIMULATED / DEMO only; venue_verified: 3; sources: synthetic_fixture_author; oldest known update: 2026-10-13T12:00:00+00:00; missing timestamps: 0"
+    }
+  ]
+}
+```
+
+Supported profiles: `fastest`, `safer_at_night`, `step_free`. Inputs are node IDs only;
+no coordinate snapping/geocoding is supported for this synthetic local-metre graph.
+Optional timezone-aware `departure_time` is accepted as metadata; it does not change
+the fixed demo data-quality clock or simulate live conditions. `preferences` may be
+omitted, null, or empty; reserved preference fields only accept null until Custom is implemented.
+Unsupported values are rejected rather than silently ignored.
+
+Results contain 1–3 options in deterministic engine order. HTTP 422 means invalid
+input/profile or identical endpoints. HTTP 404 with `detail` identifies an unknown
+pilot node or no valid route (Step-Free has explicit wording and no stairs fallback).
+HTTP 503 means search capacity exceeded; unexpected calculation failures are logged
+and return a sanitized 500. `GET /health` remains `{"status":"ok"}`.
+Native Expo requests do not require CORS, so no cross-origin browser access is enabled.
+Any future web client needs an explicit origin allowlist; no wildcard production policy is assumed.
 
 From the root:
 
@@ -60,7 +184,8 @@ The startup script uses IPv4-first localhost resolution. In another terminal, op
 
 If Expo Go is not installed, `npm run android` can install/open the SDK-compatible version. Stop an already running Metro server before running that command. The helper resolves Expo whether npm nests or hoists workspace dependencies.
 
-Planner opens by default. Use bottom navigation to reach Community and Profile, then return to Planner. No location permission, login, external API, or database is required.
+Planner opens by default. Use bottom navigation to reach Community and Profile, then return to Planner.
+The routing API must be running for route results; location permission, login and a database are not required.
 
 ## Physical Android phone
 
@@ -78,7 +203,9 @@ npm test
 ./.venv/Scripts/python.exe -m pytest services/api/tests
 ```
 
-`npm run check` runs the three mobile gates sequentially. App-specific equivalents are `npm run lint --workspace mobile`, `npm run typecheck --workspace mobile`, and `npm test --workspace mobile` (or `npm --prefix apps/mobile run <script>`). Jest tests exercise Router navigation and direct entry to Community/Profile; API tests check health and preserve Phase 0 regression checks.
+`npm run check` runs the three mobile gates sequentially. App-specific equivalents are `npm run lint --workspace mobile`, `npm run typecheck --workspace mobile`, and `npm test --workspace mobile` (or `npm --prefix apps/mobile run <script>`).
+Jest mocks the HTTP boundary and covers the API client, real planner feature, preserved preview and navigation.
+API tests cover the domain, HTTP route contract, health and preserved Phase 0 spike.
 
 Additional Expo checks:
 

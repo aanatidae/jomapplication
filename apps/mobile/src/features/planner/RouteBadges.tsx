@@ -6,7 +6,7 @@ export function RouteReasonBadge({ label }: { label: string }) {
   return <View style={styles.reason}><Text style={type.caption}>{label}</Text></View>;
 }
 export function ConfidenceBadge({ label, quality }: { label: string; quality: MockRoute['quality'] }) {
-  const prefix = quality === 'verified' ? 'Checked' : quality === 'community' ? 'Source' : 'Unknown';
+  const prefix = quality === 'data' ? 'Data' : quality === 'verified' ? 'Checked' : quality === 'community' ? 'Source' : 'Unknown';
   return <Text style={[type.caption, styles.confidence, quality !== 'verified' && styles.unknown]}>{prefix}: {label}</Text>;
 }
 const styles = StyleSheet.create({

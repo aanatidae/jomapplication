@@ -8,15 +8,15 @@ import { places } from './mockRoutes';
 type Props = {
   origin: string; destination: string;
   onChange: (field: 'origin' | 'destination', value: string) => void;
-  requestedField?: 'origin' | null; onClose?: () => void;
+  availablePlaces?: readonly string[]; requestedField?: 'origin' | null; onClose?: () => void;
 };
-export function TripSearchBar({ origin, destination, onChange, requestedField, onClose }: Props) {
+export function TripSearchBar({ origin, destination, onChange, requestedField, onClose, availablePlaces = places }: Props) {
   const [editing, setEditing] = useState<'origin' | 'destination' | null>(null);
   const [query, setQuery] = useState('');
   const activeField = requestedField ?? editing;
   function closePicker() { Keyboard.dismiss(); setEditing(null); setQuery(''); onClose?.(); }
   function choose(value: string) { if (activeField) onChange(activeField, value); closePicker(); }
-  const matches = places.filter(p => p.toLowerCase().includes(query.trim().toLowerCase()));
+  const matches = availablePlaces.filter(p => p.toLowerCase().includes(query.trim().toLowerCase()));
   return <View style={styles.trip}>
     <Text style={type.caption}>Same trip. A route for your needs.</Text>
     <SecondaryButton label={`From · ${origin}`} onPress={() => { setQuery(''); setEditing('origin'); }} />
@@ -30,7 +30,7 @@ export function TripSearchBar({ origin, destination, onChange, requestedField, o
             <TextInput accessibilityLabel="Search demo places" placeholder="Search demo places" placeholderTextColor={theme.color.muted} selectionColor={theme.color.accent}
               style={styles.input} value={query} onChangeText={setQuery} returnKeyType="search" autoCorrect={false} />
             {matches.map(place => <PrimaryButton key={place} label={place} onPress={() => choose(place)} />)}
-            {matches.length === 0 && <Text style={type.body}>No matching demo places. Clear your search to see all four.</Text>}
+            {matches.length === 0 && <Text style={type.body}>No matching demo places. Clear your search to see all places.</Text>}
             <IconButton label="Cancel" onPress={closePicker} />
           </ScrollView>
         </KeyboardAvoidingView>

@@ -5,18 +5,18 @@ import { RouteOptionCard } from './RouteOptionCard';
 import { RouteProfileChip } from './RouteProfileChip';
 import type { MockRoute, RouteProfile } from './mockRoutes';
 
-export function RouteComparisonSheet({ routes, selected, onSelect, expanded, onToggle }: {
-  routes: readonly MockRoute[]; selected: RouteProfile; onSelect: (id: RouteProfile) => void; expanded: boolean; onToggle: () => void;
+export function RouteComparisonSheet({ routes, selected, onSelect, expanded, onToggle, hideProfiles = false }: {
+  routes: readonly MockRoute[]; selected: RouteProfile; onSelect: (id: RouteProfile) => void; expanded: boolean; onToggle: () => void; hideProfiles?: boolean;
 }) {
   const selectedRoute = routes.find(r => r.id === selected);
   const ordered = selectedRoute ? [selectedRoute, ...routes.filter(r => r.id !== selected)] : routes;
   return <View style={styles.sheet}>
     <Text accessibilityRole="header" style={type.heading}>Your walk, your priority.</Text>
     <Text style={type.body}>Same origin. Same destination. Different best route.</Text>
-    <View accessibilityRole="radiogroup" accessibilityLabel="Route priority" style={styles.profiles}>
+    {!hideProfiles && <View accessibilityRole="radiogroup" accessibilityLabel="Route priority" style={styles.profiles}>
       {routes.map(route => <RouteProfileChip key={route.id} route={route} selected={selected === route.id} onPress={() => onSelect(route.id)} />)}
-    </View>
-    <SecondaryButton label={expanded ? 'Collapse comparison' : 'Compare all 3 routes'} accessibilityState={{ expanded }} onPress={onToggle} />
+    </View>}
+    <SecondaryButton label={expanded ? 'Collapse comparison' : `Compare ${routes.length} route${routes.length === 1 ? "" : "s"}`} accessibilityState={{ expanded }} onPress={onToggle} />
     <View accessibilityRole="radiogroup" accessibilityLabel="Route options" style={styles.cards}>
       {(expanded ? ordered : ordered.slice(0, 1)).map(route => <RouteOptionCard key={route.id} route={route} selected={selected === route.id} onPress={() => onSelect(route.id)} />)}
     </View>

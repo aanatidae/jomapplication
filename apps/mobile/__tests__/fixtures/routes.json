@@ -1,0 +1,360 @@
+{
+  "fastest": {
+    "dataset_id": "jom_simulated_pilot_v1",
+    "data_kind": "SIMULATED_DEMO",
+    "reference_time": "2026-10-16T12:00:00Z",
+    "routes": [
+      {
+        "id": "fastest-1b8015c1870c3c64",
+        "profile": "fastest",
+        "geometry": {
+          "type": "LineString",
+          "coordinate_system": "local_metres_not_geographic",
+          "coordinates": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              200.0,
+              0.0
+            ],
+            [
+              400.0,
+              0.0
+            ]
+          ]
+        },
+        "distance_m": 600.0,
+        "estimated_time_s": 480.0,
+        "total_cost": 0.8,
+        "reasons": [
+          "Shortest travel time",
+          "Contains stairs",
+          "Accessible entrance recorded"
+        ],
+        "warnings": [
+          "SIMULATED / DEMO graph; not for navigation or real-world safety claims.",
+          "Environmental indicators are not guarantees; conditions may change."
+        ],
+        "confidence": {
+          "level": "High",
+          "factors": [],
+          "as_of": "2026-10-16T12:00:00Z"
+        },
+        "verification_summary": "SIMULATED / DEMO only; venue_verified: 2; sources: synthetic_fixture_author; oldest known update: 2026-10-13T12:00:00+00:00; missing timestamps: 0"
+      },
+      {
+        "id": "fastest-b2cd49ba266232c9",
+        "profile": "fastest",
+        "geometry": {
+          "type": "LineString",
+          "coordinate_system": "local_metres_not_geographic",
+          "coordinates": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              180.0
+            ],
+            [
+              200.0,
+              120.0
+            ],
+            [
+              400.0,
+              0.0
+            ]
+          ]
+        },
+        "distance_m": 720.0,
+        "estimated_time_s": 600.0,
+        "total_cost": 0.999999999,
+        "reasons": [
+          "+2 min vs fastest",
+          "Better lighting than fastest",
+          "Passes active public areas",
+          "Near a verified staffed security/public point",
+          "No stairs recorded",
+          "Avoids staircase on fastest route"
+        ],
+        "warnings": [
+          "SIMULATED / DEMO graph; not for navigation or real-world safety claims.",
+          "Environmental indicators are not guarantees; conditions may change.",
+          "Accessibility information incomplete on 2 segment(s)"
+        ],
+        "confidence": {
+          "level": "Medium",
+          "factors": [
+            "Accessibility information incomplete on 2 segment(s)"
+          ],
+          "as_of": "2026-10-16T12:00:00Z"
+        },
+        "verification_summary": "SIMULATED / DEMO only; venue_verified: 3; sources: synthetic_fixture_author; oldest known update: 2026-10-13T12:00:00+00:00; missing timestamps: 0"
+      },
+      {
+        "id": "fastest-cf1cd5c8b99aae7e",
+        "profile": "fastest",
+        "geometry": {
+          "type": "LineString",
+          "coordinate_system": "local_metres_not_geographic",
+          "coordinates": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -150.0
+            ],
+            [
+              160.0,
+              -150.0
+            ],
+            [
+              280.0,
+              -100.0
+            ],
+            [
+              400.0,
+              0.0
+            ]
+          ]
+        },
+        "distance_m": 830.0,
+        "estimated_time_s": 720.0,
+        "total_cost": 1.2,
+        "reasons": [
+          "+4 min vs fastest",
+          "Better lighting than fastest",
+          "No stairs recorded",
+          "Avoids staircase on fastest route",
+          "Uses ramp",
+          "Uses curb cuts",
+          "Accessible entrance recorded"
+        ],
+        "warnings": [
+          "SIMULATED / DEMO graph; not for navigation or real-world safety claims.",
+          "Environmental indicators are not guarantees; conditions may change."
+        ],
+        "confidence": {
+          "level": "High",
+          "factors": [],
+          "as_of": "2026-10-16T12:00:00Z"
+        },
+        "verification_summary": "SIMULATED / DEMO only; venue_verified: 4; sources: synthetic_fixture_author; oldest known update: 2026-10-13T12:00:00+00:00; missing timestamps: 0"
+      }
+    ]
+  },
+  "safer_at_night": {
+    "dataset_id": "jom_simulated_pilot_v1",
+    "data_kind": "SIMULATED_DEMO",
+    "reference_time": "2026-10-16T12:00:00Z",
+    "routes": [
+      {
+        "id": "safer_at_night-359b3ec3f8111840",
+        "profile": "safer_at_night",
+        "geometry": {
+          "type": "LineString",
+          "coordinate_system": "local_metres_not_geographic",
+          "coordinates": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              180.0
+            ],
+            [
+              200.0,
+              120.0
+            ],
+            [
+              400.0,
+              0.0
+            ]
+          ]
+        },
+        "distance_m": 720.0,
+        "estimated_time_s": 600.0,
+        "total_cost": 1.308333332,
+        "reasons": [
+          "+2 min vs fastest",
+          "Better lighting than fastest",
+          "Passes active public areas",
+          "Near a verified staffed security/public point",
+          "No stairs recorded",
+          "Avoids staircase on fastest route"
+        ],
+        "warnings": [
+          "SIMULATED / DEMO graph; not for navigation or real-world safety claims.",
+          "Environmental indicators are not guarantees; conditions may change.",
+          "Accessibility information incomplete on 2 segment(s)"
+        ],
+        "confidence": {
+          "level": "Medium",
+          "factors": [
+            "Accessibility information incomplete on 2 segment(s)"
+          ],
+          "as_of": "2026-10-16T12:00:00Z"
+        },
+        "verification_summary": "SIMULATED / DEMO only; venue_verified: 3; sources: synthetic_fixture_author; oldest known update: 2026-10-13T12:00:00+00:00; missing timestamps: 0"
+      },
+      {
+        "id": "safer_at_night-f8c5aaf9442152e4",
+        "profile": "safer_at_night",
+        "geometry": {
+          "type": "LineString",
+          "coordinate_system": "local_metres_not_geographic",
+          "coordinates": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              200.0,
+              0.0
+            ],
+            [
+              400.0,
+              0.0
+            ]
+          ]
+        },
+        "distance_m": 600.0,
+        "estimated_time_s": 480.0,
+        "total_cost": 2.056,
+        "reasons": [
+          "Shortest travel time",
+          "Contains stairs",
+          "Accessible entrance recorded"
+        ],
+        "warnings": [
+          "SIMULATED / DEMO graph; not for navigation or real-world safety claims.",
+          "Environmental indicators are not guarantees; conditions may change."
+        ],
+        "confidence": {
+          "level": "High",
+          "factors": [],
+          "as_of": "2026-10-16T12:00:00Z"
+        },
+        "verification_summary": "SIMULATED / DEMO only; venue_verified: 2; sources: synthetic_fixture_author; oldest known update: 2026-10-13T12:00:00+00:00; missing timestamps: 0"
+      },
+      {
+        "id": "safer_at_night-9e062c13f4361d9b",
+        "profile": "safer_at_night",
+        "geometry": {
+          "type": "LineString",
+          "coordinate_system": "local_metres_not_geographic",
+          "coordinates": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -150.0
+            ],
+            [
+              160.0,
+              -150.0
+            ],
+            [
+              280.0,
+              -100.0
+            ],
+            [
+              400.0,
+              0.0
+            ]
+          ]
+        },
+        "distance_m": 830.0,
+        "estimated_time_s": 720.0,
+        "total_cost": 2.544,
+        "reasons": [
+          "+4 min vs fastest",
+          "Better lighting than fastest",
+          "No stairs recorded",
+          "Avoids staircase on fastest route",
+          "Uses ramp",
+          "Uses curb cuts",
+          "Accessible entrance recorded"
+        ],
+        "warnings": [
+          "SIMULATED / DEMO graph; not for navigation or real-world safety claims.",
+          "Environmental indicators are not guarantees; conditions may change."
+        ],
+        "confidence": {
+          "level": "High",
+          "factors": [],
+          "as_of": "2026-10-16T12:00:00Z"
+        },
+        "verification_summary": "SIMULATED / DEMO only; venue_verified: 4; sources: synthetic_fixture_author; oldest known update: 2026-10-13T12:00:00+00:00; missing timestamps: 0"
+      }
+    ]
+  },
+  "step_free": {
+    "dataset_id": "jom_simulated_pilot_v1",
+    "data_kind": "SIMULATED_DEMO",
+    "reference_time": "2026-10-16T12:00:00Z",
+    "routes": [
+      {
+        "id": "step_free-2c786d47f154e7a7",
+        "profile": "step_free",
+        "geometry": {
+          "type": "LineString",
+          "coordinate_system": "local_metres_not_geographic",
+          "coordinates": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -150.0
+            ],
+            [
+              160.0,
+              -150.0
+            ],
+            [
+              280.0,
+              -100.0
+            ],
+            [
+              400.0,
+              0.0
+            ]
+          ]
+        },
+        "distance_m": 830.0,
+        "estimated_time_s": 720.0,
+        "total_cost": 1.336516205,
+        "reasons": [
+          "+4 min vs fastest",
+          "Better lighting than fastest",
+          "No stairs recorded",
+          "Avoids staircase on fastest route",
+          "Uses ramp",
+          "Uses curb cuts",
+          "Accessible entrance recorded"
+        ],
+        "warnings": [
+          "SIMULATED / DEMO graph; not for navigation or real-world safety claims.",
+          "Environmental indicators are not guarantees; conditions may change.",
+          "Step-free based on recorded demo attributes; not an accessibility guarantee."
+        ],
+        "confidence": {
+          "level": "High",
+          "factors": [],
+          "as_of": "2026-10-16T12:00:00Z"
+        },
+        "verification_summary": "SIMULATED / DEMO only; venue_verified: 4; sources: synthetic_fixture_author; oldest known update: 2026-10-13T12:00:00+00:00; missing timestamps: 0"
+      }
+    ]
+  }
+}
