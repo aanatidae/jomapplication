@@ -41,7 +41,7 @@ export function PlannerScreen() {
       const selected = routes.find(r => r.id === planner.selectedRoute?.id);
       setReportRoute(selected ? { id: selected.id, label: selected.mode, origin: planner.origin, destination: planner.destination, geometry: selected.geometry, distanceM: selected.distance, durationMinutes: selected.minutes, coordinateSystem: 'schematic_demo' } : null);
       router.push('/report-barrier');
-    }}/><SecondaryButton label="Local reports" onPress={() => router.push('/barrier-reports')}/></View>
+    }}/><SecondaryButton label="Reports" onPress={() => router.push('/barrier-reports')}/></View>
     {planner.status === 'empty' && <Text style={[type.caption, { padding: theme.space.md }]}>Your saved preferences may limit available routes. You can adjust them in Profile.</Text>}
     {planner.status === 'ready' ? <RouteComparisonSheet routes={routes} selected={planner.selectedRoute?.id ?? ''}
       onSelect={planner.selectRoute} expanded={expanded} onToggle={() => setExpanded(v => !v)} hideProfiles /> :

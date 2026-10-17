@@ -5,6 +5,7 @@ import { PrimaryButton, SecondaryButton } from '../../components/Buttons';
 import { Choice, ErrorText, Field, FormPage, form } from '../../components/Forms';
 import { LocalPhoto } from '../../components/LocalPhoto';
 import { type } from '../../theme/tokens';
+import { persistenceDescription } from '../../services/persistenceMode';
 import { getSharePath, seedPaths } from './data';
 import { communityRepository, validateShare } from './repository';
 import { TagChoices, VerificationBadge } from './components';
@@ -17,16 +18,17 @@ export function ShareScreen({ repository = communityRepository, initialDraft }: 
   const [created, setCreated] = useState<CommunityRoute | null>(null); const [busy, setBusy] = useState(false);
   function update(patch: Partial<CreateCommunityRouteInput>) { setDraft(v => ({ ...v, ...patch })); setErrors({}); }
   async function submit() {
+    if (busy) return;
     const validation = validateShare(draft); setErrors(validation); if (Object.keys(validation).length) return;
     setBusy(true); setFailure('');
     try { setCreated(await repository.createRoute(draft)); } catch { setFailure('Could not save the route. Your draft is still here. Try submitting again.'); } finally { setBusy(false); }
   }
   if (created) return <FormPage title="Route shared"><Text style={type.body}>{created.title}</Text><VerificationBadge level={created.verificationLevel}/>
-    <Text style={type.body}>Saved on this device. Your route may require confirmation.</Text>
+    <Text style={type.body}>{persistenceDescription} Your route may require confirmation.</Text>
     <PrimaryButton label="View shared route" onPress={() => router.replace({ pathname: '/community-route', params: { id: created.id } })}/>
     <SecondaryButton label="Back to Community" onPress={() => router.replace('/community')}/></FormPage>;
   return <FormPage title="Share a route"><SecondaryButton label="Cancel sharing" disabled={busy} onPress={() => router.replace('/community')}/>
-    <Text style={type.caption}>Share useful route knowledge. This demo saves on this device only.</Text>
+    <Text style={type.caption}>Share useful route knowledge. {persistenceDescription}</Text>
     <Field label="Route title" value={draft.title} maxLength={100} error={errors.title} onChangeText={title => update({ title })}/>
     <Text style={type.title}>Choose a route</Text><Text style={type.caption}>Seeded options are illustrative. To share a planned route, start from Planner.</Text>
     {paths.map(path => <Choice key={path.id} radio label={`${path.label} · ${path.durationMinutes} min`} selected={draft.route?.id === path.id} onPress={() => update({ route: path })}/>)}

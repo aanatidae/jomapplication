@@ -6,12 +6,55 @@ Pedestrian-first walking route planning. Project guidance lives in `.harness/AGE
 
 The planner calls FastAPI's Phase 3 engine for three profiles and displays simulated
 pilot routes on the Phase 2 schematic map. Three-step onboarding and editable Profile
-preferences persist locally. Community routes and barrier reports can be created and
-viewed through local repositories. Supabase, live geography and animation polish
-remain later phases. See [Phases 6–8 verification](docs/demo/phase678/results.md).
+preferences, community routes and barrier reports use Supabase repositories by default.
+Guest identity persists on the device; route/report photos use Supabase Storage.
+An explicit local demo mode retains the earlier repositories. Live geography and animation
+polish remain later phases. See [Phase 9 verification](docs/demo/phase9/results.md).
 The native provider spike remains at `/spikes/map`, with its earlier blank-map issue separately tracked.
 
-## Requirements
+## Supabase configuration (Phase 9)
+
+The hosted development project is configured with anonymous sign-ins. Set these public
+values in `apps/mobile/.env.local` (already configured on this development machine):
+
+```dotenv
+EXPO_PUBLIC_SUPABASE_URL=<project URL>
+EXPO_PUBLIC_SUPABASE_ANON_KEY=<public anon or publishable key>
+EXPO_PUBLIC_DATA_MODE=supabase
+EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
+```
+
+The existing ANON_KEY variable accepts either public key format; no duplicate key
+variable is needed. Both `.env.example` files contain placeholders only. Git ignores
+`.env.local`. Restart Metro after environment changes. Never use a database password,
+service-role key or secret key in mobile configuration.
+
+Tap **Continue as guest** once. Supabase creates a real authenticated user; AsyncStorage
+retains its session and refreshes it while the app is active. Preferences are keyed by
+that user ID. Clearing app storage/reinstalling loses this guest identity; recovery and
+account linking are not implemented. Auth loading, signed-out and retry/error states
+use the existing form primitives. No IC/age information is collected.
+
+For offline presentations only, explicitly set `EXPO_PUBLIC_DATA_MODE=local` and restart
+Metro. This uses the preserved Phase 6–8 AsyncStorage repositories and visibly says local
+demo. Network errors never activate fallback. Local records are not automatically copied
+to a guest account. Routing stays on the independent FastAPI pilot graph in either mode.
+
+Setup, migration/seed commands, Storage/RLS rules and local Docker instructions are in
+[supabase/README.md](supabase/README.md). Buckets/policies are created by migration;
+no dashboard edits are needed for demo data. Photos are public; use only non-personal
+route/report images. Feed queries return the latest 100 entries; full pagination,
+moderation and automated orphan/guest cleanup remain future work.
+
+Run the repeatable hosted policy/upload checks with:
+
+```powershell
+node --env-file=apps/mobile/.env.local scripts/verify-supabase.mjs
+```
+
+See [Phase 9 evidence](docs/demo/phase9/results.md) for exactly what was verified.
+
+## Development prerequisites
 
 - Node 24.x and npm 11.x (tested: Node 24.19.0 and npm 11.17.0).
 - Python 3.11.
@@ -151,7 +194,7 @@ omitted, null, or empty, or contain supported explicit needs:
 
 Boolean fields are strict booleans; detour is an optional integer from 0–60 minutes
 relative to the fastest usable route. Constraints are never relaxed to meet a detour
-limit. Covered/shaded and ramps/elevators preferences are stored locally and clearly
+limit. Covered/shaded and ramps/elevators preferences are saved and clearly
 labelled inactive; they are not sent. `prefer_covered_paths` remains a null-only
 reserved API field. Custom is deferred. Unsupported values are rejected.
 
@@ -233,11 +276,11 @@ apps/mobile/src/app/(main)/   Planner, onboarding-linked flows, Community, Profi
 apps/mobile/src/app/spikes/   Preserved Phase 0 map spike
 apps/mobile/src/components/   Shared native form, button, summary and shell primitives
 apps/mobile/src/features/     Planner, preferences, community, barriers and dev QA
-apps/mobile/src/services/     Typed routing and injectable local storage services
+apps/mobile/src/services/     Typed routing, Supabase repositories/auth/images, local fallback
 apps/mobile/__tests__/        User-flow, repository and routing tests
 services/api/app/             FastAPI application
 services/api/tests/           Pytest checks
-supabase/                    Reserved; no integration yet
+supabase/                    CLI configuration, versioned migrations and simulated seeds
 scripts/                     Workspace CLI helper
 docs/demo/                   Verification evidence and known limitations
 .harness/                    Instructions, living plan, checklist

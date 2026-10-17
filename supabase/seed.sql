@@ -1,0 +1,10 @@
+-- Reproducible simulated data only. This owner is a fixture, not a login account.
+insert into auth.users (id, aud, role, is_anonymous, created_at, updated_at, raw_app_meta_data, raw_user_meta_data)
+values ('00000000-0000-4000-8000-000000000090', 'authenticated', 'authenticated', true, now(), now(), '{"provider":"anonymous","providers":["anonymous"]}', '{}')
+on conflict (id) do nothing;
+insert into public.community_routes (id, user_id, title, notes, purpose_tags, route, accessibility_tags, warnings, verification_level)
+values
+('00000000-0000-4000-8000-000000000091', '00000000-0000-4000-8000-000000000090', 'DEMO · Covered mall shortcut', 'SIMULATED route. Not verified real-world guidance. Check access and conditions.', array['Shortcut','Covered'], '{"id":"demo-covered","label":"Simulated covered shortcut","origin":"Demo mall","destination":"Demo plaza","geometry":[[0.16,0.75],[0.4,0.5],[0.8,0.2]],"distanceM":600,"durationMinutes":8,"coordinateSystem":"schematic_demo"}', '{}', '{}', 'community_submitted'),
+('00000000-0000-4000-8000-000000000092', '00000000-0000-4000-8000-000000000090', 'DEMO · Step-free plaza route', 'SIMULATED step-free example. Entrances and ramps require checking on the day.', array['Walking','Accessible'], '{"id":"demo-plaza","label":"Simulated plaza connection","origin":"Demo transit stop","destination":"Demo plaza","geometry":[[0.16,0.75],[0.2,0.3],[0.8,0.2]],"distanceM":830,"durationMinutes":12,"coordinateSystem":"schematic_demo"}', array['Step-free','Ramp available'], '{}', 'community_submitted'),
+('00000000-0000-4000-8000-000000000093', '00000000-0000-4000-8000-000000000090', 'DEMO · Park jogging loop', 'SIMULATED jogging route. No safety or accessibility verification is implied.', array['Jogging','Scenic'], '{"id":"demo-park","label":"Simulated park loop","origin":"Demo park entrance","destination":"Demo park entrance","geometry":[[0.2,0.7],[0.4,0.2],[0.7,0.4],[0.2,0.7]],"distanceM":720,"durationMinutes":10,"coordinateSystem":"schematic_demo"}', '{}', '{}', 'community_submitted')
+on conflict (id) do nothing;

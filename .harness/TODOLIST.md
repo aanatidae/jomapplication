@@ -320,36 +320,38 @@ Verified Phase 8 (2026-10-16): Planner entry, all eight categories, current-rout
 
 ### Schema
 
-- [ ] Add profiles migration.
-- [ ] Add route posts migration.
-- [ ] Add route post images migration if needed.
-- [ ] Add barrier reports migration.
-- [ ] Add route confirmations migration if needed.
-- [ ] Add verification status fields.
-- [ ] Add freshness/expiry fields.
-- [ ] Add indexes required by primary queries.
+- [x] Add profiles migration.
+- [x] Add route posts migration.
+- [x] Add route image schema: one photo_path column, matching the single-photo form; no join table needed.
+- [x] Add barrier reports migration.
+- [x] Resolve confirmations schema: not used; Phase 7 confirmation remains deferred, so no table/count added.
+- [x] Add verification status fields.
+- [x] Add freshness/expiry fields.
+- [x] Add indexes required by primary queries.
 
 ### Security
 
-- [ ] Enable RLS for user/community tables.
-- [ ] User can update/delete own profile.
-- [ ] User can update/delete own route posts according to product rules.
-- [ ] User can update/delete own barrier reports according to product rules.
-- [ ] Public/community reads obey intended visibility.
-- [ ] Service-role key is server-only and absent from mobile bundle.
-- [ ] Validate image MIME type/size rules.
-- [ ] Add basic abuse/rate-limit plan for future production use.
+- [x] Enable RLS for user/community tables.
+- [x] User can update/delete own profile.
+- [x] User can update/delete own route posts according to product rules.
+- [x] User can update/delete own barrier reports according to product rules.
+- [x] Public/community reads obey intended visibility.
+- [x] Service-role/secret key absent from mobile; no privileged key required.
+- [x] Validate image MIME type/size rules.
+- [x] Add basic abuse/rate-limit plan for future production use.
 
 ### Client integration
 
-- [ ] Configure Supabase client.
-- [ ] Add auth flow or hackathon-safe guest/demo fallback.
-- [ ] Persist preferences.
-- [ ] Persist route posts.
-- [ ] Persist barrier reports.
-- [ ] Upload route/report photos.
-- [ ] Load Community feed from Supabase.
-- [ ] Verify persistence after app restart.
+- [x] Configure Supabase client.
+- [x] Add auth flow or hackathon-safe guest/demo fallback.
+- [x] Persist preferences.
+- [x] Persist route posts.
+- [x] Persist barrier reports.
+- [x] Upload route/report photos.
+- [x] Load Community feed from Supabase.
+- [x] Verify persistence after app restart.
+
+Verified 2026-10-17: fresh free Jom! project in Singapore, anonymous auth enabled with user confirmation, real public configuration only in ignored mobile .env.local. Two migrations deployed; private profiles, public published routes/reports, server-owned verification/expiry, bounded snapshots, indexes and public-read/owner-write Storage. Existing repository contracts preserved; explicit local fallback remains. Live two-user public-key tests pass ownership CRUD, cross-user/spoofed/signed-out write rejection, verified/confirmed escalation rejection, image uploads/public reads/overwrite protection and session restore. Native guest → onboarding → preferences → cold restart, photo route → restart, active-route photo report → restart pass. Final npm ci preserves all baseline entries plus ten additions; Expo lint/types/79 mobile tests, Ruff/119 API tests and Android production export pass. README/PLAN and docs/demo/phase9/results.md contain setup/evidence/limits. Docker/local reset and generated DB types not claimed; existing Expo/Router patch advisories retained. Phase 9 complete; Phase 10+ unchanged. No commit/push.
 
 ## Phase 10 — Confidence, freshness, and verification UX
 

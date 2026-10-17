@@ -16,7 +16,7 @@ it('accepts an image URI and rejects video and oversized images', async () => {
   render(<LocalPhoto onChange={onChange}/>); fireEvent.press(screen.getByText('Choose photo'));
   await screen.findByText('Choose photo'); expect(onChange).toHaveBeenCalledWith('file:///photo.jpg');
   picker.mockResolvedValueOnce({ canceled: false, assets: [{ uri: 'file:///movie.mp4', mimeType: 'video/mp4' }] });
-  fireEvent.press(screen.getByText('Choose photo')); await screen.findByText('Choose an image smaller than 10 MB.');
+  fireEvent.press(screen.getByText('Choose photo')); await screen.findByText('Choose a JPEG, PNG or WebP image smaller than 10 MB.');
 });
 it('broken local photo has a readable fallback', () => {
   render(<PhotoPreview uri="file:///missing.jpg"/>);

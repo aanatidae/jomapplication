@@ -11,6 +11,7 @@ import { SharedMap, VerificationBadge } from '../community/components';
 import { barrierCategories, getReportRoute, routeLocations, type BarrierReport, type BarrierReportRepository, type ConditionType, type CreateBarrierReportInput } from './model';
 import { barrierRepository, validateBarrier } from './repository';
 import { ReportSummary } from './ReportSummary';
+import { persistenceDescription } from '../../services/persistenceMode';
 export function ReportScreen({ repository = barrierRepository, initialDraft, routeOverride }: { routeOverride?: SharedPath | null; repository?: BarrierReportRepository; initialDraft?: CreateBarrierReportInput }) {
   const route = routeOverride === undefined ? getReportRoute() : routeOverride; const locations = routeLocations(route);
   const [draft, setDraft] = useState<CreateBarrierReportInput>(initialDraft ?? { category: null, location: route ? locations[0] : null, description: '', conditionType: 'unknown' });
@@ -23,11 +24,12 @@ export function ReportScreen({ repository = barrierRepository, initialDraft, rou
     if (!Object.keys(relevant).length) setStep(n => n + 1);
   }
   async function submit() {
+    if (busy) return;
     const validation = validateBarrier(draft); setErrors(validation); if (Object.keys(validation).length) return;
     setBusy(true); setFailure(''); try { setCreated(await repository.createReport(draft)); } catch { setFailure('Could not save your report. Your details are still here. Retry submission.'); } finally { setBusy(false); }
   }
   if (created) return <FormPage title="Report submitted"><Text style={type.body}>Thanks for helping improve route information. This report is community submitted and may require confirmation.</Text>
-    <ReportSummary report={created}/><PrimaryButton label="View local reports" onPress={() => router.replace('/barrier-reports')}/>
+    <ReportSummary report={created}/><PrimaryButton label="View reports" onPress={() => router.replace('/barrier-reports')}/>
     <SecondaryButton label="Back to Planner" onPress={() => router.replace('/')}/></FormPage>;
   return <FormPage title={['What is the issue?', 'Where is it?', 'Add details', 'Review your report'][step]}>
     <Text style={type.caption}>Report barrier · Step {step + 1} of 4</Text>
@@ -45,8 +47,8 @@ export function ReportScreen({ repository = barrierRepository, initialDraft, rou
     {step === 3 && <View style={form.panel}><Text style={type.title}>{draft.category && barrierCategories[draft.category]}</Text>
       <Text style={type.body}>{draft.location?.label}</Text><Text style={type.caption}>Schematic demo location · not GPS</Text>
       <ExpandableText text={draft.description}/><Text style={type.body}>Condition: {draft.conditionType}</Text>
-      <Text style={type.caption}>{draft.photoUri ? 'One local photo attached' : 'No photo attached'}</Text><VerificationBadge level="community_submitted"/>
-      <Text style={type.caption}>Saved on this device only. This report may need confirmation.</Text></View>}
+      <Text style={type.caption}>{draft.photoUri ? 'One photo attached' : 'No photo attached'}</Text><VerificationBadge level="community_submitted"/>
+      <Text style={type.caption}>{persistenceDescription} This report may need confirmation.</Text></View>}
     {failure ? <ErrorText text={failure}/> : null}
     <PrimaryButton label={busy ? 'Submitting…' : step === 3 ? 'Submit report' : 'Continue'} disabled={busy} onPress={() => step === 3 ? void submit() : next()}/>
     {step > 0 && <SecondaryButton label="Back" disabled={busy} onPress={() => { setStep(n => n - 1); setErrors({}); }}/>}

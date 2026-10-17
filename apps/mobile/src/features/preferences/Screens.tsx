@@ -30,14 +30,14 @@ export function ProfileScreen() {
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
   async function submit() { setBusy(true); setError(''); try { await save(draft); setMessage('Preferences saved. Future route requests use these settings.'); } catch { setError("Couldn't save. Your edits are still here; try again."); } finally { setBusy(false); } }
   return <FormPage title="Profile"><Text style={type.body}>Your walking preferences</Text>
-    <Text style={type.caption}>Stored on this device. No account or identity information needed.</Text>
+    <Text style={type.caption}>Your preferences are saved for your current demo or guest identity. No IC or age information is collected.</Text>
     <PreferenceFields value={draft} onChange={p => { setDraft(p); setMessage(''); }}/>
     {error ? <ErrorText text={error}/> : null}{message ? <Text accessibilityLiveRegion="polite" style={type.body}>{message}</Text> : null}
     <PrimaryButton label={busy ? 'Saving…' : 'Save preferences'} disabled={busy} onPress={() => void submit()}/>
     <View style={form.panel}><Text style={type.caption}>Reset clears the selections in this form. Save to apply.</Text>
       <SecondaryButton label="Reset preferences" disabled={busy} onPress={() => { setDraft({ ...defaultPreferences }); setMessage(''); }}/></View>
     {__DEV__ && <View style={form.panel}><Text style={type.title}>Development previews</Text>
-      <Text style={type.caption}>Restart setup clears this device’s walking preferences. Shared routes and reports remain.</Text>
+      <Text style={type.caption}>Restart setup clears this identity’s walking preferences. Shared routes and reports remain.</Text>
       <SecondaryButton label="Restart onboarding demo" onPress={() => { void restartOnboarding().catch(() => setError("Couldn't restart setup. Try again.")); }}/>
 
       {['onboarding', 'community', 'detail', 'share', 'barrier'].map(surface => <SecondaryButton key={surface} label={`Stress test ${surface}`} onPress={() => router.push({ pathname: '/stress', params: { surface } })}/>)}</View>}
