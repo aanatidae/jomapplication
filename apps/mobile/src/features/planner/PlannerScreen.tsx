@@ -19,7 +19,7 @@ export function PlannerScreen() {
   const { fontScale } = useWindowDimensions();
   const routes = toDisplayRoutes(planner.routeOptions);
   return <ScrollView style={styles.screen} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-    <View style={styles.header}><Text style={type.display}>Jom!</Text><View>
+    <View style={styles.header}><Text style={type.display}>Jom!</Text><View style={styles.headerEnd}>
       <Text accessibilityRole="header" style={type.label}>Planner</Text><Text style={type.caption}>Walking · Simulated pilot</Text>
     </View></View>
     <TripSearchBar origin={planner.origin} destination={planner.destination} availablePlaces={Object.keys(pilotPlaces)}
@@ -52,5 +52,6 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: theme.color.background },
   content: { width: '100%', maxWidth: theme.layout.contentMax, alignSelf: 'center', paddingBottom: theme.space.md },
   header: { flexDirection: 'row', justifyContent: 'space-between', gap: theme.space.md, padding: theme.space.md, backgroundColor: theme.color.surface, alignItems: 'center' },
+  headerEnd: { flexShrink: 1 },
   priority: { flexDirection: 'row', flexWrap: 'wrap', padding: theme.space.md, gap: theme.space.xs },
 });

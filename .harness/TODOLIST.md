@@ -421,53 +421,57 @@ Verified 2026-10-18: final npm run check passes lint/types/97 tests across 15 su
 
 ### Scenario A — Night route
 
-- [ ] Seed deterministic start/destination.
-- [ ] Fastest route is shorter.
-- [ ] Safer-at-Night route is longer but better lit/public.
-- [ ] Explanation displays the actual trade-off.
-- [ ] Confidence/freshness is visible.
+- [x] Seed deterministic start/destination.
+- [x] Fastest route is shorter.
+- [x] Safer-at-Night route is longer but better lit/public.
+- [x] Explanation displays the actual trade-off.
+- [x] Confidence/freshness is visible.
 
 ### Scenario B — Step-free route
 
-- [ ] Fastest path contains stairs.
-- [ ] Step-Free excludes stairs.
-- [ ] Accessible alternative is visibly different.
-- [ ] Explain why the alternative was chosen.
+- [x] Fastest path contains stairs.
+- [x] Step-Free excludes stairs.
+- [x] Accessible alternative is visibly different.
+- [x] Explain why the alternative was chosen.
 
 ### Scenario C — Community update
 
-- [ ] Create/share a community route.
-- [ ] Submit a temporary barrier report.
-- [ ] New submission is visibly unverified.
-- [ ] Community screen reflects the change.
+- [x] Create/share a community route.
+- [x] Submit a temporary barrier report.
+- [x] New submission is visibly unverified.
+- [x] Community screen reflects the change.
 
 ### Recovery
 
-- [ ] Create deterministic demo seed/reset command.
-- [ ] Document demo reset procedure.
-- [ ] Add API-offline demo fallback only if needed.
-- [ ] Clearly label fallback data as demo/simulated.
+- [x] Create deterministic demo seed/reset command.
+- [x] Document demo reset procedure.
+- [x] Assess API-offline fallback: not needed; real error/Retry verified. Existing explicit local persistence mode documented.
+- [x] Clearly label fallback data as demo/simulated.
+
+Verified 2026-10-18: real HTTP repeatability, native route geometry/reasons, shared calculated snapshots/notes/photo, temporary waypoint report, guest restart and independent hosted readback. Actual API and Supabase outages recover with Retry. Seed repeats without new IDs; reset rejected. Runbook and limitations in docs/demo; screenshots/XML in phase13. Five-minute timing remains proposed; physical/iOS/spoken-reader checks remain manual. Phase 13 complete within available tooling; Phase 14 follows.
 
 ## Phase 14 — Final quality gates
 
-- [ ] Mobile lint passes.
-- [ ] Mobile typecheck passes.
-- [ ] Mobile tests pass.
-- [ ] API Ruff passes.
-- [ ] API Pytest passes.
-- [ ] API health endpoint passes.
-- [ ] Route API contract test passes.
-- [ ] Fresh-start README instructions verified by another team member.
-- [ ] No secrets committed.
-- [ ] No full IC field anywhere.
-- [ ] No UI text guarantees route safety.
-- [ ] No missing accessibility field is shown as accessible.
-- [ ] No community submission is auto-labelled verified.
-- [ ] Known limitations documented.
-- [ ] Demo screenshots captured.
-- [ ] Five-minute demo rehearsed.
-- [ ] `PLAN.md` Outcomes & Retrospective updated.
-- [ ] `TODOLIST.md` reflects actual final scope.
+- [x] Mobile lint passes.
+- [x] Mobile typecheck passes.
+- [x] Mobile tests pass.
+- [x] API Ruff passes.
+- [x] API Pytest passes.
+- [x] API health endpoint passes.
+- [x] Route API contract test passes.
+- [x] Fresh-start README verified in an isolated current-source copy/new installs. A second human review and new Supabase provisioning remain manual, explicitly unclaimed.
+- [x] No secrets committed.
+- [x] No full IC field anywhere.
+- [x] No UI text guarantees route safety.
+- [x] No missing accessibility field is shown as accessible.
+- [x] No community submission is auto-labelled verified.
+- [x] Known limitations documented.
+- [x] Demo screenshots captured.
+- [x] Functional walkthrough rehearsed through available Android tooling; proposed five-minute spoken timing documented as untested.
+- [x] `PLAN.md` Outcomes & Retrospective updated.
+- [x] `TODOLIST.md` reflects actual final scope.
+
+Verified 2026-10-18: final lint/types/97 mobile tests, Ruff/121 API tests, live HTTP repeatability/invalid inputs, real two-user Supabase ownership/verification/Storage/session/expiry, final Android export and source/history/environment review pass within documented scope. Clean npm ci/new Python venv, independent checks, API/Expo startup and native local-mode 8/10/12/onboarding verified without copying credentials. Fixed actual large-text subtitle clipping and incomplete app environment example. Security audit is not clean: dependency advisories/Expo patch suggestions remain documented, not suppressed or force-upgraded. No demonstrated scoped P0/significant P1 remains. Physical Android/iOS/spoken readers, timed presenter rehearsal, new database provisioning and release FPS/memory remain manual. Existing preferences/display settings restored; no content deleted, lockfile changes or publication. Results/evidence: docs/demo/phase14/results.md; runbook and limits: docs/demo. Phase 14 complete for available-tooling controlled Android demo; not production-ready.
 
 ## Stretch goals — only after the MVP is stable
 

@@ -11,6 +11,9 @@
     "lint": "npm run lint --workspace mobile",
     "typecheck": "npm run typecheck --workspace mobile",
     "test": "npm run test --workspace mobile",
-    "check": "npm run lint && npm run typecheck && npm run test"
+    "check": "npm run lint && npm run typecheck && npm run test",
+    "demo:routes": "node scripts/verify-demo-routes.mjs",
+    "demo:seed": "node --env-file=apps/mobile/.env.local scripts/demo-setup.mjs --seed",
+    "demo:check": "node --env-file=apps/mobile/.env.local scripts/demo-setup.mjs --check"
   }
 }

@@ -1,294 +1,220 @@
 # Jom!
 
-Pedestrian-first walking route planning. Project guidance lives in `.harness/AGENTS.md`, `.harness/PLAN.md`, and `.harness/TODOLIST.md`.
+A pedestrian-first route-planning hackathon MVP: **same origin, same destination,
+different need, different best route**. Fastest, Safer at Night and Step-Free are
+computed by FastAPI/NetworkX. The Expo Android app renders their geometry on a
+clearly labelled **simulated schematic**, compares explanations/data confidence,
+and supports guest preferences, community sharing, photos and barrier reports.
 
-## Current scope
+**Safer based on available data.** Environmental indicators are not guarantees.
+All pilot attributes are synthetic. This is not geographic navigation or a
+production-ready mobility service.
 
-The planner calls FastAPI's Phase 3 engine for three profiles and displays simulated
-pilot routes on the Phase 2 schematic map. Three-step onboarding and editable Profile
-preferences, community routes and barrier reports use Supabase repositories by default.
-Guest identity persists on the device; route/report photos use Supabase Storage.
-An explicit local demo mode retains the earlier repositories. Live geography and animation
-polish remain later phases. See [Phase 9 verification](docs/demo/phase9/results.md).
-The native provider spike remains at `/spikes/map`, with its earlier blank-map issue separately tracked.
+## Architecture and scope
 
-## Supabase configuration (Phase 9)
+| Part | Responsibility |
+| --- | --- |
+| Expo SDK 57 / React Native / TypeScript | Native screens, schematic projection, typed API boundary, accessible controls and reduced motion |
+| FastAPI / Pydantic / NetworkX | Deterministic graph routing, exclusions, scoring, reasons and confidence |
+| Supabase Auth / Postgres / Storage | Anonymous guest sessions, private preferences, owned writes, public published community reads/photos |
+| Explicit local mode | Separate device-only community/preferences/report persistence; never automatic failover |
 
-The hosted development project is configured with anonymous sign-ins. Set these public
-values in `apps/mobile/.env.local` (already configured on this development machine):
+Routing owns no Supabase write side effects. Reports never automatically change the
+pilot graph. The default trip with all needs off and no detour limit gives
+**8 min/600 m**, **10 min/720 m**, **12 min/830 m**. Supported saved needs can
+legitimately change these results. Covered/shaded and ramp/elevator preferences
+remain visibly saved-only. Guest identity survives restart; clearing app storage
+loses it. No IC number, age inference, live location or automatic route history.
 
-```dotenv
-EXPO_PUBLIC_SUPABASE_URL=<project URL>
-EXPO_PUBLIC_SUPABASE_ANON_KEY=<public anon or publishable key>
-EXPO_PUBLIC_DATA_MODE=supabase
-EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
-```
+## Prerequisites
 
-The existing ANON_KEY variable accepts either public key format; no duplicate key
-variable is needed. Both `.env.example` files contain placeholders only. Git ignores
-`.env.local`. Restart Metro after environment changes. Never use a database password,
-service-role key or secret key in mobile configuration.
+- Node 24.x, npm 11.x (tested 24.19.0 / 11.17.0), Python 3.11.
+- Android SDK/platform-tools, Android Studio emulator or USB-debuggable phone.
+- SDK 57-compatible Expo Go. Physical Android and iOS are development targets;
+  current native verification is on the Android emulator only.
+- Your own Supabase development project with anonymous sign-ins enabled and both
+  tracked migrations applied, or Docker for an isolated local Supabase instance.
+  No private configuration is included in a clone.
 
-Tap **Continue as guest** once. Supabase creates a real authenticated user; AsyncStorage
-retains its session and refreshes it while the app is active. Preferences are keyed by
-that user ID. Clearing app storage/reinstalling loses this guest identity; recovery and
-account linking are not implemented. Auth loading, signed-out and retry/error states
-use the existing form primitives. No IC/age information is collected.
+## Install and configure
 
-For offline presentations only, explicitly set `EXPO_PUBLIC_DATA_MODE=local` and restart
-Metro. This uses the preserved Phase 6–8 AsyncStorage repositories and visibly says local
-demo. Network errors never activate fallback. Local records are not automatically copied
-to a guest account. Routing stays on the independent FastAPI pilot graph in either mode.
-
-Setup, migration/seed commands, Storage/RLS rules and local Docker instructions are in
-[supabase/README.md](supabase/README.md). Buckets/policies are created by migration;
-no dashboard edits are needed for demo data. Photos are public; use only non-personal
-route/report images. Feed queries return the latest 100 entries; full pagination,
-moderation and automated orphan/guest cleanup remain future work.
-
-Run the repeatable hosted policy/upload checks with:
-
-```powershell
-node --env-file=apps/mobile/.env.local scripts/verify-supabase.mjs
-```
-
-See [Phase 9 evidence](docs/demo/phase9/results.md) for exactly what was verified.
-
-## Development prerequisites
-
-- Node 24.x and npm 11.x (tested: Node 24.19.0 and npm 11.17.0).
-- Python 3.11.
-- Android Studio with Android SDK/platform-tools and an emulator, or an Android phone with USB debugging enabled.
-- Expo Go compatible with Expo SDK 57. Both Android Studio emulator and physical Android are supported development targets.
-
-## Install from the project root
+From the repository root:
 
 ```powershell
 npm ci
 python -m venv .venv
 ./.venv/Scripts/python.exe -m pip install -r services/api/requirements-lock.txt
+Copy-Item .env.example apps/mobile/.env.local
 ```
 
-The root npm workspace owns the single `package-lock.json`. Run installation from the root; do not create an app-local lockfile. On macOS/Linux, replace `./.venv/Scripts/python.exe` with `./.venv/bin/python`.
+Use the single root `package-lock.json`; do not install separately in the app or
+create another lockfile. On macOS/Linux use `.venv/bin/python` instead.
 
-Copy `.env.example` to `apps/mobile/.env.local` before starting Expo. The client reads
-`EXPO_PUBLIC_API_BASE_URL`; restart Expo after changing it. Never put secrets in public values.
+Edit the copied file with values from your own development project:
 
-### Run API and mobile together
+```dotenv
+EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
+EXPO_PUBLIC_SUPABASE_URL=<your project URL>
+EXPO_PUBLIC_SUPABASE_ANON_KEY=<public anon or publishable key>
+EXPO_PUBLIC_DATA_MODE=supabase
+```
 
-Terminal 1 (root):
+The existing ANON_KEY variable accepts either public format. `EXPO_PUBLIC_*` values
+are bundled; never supply a service-role/secret key, database password or personal
+access token. `.env.local` and `.local/` are ignored. Restart Metro after changes.
+Both environment examples contain only empty credentials and public setup values.
+
+For a planned device-only demonstration without Supabase, explicitly set
+`EXPO_PUBLIC_DATA_MODE=local` before starting Metro. The UI labels local storage;
+local data is separate and never synced to Supabase. FastAPI is still required.
+Missing hosted configuration should be fixed, not bypassed with privileged keys.
+
+## Supabase setup and migrations
+
+Follow [supabase/README.md](supabase/README.md) for local Docker commands, hosted
+CLI authentication/linking, dry-run migrations, or the transactional bootstrap for
+a **confirmed empty development project**. Apply migrations `202610170001` and
+`202610170002` and enable anonymous sign-ins. Tables, RLS, owner/verification
+guards, JSON validation and the public-read image bucket are migration-owned.
+
+`supabase/seed.sql` inserts three labelled synthetic community routes idempotently.
+The additional public-client demo setup below needs no administrator credential or
+dashboard edits once migrations/auth are configured. Neither command updates the
+routing graph. Do not run remote database resets. Local `supabase db reset --local`
+is destructive to its local instance; inspect the target and preserve needed data.
+
+## Run API and mobile
+
+Terminal 1, root:
 
 ```powershell
 ./.venv/Scripts/python.exe -m uvicorn services.api.app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Terminal 2 (root):
+Terminal 2, root:
 
 ```powershell
 npm start
 ```
 
-Use `EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:8000` with iOS Simulator or Android
-ADB reverse: `adb -s <serial> reverse tcp:8000 tcp:8000` (in addition to Metro's 8081).
-Android Studio emulator without reverse can use `http://10.0.2.2:8000`.
-A USB-connected physical Android phone can also use ADB reverse and localhost.
-For a phone over Wi-Fi, localhost refers to the phone: set the URL to your computer's
-LAN address, start Uvicorn with `--host 0.0.0.0`, and allow port 8000 only on your
-trusted development network. No developer LAN IP is committed. Metro LAN setup is
-separate from the API URL. This is development setup, not deployment configuration.
+Start your emulator/device, then configure reverse ports and open Expo Go:
 
-Default demo trip: Transit Stop → Residential Block. Fastest is 8 min/600 m,
-Safer at Night 10 min/720 m, Step-Free 12 min/830 m. Profiles work without code edits.
-Places use actual pilot node IDs; Community Mall maps to `mall_entrance`.
-The service timeout is 10 seconds. Errors/no-route states preserve the trip and offer
-Retry; profile controls and manual place selection remain usable during requests.
-No live location permission is requested. Returned reasons/warnings are the source
-of truth, including unknown accessibility. Confidence and verification are simulated
-data quality, never a safety guarantee. Development-only Phase 2 fixture previews
-remain available via explicit `?demoState=...` URLs; the default planner has no offline mock fallback.
-
-## Start the API
-
-### Routing HTTP contract (Phase 4)
-
-`POST /v1/routes` calls the existing Phase 3 engine. Example (curl in a POSIX shell):
-
-```sh
-curl -X POST http://127.0.0.1:8000/v1/routes \
-  -H 'Content-Type: application/json' \
-  -d '{"origin":{"node_id":"transit_stop"},"destination":{"node_id":"residential_block"},"profile":"safer_at_night"}'
+```powershell
+adb devices -l
+adb -s <serial> reverse tcp:8000 tcp:8000
+adb -s <serial> reverse tcp:8081 tcp:8081
+adb -s <serial> shell am start -a android.intent.action.VIEW -d exp://127.0.0.1:8081
 ```
 
-Example response (actual preferred option shown; other alternatives omitted):
+Use your actual serial and Metro port. For another port, start with
+`npm run start --workspace mobile -- --port 8082` and reverse/open 8082.
+`npm run android` can install/open compatible Expo Go when the SDK is configured.
+The included helper uses IPv4-first localhost resolution and handles workspace
+module resolution. Set `ANDROID_HOME` to your own Android SDK path if needed.
+
+Without reverse, Android Emulator can use API `http://10.0.2.2:8000`. A Wi-Fi phone
+needs the computer's LAN address and Uvicorn `--host 0.0.0.0`; allow the port only
+on a trusted development network. Metro connectivity is separate from API access.
+Localhost on a phone refers to the phone. Use HTTPS for any deployed service.
+
+Choose **Continue as guest**, complete/skip onboarding, then Planner. Profile edits
+apply only after Save preferences. Community and Reports require hosted connectivity
+in normal mode. Photos are public: use only non-personal JPEG/PNG/WebP under 10 MB.
+
+## Demo setup, repeat and recovery
+
+```powershell
+npm run demo:routes
+npm run demo:seed
+npm run demo:check
+```
+
+`demo:routes` exercises live health, all three profiles three times and invalid
+inputs. `demo:seed` inserts one labelled community and one barrier fixture only
+when absent, using a dedicated ordinary guest. IDs/session persist in private,
+ignored `.local/demo-session.json`. Repeated seeds reuse those IDs; a local lock
+rejects concurrent setup. Do not publish, copy between projects or delete the
+manifest to reset. A stale lock may be removed **only after confirming no setup
+process is running**. `demo:check` checks the saved fixtures without content writes;
+restoring auth can refresh tokens and update the manifest. No remote reset exists.
+
+For repeat presentations, reset/save **your own** preferences, select Transit Stop
+and Residential Block, and reuse existing labelled rehearsal posts. No source or
+database edits are needed. See the exact [A/B/C/D walkthrough and recovery
+runbook](docs/demo/demo-scenarios.md), [known limitations](docs/demo/known-limitations.md)
+and [final verification](docs/demo/phase14/results.md). Proposed five-minute timing
+still needs a spoken rehearsal on the judging device/network.
+
+## HTTP contract
+
+`GET /health` returns HTTP 200 and `{"status":"ok"}`.
+`POST /v1/routes` accepts:
 
 ```json
-{
-  "dataset_id": "jom_simulated_pilot_v1",
-  "data_kind": "SIMULATED_DEMO",
-  "reference_time": "2026-10-16T12:00:00Z",
-  "routes": [
-    {
-      "id": "safer_at_night-359b3ec3f8111840",
-      "profile": "safer_at_night",
-      "geometry": {
-        "type": "LineString",
-        "coordinate_system": "local_metres_not_geographic",
-        "coordinates": [
-          [
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            180.0
-          ],
-          [
-            200.0,
-            120.0
-          ],
-          [
-            400.0,
-            0.0
-          ]
-        ]
-      },
-      "distance_m": 720.0,
-      "estimated_time_s": 600.0,
-      "total_cost": 1.308333332,
-      "reasons": [
-        "+2 min vs fastest",
-        "Better lighting than fastest",
-        "Passes active public areas",
-        "Near a verified staffed security/public point",
-        "No stairs recorded",
-        "Avoids staircase on fastest route"
-      ],
-      "warnings": [
-        "SIMULATED / DEMO graph; not for navigation or real-world safety claims.",
-        "Environmental indicators are not guarantees; conditions may change.",
-        "Accessibility information incomplete on 2 segment(s)"
-      ],
-      "confidence": {
-        "level": "Medium",
-        "factors": [
-          "Accessibility information incomplete on 2 segment(s)"
-        ],
-        "as_of": "2026-10-16T12:00:00Z"
-      },
-      "verification_summary": "SIMULATED / DEMO only; venue_verified: 3; sources: synthetic_fixture_author; oldest known update: 2026-10-13T12:00:00+00:00; missing timestamps: 0"
-    }
-  ]
-}
+{"origin":{"node_id":"transit_stop"},"destination":{"node_id":"residential_block"},"profile":"safer_at_night"}
 ```
 
-Supported profiles: `fastest`, `safer_at_night`, `step_free`. Inputs are node IDs only;
-no coordinate snapping/geocoding is supported for this synthetic local-metre graph.
-Optional timezone-aware `departure_time` is accepted as metadata; it does not change
-the fixed demo data-quality clock or simulate live conditions. `preferences` may be
-omitted, null, or empty, or contain supported explicit needs:
+Profiles: `fastest`, `safer_at_night`, `step_free`. Optional aware `departure_time`
+is metadata, not live conditions. Supported strict preferences are
+`prefer_well_lit`, `avoid_stairs`, `avoid_steep_slopes`, `prefer_public_areas` and
+integer `max_detour_minutes` (0–60). No coordinate snapping/geocoding. Identical
+endpoints/invalid values return 422; unknown nodes/no valid route return 404;
+capacity failure 503; unexpected failures use a sanitized 500.
 
-```json
-{"prefer_well_lit": true, "avoid_stairs": true, "avoid_steep_slopes": false,
- "prefer_public_areas": false, "max_detour_minutes": 5}
-```
-
-Boolean fields are strict booleans; detour is an optional integer from 0–60 minutes
-relative to the fastest usable route. Constraints are never relaxed to meet a detour
-limit. Covered/shaded and ramps/elevators preferences are saved and clearly
-labelled inactive; they are not sent. `prefer_covered_paths` remains a null-only
-reserved API field. Custom is deferred. Unsupported values are rejected.
-
-Results contain 1–3 options in deterministic engine order. HTTP 422 means invalid
-input/profile or identical endpoints. HTTP 404 with `detail` identifies an unknown
-pilot node or no valid route (Step-Free has explicit wording and no stairs fallback).
-HTTP 503 means search capacity exceeded; unexpected calculation failures are logged
-and return a sanitized 500. `GET /health` remains `{"status":"ok"}`.
-Native Expo requests do not require CORS, so no cross-origin browser access is enabled.
-Any future web client needs an explicit origin allowlist; no wildcard production policy is assumed.
-
-From the root:
-
-```powershell
-./.venv/Scripts/python.exe -m uvicorn services.api.app.main:app --reload --host 127.0.0.1 --port 8000
-```
-
-In another terminal:
-
-```powershell
-Invoke-RestMethod http://127.0.0.1:8000/health
-```
-
-Expected: HTTP 200 with `{"status":"ok"}`. The pre-existing `/spikes/route` endpoint is a simulated technical fixture, not the production routing engine.
-
-## Android Studio emulator
-
-Start an emulator in Android Studio Device Manager. This machine has `Medium_Phone_API_37.0`. Set your actual SDK path and device serial:
-
-```powershell
-$env:ANDROID_HOME = 'C:/Users/SawJu/AppData/Local/Android/Sdk'
-& "$env:ANDROID_HOME/platform-tools/adb.exe" devices -l
-& "$env:ANDROID_HOME/platform-tools/adb.exe" -s emulator-5554 reverse tcp:8081 tcp:8081
-npm start
-```
-
-The startup script uses IPv4-first localhost resolution. In another terminal, open Expo Go:
-
-```powershell
-& "$env:ANDROID_HOME/platform-tools/adb.exe" -s emulator-5554 shell am start -a android.intent.action.VIEW -d 'exp://127.0.0.1:8081'
-```
-
-If Expo Go is not installed, `npm run android` can install/open the SDK-compatible version. Stop an already running Metro server before running that command. The helper resolves Expo whether npm nests or hoists workspace dependencies.
-
-First launch shows onboarding; complete or skip it to reach Planner. Use bottom navigation for Community and Profile. Development builds expose Profile → Restart onboarding demo and isolated stress previews. These do not reset community routes or barrier reports.
-The routing API must be running for route results; location permission, login and a database are not required.
-
-## Physical Android phone
-
-Install SDK 57-compatible Expo Go, connect by USB, enable USB debugging, and approve the computer on the phone. Use its serial from `adb devices -l` in place of `emulator-5554` in the ADB commands above. Emulator and phone can use the same local Metro server via separate reverse mappings. Physical-phone verification is tracked separately from emulator results.
+Responses include `dataset_id`, `data_kind: SIMULATED_DEMO`, `reference_time` and
+1–3 routes. Geometry is `LineString` with `local_metres_not_geographic`; distance
+is metres and time seconds. Mobile only projects coordinates for its schematic.
+Reasons, warnings, confidence and verification/provenance come from the backend.
+Unknown verification dates remain unknown. The static dataset's assessment clock
+is fixed; departure time does not update it. The typed client rejects malformed
+responses, uses a 10-second timeout, aborts obsolete requests and offers Retry.
+Native Expo does not need CORS; no wildcard browser access is enabled.
 
 ## Quality gates
 
-From the root:
-
 ```powershell
-npm run lint
-npm run typecheck
-npm test
+npm run check
 ./.venv/Scripts/python.exe -m ruff check services/api
 ./.venv/Scripts/python.exe -m pytest services/api/tests
-```
-
-`npm run check` runs the three mobile gates sequentially. App-specific equivalents are `npm run lint --workspace mobile`, `npm run typecheck --workspace mobile`, and `npm test --workspace mobile` (or `npm --prefix apps/mobile run <script>`).
-Jest covers the typed HTTP boundary, real planner, onboarding/restart, Profile editing, repository persistence, sharing/reporting validation and verification rules, photo recovery and stress fixtures.
-API tests cover the domain, HTTP route contract, health and preserved Phase 0 spike.
-
-Additional Expo checks:
-
-```powershell
+npm run demo:routes
+node --env-file=apps/mobile/.env.local scripts/verify-supabase.mjs
 npm exec --workspace mobile -- expo install --check
 npm exec --workspace mobile -- expo export --platform android
 ```
 
-## Layout
+`check` runs mobile lint, strict TypeScript and Jest. Individual scripts are `lint`,
+`typecheck`, `test`, with workspace variants. Backend tests verify closures,
+Step-Free hard exclusions, unknown access, deterministic ordering, truthful reasons
+and HTTP contract. Live Supabase tests use two disposable guest identities and the
+public key, test actual ownership/verification/Storage restrictions and persistence,
+then remove their own content. Auth identities remain for administrator cleanup.
+
+Android export validates bundling, not an installed signed release. Dependency
+advisories/Expo patch suggestions are tracked in the final report; no forced SDK
+upgrade is part of setup. `npm ci` is the reproducible install. This host's sandbox
+can block sockets, SDK access or Hermes temp writes; use a normal developer terminal
+if those restrictions affect tests.
+
+## Repository layout
 
 ```text
-apps/mobile/src/app/(main)/   Planner, onboarding-linked flows, Community, Profile and navigation
-apps/mobile/src/app/spikes/   Preserved Phase 0 map spike
-apps/mobile/src/components/   Shared native form, button, summary and shell primitives
-apps/mobile/src/features/     Planner, preferences, community, barriers and dev QA
-apps/mobile/src/services/     Typed routing, Supabase repositories/auth/images, local fallback
-apps/mobile/__tests__/        User-flow, repository and routing tests
-services/api/app/             FastAPI application
-services/api/tests/           Pytest checks
-supabase/                    CLI configuration, versioned migrations and simulated seeds
-scripts/                     Workspace CLI helper
-docs/demo/                   Verification evidence and known limitations
-.harness/                    Instructions, living plan, checklist
+apps/mobile/src/app/        Expo Router screens and preserved map spike
+apps/mobile/src/features/   Planner, preferences, community, barriers, quality, motion, isolated QA
+apps/mobile/src/components/ Shared native primitives
+apps/mobile/src/services/   Typed API, Supabase/auth/images, explicit local repositories
+apps/mobile/__tests__/      Component, flow, boundary and persistence tests
+services/api/app/           HTTP models, routing engine/scoring/explanations/confidence
+services/api/data/pilot/    Labelled synthetic pedestrian graph
+services/api/tests/         Domain, HTTP and quality tests
+supabase/                  Config, two migrations, seed and setup guide
+scripts/                   Expo helper, demo setup and integration checks
+docs/demo/                 Runbook, screenshots, verification and limitations
+.harness/                  Instructions, living execution plan and checklist
 ```
 
-## Known limitations
-
-- Phase 0 map rendering remains unresolved. Opening the spike is not proof that tiles and route overlays work. Standalone Android map builds will require a restricted Google Maps Android SDK key; no credential is needed for this shell.
-- Git is initialized at the project root with origin `https://github.com/aanatidae/jomapplication`. The template's original nested metadata is preserved in ignored `.local/git-metadata/mobile.git`. Commits use the human maintainer's identity; pushes require explicit user approval. The user authorized publication of the current Phase 0/1 work on 2026-10-15.
-- Phase 0 dependency audit findings remain open; Jest adds development dependencies with further transitive findings. Do not run `npm audit fix --force` across Expo SDK boundaries. Evidence is under `docs/demo/`.
-- This host's sandbox can hide the SDK, block localhost sockets, stall TestClient, or deny Hermes temp output. Use an ordinary developer terminal when those sandbox restrictions occur.
+The geographic map-provider spike remains unresolved; the accepted MVP uses the
+labelled schematic. No production moderation, route verification operations,
+anonymous-account recovery, full pagination, automated orphan cleanup or release
+performance assurance. Current evidence distinguishes real end-to-end checks from
+fixtures and manual follow-ups. Git publication requires explicit approval for each
+push to the authorized repository.
