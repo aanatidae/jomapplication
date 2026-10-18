@@ -4,6 +4,7 @@ import { theme, type } from '../../theme/tokens';
 import { RouteOptionCard } from './RouteOptionCard';
 import { RouteProfileChip } from './RouteProfileChip';
 import type { MockRoute, RouteProfile } from './mockRoutes';
+import { DataSourceInfo } from '../quality/DataSourceInfo';
 
 export function RouteComparisonSheet({ routes, selected, onSelect, expanded, onToggle, hideProfiles = false }: {
   routes: readonly MockRoute[]; selected: RouteProfile; onSelect: (id: RouteProfile) => void; expanded: boolean; onToggle: () => void; hideProfiles?: boolean;
@@ -20,6 +21,7 @@ export function RouteComparisonSheet({ routes, selected, onSelect, expanded, onT
     <View accessibilityRole="radiogroup" accessibilityLabel="Route options" style={styles.cards}>
       {(expanded ? ordered : ordered.slice(0, 1)).map(route => <RouteOptionCard key={route.id} route={route} selected={selected === route.id} onPress={() => onSelect(route.id)} />)}
     </View>
+    {selectedRoute && <DataSourceInfo key={selectedRoute.id} route={selectedRoute}/>}
     <Text style={type.caption}>Demo data only. Lighting and public activity are indicators, not guarantees. Conditions may change.</Text>
   </View>;
 }

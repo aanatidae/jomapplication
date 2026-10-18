@@ -19,7 +19,7 @@ export function CommunityScreen({ repository = communityRepository }: { reposito
   return <FormPage title="Community"><Text style={type.body}>Local knowledge for your next walk.</Text>
     <Text style={type.caption}>{persistenceDescription} Illustrative routes are labelled demo. Community information may need confirmation.</Text>
     <PrimaryButton label="Share a route" onPress={() => router.push('/share-route')}/>
-    {status === 'loading' ? <Text style={type.body}>Loading shared routes…</Text> : status === 'error' ? <><ErrorText text="Couldn't load routes. Try again."/><SecondaryButton label="Retry" onPress={() => setAttempt(n => n + 1)}/></> : routes.length ? routes.slice(0, visibleCount).map(route => <CommunityRouteCard key={route.id} route={route} onOpen={() => router.push({ pathname: '/community-route', params: { id: route.id } })}/>) : <Text style={type.body}>No routes shared yet. Share a useful walk to start the feed.</Text>}
+    {status === 'loading' ? <Text accessibilityLiveRegion="polite" style={type.body}>Loading shared routes…</Text> : status === 'error' ? <><ErrorText text="Couldn't load routes. Try again."/><SecondaryButton label="Retry" onPress={() => { setStatus('loading'); setAttempt(n => n + 1); }}/></> : routes.length ? routes.slice(0, visibleCount).map(route => <CommunityRouteCard key={route.id} route={route} onOpen={() => router.push({ pathname: '/community-route', params: { id: route.id } })}/>) : <Text style={type.body}>No routes shared yet. Share a useful walk to start the feed.</Text>}
     {routes.length > visibleCount && <SecondaryButton label="Show more" onPress={() => setVisibleCount(n => n + 20)}/>}
   </FormPage>;
 }

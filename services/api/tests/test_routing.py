@@ -245,7 +245,7 @@ def test_stale_and_future_dates_reduce_confidence(graph):
             (edge.model_copy(update={"last_updated_at": date}),), as_of
         )
         assert confidence.level == "Low"
-        assert "Contains stale, missing or future-dated verification" in confidence.factors
+        assert "Contains stale, missing or future-dated record updates" in confidence.factors
 
 
 def test_worst_segment_cannot_be_hidden_by_other_verified_segments(graph):

@@ -134,6 +134,16 @@ class RouteConfidence(Record):
     as_of: datetime
 
 
+class RouteDataQuality(Record):
+    sources: tuple[str, ...]
+    oldest_updated_at: datetime | None
+    missing_update_count: int
+    accessibility_incomplete: bool
+    stale: bool
+    # Update timestamps are not verification timestamps. No such evidence exists yet.
+    last_verified_at: datetime | None = None
+
+
 class RouteResult(Record):
     id: str
     dataset_id: str
@@ -149,3 +159,4 @@ class RouteResult(Record):
     warnings: tuple[str, ...]
     confidence: RouteConfidence
     verification_summary: str
+    data_quality: RouteDataQuality

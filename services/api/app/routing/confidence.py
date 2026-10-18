@@ -104,7 +104,7 @@ def compute_route_confidence(
     if any(e.verification_level in ("community", "unverified") for e in edges):
         factors.append("Contains community-only or unverified data")
     if any(freshness_quality(e, as_of) <= 0.25 for e in edges):
-        factors.append("Contains stale, missing or future-dated verification")
+        factors.append("Contains stale, missing or future-dated record updates")
     if any(any(getattr(e, key) is None for key in ENVIRONMENT_FIELDS) for e in edges):
         factors.append("Environmental indicators incomplete")
     if any(e.confidence_score is None for e in edges):

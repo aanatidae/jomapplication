@@ -5,7 +5,7 @@ from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
-from ..routing.models import Coordinate, Identifier, RouteConfidence, RouteProfile
+from ..routing.models import Coordinate, Identifier, RouteConfidence, RouteDataQuality, RouteProfile
 
 
 class ApiModel(BaseModel):
@@ -50,6 +50,7 @@ class RouteOption(ApiModel):
     warnings: tuple[str, ...]
     confidence: RouteConfidence
     verification_summary: str
+    data_quality: RouteDataQuality
 
 
 class RouteResponse(ApiModel):

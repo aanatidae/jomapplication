@@ -1,5 +1,6 @@
 import { ExpandableText } from '../../components/ExpandableText';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { successFeedback } from '../motion/haptics';
 import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 import { PrimaryButton, SecondaryButton } from '../../components/Buttons';
@@ -13,6 +14,7 @@ import { barrierRepository, validateBarrier } from './repository';
 import { ReportSummary } from './ReportSummary';
 import { persistenceDescription } from '../../services/persistenceMode';
 export function ReportScreen({ repository = barrierRepository, initialDraft, routeOverride }: { routeOverride?: SharedPath | null; repository?: BarrierReportRepository; initialDraft?: CreateBarrierReportInput }) {
+  const submitting = useRef(false);
   const route = routeOverride === undefined ? getReportRoute() : routeOverride; const locations = routeLocations(route);
   const [draft, setDraft] = useState<CreateBarrierReportInput>(initialDraft ?? { category: null, location: route ? locations[0] : null, description: '', conditionType: 'unknown' });
   const [step, setStep] = useState(0); const [errors, setErrors] = useState<Record<string, string>>({});
@@ -24,14 +26,14 @@ export function ReportScreen({ repository = barrierRepository, initialDraft, rou
     if (!Object.keys(relevant).length) setStep(n => n + 1);
   }
   async function submit() {
-    if (busy) return;
+    if (submitting.current) return;
     const validation = validateBarrier(draft); setErrors(validation); if (Object.keys(validation).length) return;
-    setBusy(true); setFailure(''); try { setCreated(await repository.createReport(draft)); } catch { setFailure('Could not save your report. Your details are still here. Retry submission.'); } finally { setBusy(false); }
+    submitting.current = true; setBusy(true); setFailure(''); try { setCreated(await repository.createReport(draft)); successFeedback(); } catch { setFailure('Could not save your report. Your details are still here. Retry submission.'); } finally { submitting.current = false; setBusy(false); }
   }
-  if (created) return <FormPage title="Report submitted"><Text style={type.body}>Thanks for helping improve route information. This report is community submitted and may require confirmation.</Text>
+  if (created) return <FormPage animateStep title="Report submitted"><Text style={type.body}>Thanks for helping improve route information. This report is community submitted and may require confirmation.</Text>
     <ReportSummary report={created}/><PrimaryButton label="View reports" onPress={() => router.replace('/barrier-reports')}/>
     <SecondaryButton label="Back to Planner" onPress={() => router.replace('/')}/></FormPage>;
-  return <FormPage title={['What is the issue?', 'Where is it?', 'Add details', 'Review your report'][step]}>
+  return <FormPage animateStep title={['What is the issue?', 'Where is it?', 'Add details', 'Review your report'][step]}>
     <Text style={type.caption}>Report barrier · Step {step + 1} of 4</Text>
     <SecondaryButton label="Cancel report" disabled={busy} onPress={() => router.replace('/')}/>
     {step === 0 && <View style={form.group}>{Object.entries(barrierCategories).map(([id, label]) => <Choice key={id} radio label={label} selected={draft.category === id} onPress={() => update({ category: id as keyof typeof barrierCategories })}/>)}{errors.category && <ErrorText text={errors.category}/>}</View>}

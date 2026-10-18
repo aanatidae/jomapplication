@@ -13,6 +13,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<PreferenceState>(initialPreferenceState);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   async function load() {
+    setStatus('loading');
     try { setState(await preferenceRepository.load()); setStatus('ready'); } catch { setStatus('error'); }
   }
   useEffect(() => {

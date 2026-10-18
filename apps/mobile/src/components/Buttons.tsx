@@ -1,5 +1,6 @@
+import { MotionPressable } from '../features/motion/Motion';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View, type PressableProps } from 'react-native';
+import { StyleSheet, Text, View, type PressableProps } from 'react-native';
 import { theme, type } from '../theme/tokens';
 
 type ButtonProps = Pick<PressableProps, 'onPress' | 'disabled' | 'accessibilityHint' | 'accessibilityState'> & {
@@ -8,14 +9,14 @@ type ButtonProps = Pick<PressableProps, 'onPress' | 'disabled' | 'accessibilityH
 
 function Button({ label, variant = 'primary', disabled, closeIcon, ...props }: ButtonProps) {
   const [focused, setFocused] = useState(false);
-  return <Pressable {...props} disabled={disabled} accessibilityRole="button"
+  return <MotionPressable {...props} disabled={disabled} accessibilityRole="button"
     accessibilityLabel={label} accessibilityState={{ ...props.accessibilityState, disabled: !!disabled }}
     onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
     style={({ pressed }) => [styles.button, variant === 'primary' ? styles.primary : styles.secondary,
       pressed && styles.pressed, disabled && styles.disabled, focused && styles.focus]}>
     {closeIcon && <View accessible={false} style={styles.icon}><View style={[styles.stroke, styles.slash]} /><View style={[styles.stroke, styles.backslash]} /></View>}
     <Text style={[type.body, styles.label, variant === 'primary' && styles.primaryLabel, disabled && styles.disabledLabel]}>{label}</Text>
-  </Pressable>;
+  </MotionPressable>;
 }
 export function PrimaryButton(props: Omit<ButtonProps, 'variant'>) { return <Button {...props} />; }
 export function SecondaryButton(props: Omit<ButtonProps, 'variant'>) { return <Button {...props} variant="secondary" />; }

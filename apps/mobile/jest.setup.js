@@ -1,3 +1,9 @@
 /* global jest */
 jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock'));
 process.env.EXPO_PUBLIC_DATA_MODE = 'local';
+// Runtime-only mock: do not pull the vendor's untyped source mock into app TypeScript.
+jest.mock('react-native-worklets', () => require('react-native-worklets/' + 'src/mock'));
+// Router also imports this mock directly; extend that shared test boundary.
+jest.mock('react-native-reanimated/mock', () => ({ ...jest.requireActual('react-native-reanimated/mock'), cubicBezier: (...points) => ({ points }) }));
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+jest.mock('expo-haptics', () => ({ AndroidHaptics: { Segment_Tick: 'segment-tick', Confirm: 'confirm' }, NotificationFeedbackType: { Success: 'success' }, performAndroidHapticsAsync: jest.fn(async () => {}), selectionAsync: jest.fn(async () => {}), notificationAsync: jest.fn(async () => {}) }));

@@ -6,10 +6,10 @@ from itertools import pairwise
 
 import networkx as nx
 
-from .confidence import compute_route_confidence
+from .confidence import compute_route_confidence, freshness_quality, unknown_accessibility
 from .errors import NoRouteError, RoutingInputError, SearchLimitError
 from .explanations import build_route_reasons, verification_summary
-from .models import Edge, RouteProfile, RouteResult
+from .models import Edge, RouteDataQuality, RouteProfile, RouteResult
 from .preferences import (
     DEFAULT_PREFERENCES,
     RoutingPreferences,
@@ -194,4 +194,17 @@ def _result(
         warnings=tuple(warnings),
         confidence=confidence,
         verification_summary=verification_summary(edges),
+        data_quality=RouteDataQuality(
+            sources=tuple(sorted({e.source for e in edges})),
+            oldest_updated_at=min(
+                (e.last_updated_at for e in edges if e.last_updated_at is not None),
+                default=None,
+            ),
+            missing_update_count=sum(e.last_updated_at is None for e in edges),
+            accessibility_incomplete=any(
+                unknown_accessibility(e, e.segment_id in entrances, e.segment_id in crossings)
+                for e in edges
+            ),
+            stale=any(freshness_quality(e, as_of) <= 0.25 for e in edges),
+        ),
     )

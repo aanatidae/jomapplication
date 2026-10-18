@@ -2,7 +2,8 @@ import { localCollection, localId } from '../../services/localCollection';
 import type { KeyValueStorage } from '../../services/localStorage';
 import { barrierCategories, type BarrierReport, type BarrierReportRepository, type CreateBarrierReportInput } from './model';
 // Configurable demo policy: temporary reports need reconfirmation after 24 hours.
-export const TEMPORARY_REPORT_HOURS = 24;
+import { TEMPORARY_REPORT_HOURS } from '../quality/policy';
+export { TEMPORARY_REPORT_HOURS } from '../quality/policy';
 export function validateBarrier(input: CreateBarrierReportInput): Record<string, string> {
   const errors: Record<string, string> = {};
   if (!input.category || !Object.hasOwn(barrierCategories, input.category)) errors.category = 'Choose an issue category.';

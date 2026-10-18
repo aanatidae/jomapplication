@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { AppState, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton, SecondaryButton } from '../../components/Buttons';
@@ -9,6 +9,7 @@ import { getSupabase } from './client';
 import { restoreIdentity, signInGuest, type AuthStatus } from './auth';
 
 export function AuthGate({ children }: { children: ReactNode }) {
+  const signingIn = useRef(false);
   const [status, setStatus] = useState<AuthStatus>('loading');
   const [userId, setUserId] = useState('');
   const [attempt, setAttempt] = useState(0);
@@ -34,12 +35,12 @@ export function AuthGate({ children }: { children: ReactNode }) {
     return () => { active = false; release(); };
   }, [attempt]);
   async function start() {
-    if (busy) return;
-    setBusy(true);
+    if (signingIn.current) return;
+    signingIn.current = true; setBusy(true);
     try {
       const session = await signInGuest(getSupabase());
       setUserId(session.user.id); setStatus('signed_in');
-    } catch { setStatus('error'); } finally { setBusy(false); }
+    } catch { setStatus('error'); } finally { signingIn.current = false; setBusy(false); }
   }
   if (isLocalDemo) return children;
   // Remount user-specific preference state whenever identity changes.

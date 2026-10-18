@@ -18,7 +18,7 @@ export const worstTitle = 'Covered connection from the transit interchange to th
 export const worstNotes = ('The north entrance may close early. Check the ramp and crossing before continuing. ').repeat(25).slice(0, 2000);
 export const worstCommunity = [
   { ...seededCommunityRoutes[0], title: worstTitle, notes: worstNotes, purposeTags: [...purposeTags], accessibilityTags: ['Step-free', 'Ramp available', 'Accessible entrance', 'Elevator required'], routeWarnings: [...routeWarnings], lastWalkedAt: undefined, author: 'Aleksandra Wiśniewska-Kowalczyk' },
-  { ...seededCommunityRoutes[1], title: 'J', author: 'Jo', photos: ['file:///missing-photo.jpg'] },
+  { ...seededCommunityRoutes[1], title: 'J · 王秀英 · Jalan pejalan kaki', author: 'Jo', lastWalkedAt: '2026-01-01', verificationLevel: 'confirmed' as const, photos: ['file:///missing-photo.jpg'] },
 ];
 function StressSurface({ surface, mode }: { surface: string; mode: string }) {
   const [dependencies] = useState(() => {

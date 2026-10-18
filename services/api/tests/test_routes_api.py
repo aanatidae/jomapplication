@@ -29,7 +29,7 @@ def test_routes_returns_expected_shape_and_deterministic_order():
     for route in first["routes"]:
         assert set(route) == {"id", "profile", "geometry", "distance_m", "estimated_time_s",
                               "total_cost", "reasons", "warnings", "confidence",
-                              "verification_summary"}
+                              "verification_summary", "data_quality"}
         assert route["geometry"]["type"] == "LineString"
         assert route["geometry"]["coordinate_system"] == "local_metres_not_geographic"
         assert len(route["geometry"]["coordinates"]) >= 2

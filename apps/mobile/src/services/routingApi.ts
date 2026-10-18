@@ -15,6 +15,10 @@ export type RouteOption = {
   reasons: string[]; warnings: string[];
   confidence: { level: 'High' | 'Medium' | 'Low'; factors: string[]; as_of: string };
   verification_summary: string;
+  data_quality?: {
+    sources: string[]; oldest_updated_at: string | null; missing_update_count: number;
+    accessibility_incomplete: boolean; stale: boolean; last_verified_at: string | null;
+  };
 };
 export type RouteResponse = {
   dataset_id: string; data_kind: 'SIMULATED_DEMO'; reference_time: string; routes: RouteOption[];
@@ -30,7 +34,12 @@ const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFi
 const date = (v: unknown) => typeof v === 'string' && Number.isFinite(Date.parse(v));
 function validRoute(value: unknown): value is RouteOption {
   if (!record(value) || !record(value.geometry) || !record(value.confidence)) return false;
-  const g = value.geometry; const c = value.confidence;
+  const g = value.geometry; const c = value.confidence; const q = value.data_quality;
+  if (q !== undefined && (!record(q) || !strings(q.sources) ||
+    !(q.oldest_updated_at === null || date(q.oldest_updated_at)) ||
+    !(q.last_verified_at === null || date(q.last_verified_at)) ||
+    !Number.isInteger(q.missing_update_count) || (q.missing_update_count as number) < 0 ||
+    typeof q.accessibility_incomplete !== 'boolean' || typeof q.stale !== 'boolean')) return false;
   return typeof value.id === 'string' && value.id.length > 0 &&
     ['fastest', 'safer_at_night', 'step_free'].includes(String(value.profile)) &&
     g.type === 'LineString' && g.coordinate_system === 'local_metres_not_geographic' &&

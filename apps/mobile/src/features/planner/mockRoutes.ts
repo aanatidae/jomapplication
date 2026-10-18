@@ -1,9 +1,11 @@
+import type { RouteOption } from '../../services/routingApi';
 export type RouteProfile = string;
 export type Point = readonly [number, number];
 export type MockRoute = {
   id: RouteProfile; mode: string; minutes: number; distance: number;
   reasons: string[]; confidence: string; freshness: string;
   warnings?: string[]; detour?: string; quality: 'verified' | 'community' | 'unknown' | 'data'; geometry: readonly Point[];
+  dataQuality?: RouteOption['data_quality']; qualityFactors?: string[];
 };
 export const places = ['Transit Stop', 'Community Mall', 'Residential Block', 'Park Entrance'] as const;
 export const routes: readonly MockRoute[] = [

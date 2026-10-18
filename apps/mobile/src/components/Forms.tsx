@@ -1,27 +1,28 @@
+import { MotionPressable, StepTransition } from '../features/motion/Motion';
 import { useState, type ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { theme, type } from '../theme/tokens';
 
-export function FormPage({ title, children }: { title: string; children: ReactNode }) {
+export function FormPage({ title, children, animateStep = false }: { title: string; children: ReactNode; animateStep?: boolean }) {
   return <KeyboardAvoidingView style={form.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView key={title} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={form.content}>
-      <Text accessibilityRole="header" style={type.heading}>{title}</Text>{children}
+      {animateStep ? <StepTransition key={title}><Text accessibilityRole="header" style={type.heading}>{title}</Text>{children}</StepTransition> : <><Text accessibilityRole="header" style={type.heading}>{title}</Text>{children}</>}
     </ScrollView>
   </KeyboardAvoidingView>;
 }
 export function Choice({ label, selected, onPress, radio = false }: { label: string; selected: boolean; onPress: () => void; radio?: boolean }) {
   const [focused, setFocused] = useState(false);
-  return <Pressable onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} accessibilityRole={radio ? 'radio' : 'checkbox'} accessibilityLabel={label}
+  return <MotionPressable onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} accessibilityRole={radio ? 'radio' : 'checkbox'} accessibilityLabel={label}
     accessibilityState={{ checked: selected }} onPress={onPress}
     style={({ pressed }) => [form.choice, selected && form.selected, pressed && { opacity: 0.7 }, focused && { borderColor: theme.color.focus }]}>
     <Text style={type.body}>{selected ? 'Selected · ' : ''}{label}</Text>
-  </Pressable>;
+  </MotionPressable>;
 }
 export function Field({ label, value, onChangeText, maxLength, multiline, error, placeholder }: {
   label: string; value: string; onChangeText: (text: string) => void; maxLength: number; multiline?: boolean; error?: string; placeholder?: string;
 }) {
   return <View style={form.group}><Text style={type.label}>{label}</Text>
-    <TextInput accessibilityLabel={label} value={value} onChangeText={onChangeText} maxLength={maxLength}
+    <TextInput accessibilityLabel={label} accessibilityHint={error || `Up to ${maxLength} characters`} value={value} onChangeText={onChangeText} maxLength={maxLength}
       multiline={multiline} placeholder={placeholder} placeholderTextColor={theme.color.muted}
       style={[form.input, multiline && { minHeight: theme.target * 2, maxHeight: theme.target * 4, textAlignVertical: 'top' }]}/>
     {error && <ErrorText text={error} />}

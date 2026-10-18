@@ -355,61 +355,67 @@ Verified 2026-10-17: fresh free Jom! project in Singapore, anonymous auth enable
 
 ## Phase 10 — Confidence, freshness, and verification UX
 
-- [ ] Define confidence levels.
-- [ ] Define verification labels.
-- [ ] Define stale-data threshold for demo.
-- [ ] Display `Community submitted`.
-- [ ] Display `Confirmed by multiple users` when supported.
-- [ ] Display `Township/venue verified` when supported.
-- [ ] Display `Accessibility unknown`.
-- [ ] Display last-verified time.
-- [ ] Add stale-data warning.
-- [ ] Add temporary report expiry behavior.
-- [ ] Ensure confidence is not presented as probability of personal safety.
+- [x] Define confidence levels.
+- [x] Define verification labels.
+- [x] Define stale-data threshold for demo.
+- [x] Display `Community submitted`.
+- [x] Display `Confirmed by multiple users` when supported.
+- [x] Display `Township/venue verified` when supported.
+- [x] Display `Accessibility unknown`.
+- [x] Display last-verified time.
+- [x] Add stale-data warning.
+- [x] Add temporary report expiry behavior.
+- [x] Ensure confidence is not presented as probability of personal safety.
+
+Verified 2026-10-18: lint/types/85 mobile tests; Ruff/121 API tests. Android details, community feed and existing temporary report inspected. Expiry boundary and mounted refresh tested with fake time. Unknown dates/evidence remain explicit. Existing authorized verification states and RLS preserved; no migration. Physical phone/iOS/spoken screen reader not tested. Evidence: docs/demo/phase10.
 
 ## Phase 11 — Motion and interaction polish
 
 ### Skill workflow
 
-- [ ] Read `animation-vocabulary/SKILL.md`.
-- [ ] Read `animate-expo/SKILL.md`.
-- [ ] Read `animate/SKILL.md`.
-- [ ] Run `find-animation-opportunities`.
-- [ ] Implement only high-value animation opportunities.
-- [ ] Run `improve-animations`.
-- [ ] Run `review-animations`.
+- [x] Read `animation-vocabulary/SKILL.md`.
+- [x] Read `animate-expo/SKILL.md`.
+- [x] Read `animate/SKILL.md`.
+- [x] Run `find-animation-opportunities`.
+- [x] Implement only high-value animation opportunities.
+- [x] Run `improve-animations`.
+- [x] Run `review-animations`.
 
 ### Candidate interactions
 
-- [ ] Profile-switch transition.
-- [ ] Route-line emphasis transition.
-- [ ] Route comparison sheet transition.
-- [ ] Route card selection feedback.
-- [ ] Barrier report success feedback.
-- [ ] Community post save/confirm feedback.
-- [ ] Haptics only where useful.
-- [ ] Respect Reduce Motion.
-- [ ] Verify motion does not block input.
+- [x] Profile-switch transition.
+- [x] Route-line emphasis transition.
+- [x] Route comparison sheet transition.
+- [x] Route card selection feedback.
+- [x] Barrier report success feedback.
+- [x] Community publication feedback; optional bookmark/confirmation remain unimplemented.
+- [x] Haptics only where useful.
+- [x] Respect Reduce Motion.
+- [x] Verify motion does not block input.
+
+Verified 2026-10-18: lint/types/88 mobile tests, Ruff/121 API tests. Android profiles, barrier steps and Remove animations onboarding pass. Review: docs/demo/phase11/motion-review.md. Explicit comparison expand/collapse retained; no custom drag. Physical haptic feel, iOS and release performance not claimed.
 
 ## Phase 12 — Accessibility and UI stress testing
 
-- [ ] Apply `break-ui` again to all core screens.
-- [ ] Screen reader labels on profile controls.
-- [ ] Screen reader labels on route cards.
-- [ ] Screen reader labels on map-related actions.
-- [ ] Large text does not clip critical content.
-- [ ] 44×44 minimum touch targets.
-- [ ] Non-colour route/verification indicators.
-- [ ] Keyboard does not cover fields/actions.
-- [ ] Small-screen layout works.
-- [ ] Long destination names work.
-- [ ] Long community route notes work.
-- [ ] Offline/API-down state works.
-- [ ] Permission-denied state works.
-- [ ] Unknown-data state works.
-- [ ] No-route state works.
-- [ ] Empty Community state works.
-- [ ] Photo upload failure works.
+- [x] Apply `break-ui` again to all core screens.
+- [x] Screen reader labels on profile controls.
+- [x] Screen reader labels on route cards.
+- [x] Screen reader labels on map-related actions.
+- [x] Large text does not clip critical content.
+- [x] 44×44 minimum touch targets.
+- [x] Non-colour route/verification indicators.
+- [x] Keyboard does not cover fields/actions.
+- [x] Small-screen layout works.
+- [x] Long destination names work.
+- [x] Long community route notes work.
+- [x] Offline/API-down state works.
+- [x] Permission-denied state works.
+- [x] Unknown-data state works.
+- [x] No-route state works.
+- [x] Empty Community state works.
+- [x] Photo upload failure works.
+
+Verified 2026-10-18: final npm run check passes lint/types/97 tests across 15 suites; Ruff/121 API tests; Android production export; real two-user public-key Supabase security/expiry/Storage/session checks. Native 320dp/200% onboarding, Planner long/unknown, Community/detail/empty, share failure, Profile and 2000-character temporary-report keyboard/review/success inspected. All scoped P0/significant P1 findings fixed. QA report docs/demo/ui-accessibility-qa.md; PNG/XML in docs/demo/phase12. Labels/states are source/component/native-tree verified; spoken TalkBack/VoiceOver, physical Android, iOS and release performance remain untested. Original emulator settings restored. No Phase 13/14 or publication work.
 
 ## Phase 13 — Demo scenarios and hardening
 

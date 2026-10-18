@@ -2,13 +2,16 @@ import { useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { theme, type } from '../../theme/tokens';
 import { routes, type Point, type RouteProfile, type MockRoute } from './mockRoutes';
+import Animated, { cubicBezier } from 'react-native-reanimated';
+import { useMotionReduced } from '../motion/Motion';
 
 // Schematic geometry in local 0..1 canvas units. No geographic or safety data.
 function Segment({ a, b, width, height, selected }: { a: Point; b: Point; width: number; height: number; selected: boolean }) {
+  const reduced = useMotionReduced();
   const x = a[0] * width; const y = a[1] * height;
   const dx = (b[0] - a[0]) * width; const dy = (b[1] - a[1]) * height;
   const length = Math.hypot(dx, dy);
-  return <View style={{ position: 'absolute', left: x + dx / 2 - length / 2, top: y + dy / 2 - (selected ? 4 : 2), width: length, height: selected ? 8 : 4, borderRadius: theme.radius.sm, backgroundColor: selected ? theme.color.accent : theme.color.alternateRoute, transform: [{ rotate: `${Math.atan2(dy, dx)}rad` }] }} />;
+  return <Animated.View style={{ position: 'absolute', left: x + dx / 2 - length / 2, top: y + dy / 2 - (selected ? 4 : 2), width: length, height: selected ? 8 : 4, borderRadius: theme.radius.sm, backgroundColor: selected ? theme.color.accent : theme.color.alternateRoute, transform: [{ rotate: `${Math.atan2(dy, dx)}rad` }], opacity: selected ? 1 : 0.9, transitionProperty: 'opacity', transitionDuration: reduced ? 0 : theme.motion.press, transitionTimingFunction: cubicBezier(...theme.motion.easeOut) }} />;
 }
 export function MapCanvas({ selected, origin, destination, overlap = false, compact = false, routesVisible = true, routeOptions = routes, showOptionLabels = false }: { selected: RouteProfile; origin: string; destination: string; overlap?: boolean; compact?: boolean; routesVisible?: boolean; routeOptions?: readonly MockRoute[]; showOptionLabels?: boolean }) {
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -24,7 +27,7 @@ export function MapCanvas({ selected, origin, destination, overlap = false, comp
     {[0.15, 0.30, 0.52, 0.75].map(y => <View key={`h${y}`} style={[styles.road, { top: `${y * 100}%`, width: '100%', height: 18 }]} />)}
     {[0.16, 0.40, 0.65, 0.82].map(x => <View key={`v${x}`} style={[styles.road, { left: `${x * 100}%`, height: '100%', width: 18 }]} />)}
     {!compact && <Text style={[type.caption, styles.parkLabel]}>Neighbourhood park</Text>}
-    {routesVisible && selectedRoute && size.width > 0 && [...routeOptions.filter(r => r.id !== selected), selectedRoute].map(r => {
+    {routesVisible && selectedRoute && size.width > 0 && [...routeOptions.filter(r => r.id !== selected), selectedRoute].flatMap(r => {
       const geometry = overlap ? selectedRoute.geometry : r.geometry;
       return geometry.slice(1).map((p, i) => <Segment key={`${r.id}-${i}`} a={geometry[i]} b={p} width={size.width} height={size.height} selected={r.id === selected} />);
     })}

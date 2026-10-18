@@ -17,7 +17,7 @@ export function ReportsScreen({ repository = barrierRepository }: { repository?:
   }, [repository, attempt]);
   return <FormPage title="Barrier reports"><SecondaryButton label="Back to Planner" onPress={() => router.replace('/')}/>
     <Text style={type.caption}>{persistenceDescription} These do not automatically alter routes. Expired reports need reconfirmation.</Text>
-    {status === 'loading' ? <Text style={type.body}>Loading reports…</Text> : status === 'error' ? <><ErrorText text="Couldn't load reports."/><SecondaryButton label="Retry" onPress={() => setAttempt(n => n + 1)}/></> : reports.length ? reports.slice(0, visibleCount).map(report => <ReportSummary key={report.id} report={report}/>) : <Text style={type.body}>No reports yet. Start Report Barrier from Planner to add a route issue.</Text>}
+    {status === 'loading' ? <Text accessibilityLiveRegion="polite" style={type.body}>Loading reports…</Text> : status === 'error' ? <><ErrorText text="Couldn't load reports."/><SecondaryButton label="Retry" onPress={() => { setStatus('loading'); setAttempt(n => n + 1); }}/></> : reports.length ? reports.slice(0, visibleCount).map(report => <ReportSummary key={report.id} report={report}/>) : <Text style={type.body}>No reports yet. Start Report Barrier from Planner to add a route issue.</Text>}
     {reports.length > visibleCount && <SecondaryButton label="Show more" onPress={() => setVisibleCount(n => n + 20)}/>}
   </FormPage>;
 }

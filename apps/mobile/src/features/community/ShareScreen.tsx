@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { successFeedback } from '../motion/haptics';
 import { router } from 'expo-router';
 import { Text, View } from 'react-native';
 import { PrimaryButton, SecondaryButton } from '../../components/Buttons';
@@ -11,6 +12,7 @@ import { communityRepository, validateShare } from './repository';
 import { TagChoices, VerificationBadge } from './components';
 import { accessibilityTags, purposeTags, routeWarnings, type CommunityRoute, type CommunityRouteRepository, type CreateCommunityRouteInput } from './types';
 export function ShareScreen({ repository = communityRepository, initialDraft }: { repository?: CommunityRouteRepository; initialDraft?: CreateCommunityRouteInput }) {
+  const submitting = useRef(false);
   const current = getSharePath();
   const paths = current ? [current, ...seedPaths] : seedPaths;
   const [draft, setDraft] = useState<CreateCommunityRouteInput>(initialDraft ?? { title: '', notes: '', purposeTags: [], accessibilityTags: [], routeWarnings: [], photos: [], route: current, lastWalkedAt: '' });
@@ -18,12 +20,12 @@ export function ShareScreen({ repository = communityRepository, initialDraft }: 
   const [created, setCreated] = useState<CommunityRoute | null>(null); const [busy, setBusy] = useState(false);
   function update(patch: Partial<CreateCommunityRouteInput>) { setDraft(v => ({ ...v, ...patch })); setErrors({}); }
   async function submit() {
-    if (busy) return;
+    if (submitting.current) return;
     const validation = validateShare(draft); setErrors(validation); if (Object.keys(validation).length) return;
-    setBusy(true); setFailure('');
-    try { setCreated(await repository.createRoute(draft)); } catch { setFailure('Could not save the route. Your draft is still here. Try submitting again.'); } finally { setBusy(false); }
+    submitting.current = true; setBusy(true); setFailure('');
+    try { setCreated(await repository.createRoute(draft)); successFeedback(); } catch { setFailure('Could not save the route. Your draft is still here. Try submitting again.'); } finally { submitting.current = false; setBusy(false); }
   }
-  if (created) return <FormPage title="Route shared"><Text style={type.body}>{created.title}</Text><VerificationBadge level={created.verificationLevel}/>
+  if (created) return <FormPage animateStep title="Route shared"><Text style={type.body}>{created.title}</Text><VerificationBadge level={created.verificationLevel}/>
     <Text style={type.body}>{persistenceDescription} Your route may require confirmation.</Text>
     <PrimaryButton label="View shared route" onPress={() => router.replace({ pathname: '/community-route', params: { id: created.id } })}/>
     <SecondaryButton label="Back to Community" onPress={() => router.replace('/community')}/></FormPage>;

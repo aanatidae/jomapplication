@@ -27,3 +27,18 @@ test('missing configuration shows recoverable error without exposing provider me
   expect(screen.queryByText('provider internal detail')).toBeNull();
   expect(screen.queryByText('Private app content')).toBeNull();
 });
+
+test('session expiry removes private content and offers guest recovery', async () => {
+  let change: (event: string, session: { user: { id: string } } | null) => void = () => {};
+  const client = { auth: {
+    getSession: jest.fn(async () => ({ data: { session: { user: { id: 'u1' } } }, error: null })),
+    onAuthStateChange: jest.fn(handler => { change = handler; return { data: { subscription: { unsubscribe: jest.fn() } } }; }),
+    startAutoRefresh: jest.fn(), stopAutoRefresh: jest.fn(),
+  } };
+  jest.mocked(getSupabase).mockReturnValue(client as unknown as ReturnType<typeof getSupabase>);
+  render(<AuthGate><Text>Private app content</Text></AuthGate>);
+  await screen.findByText('Private app content');
+  act(() => change('SIGNED_OUT', null));
+  expect(screen.queryByText('Private app content')).toBeNull();
+  expect(screen.getByRole('button', { name: 'Continue as guest' })).toBeTruthy();
+});

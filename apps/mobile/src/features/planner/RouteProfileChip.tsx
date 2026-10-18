@@ -1,15 +1,17 @@
+import { MotionPressable } from '../motion/Motion';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { theme, type } from '../../theme/tokens';
 import type { MockRoute } from './mockRoutes';
+import { selectionFeedback } from '../motion/haptics';
 
 export function RouteProfileChip({ route, selected, onPress }: { route: Pick<MockRoute, 'mode'>; selected: boolean; onPress: () => void }) {
   const [focused, setFocused] = useState(false);
-  return <Pressable accessibilityRole="radio" accessibilityLabel={route.mode} accessibilityState={{ selected, checked: selected }}
-    onPress={onPress} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+  return <MotionPressable accessibilityRole="radio" accessibilityLabel={route.mode} accessibilityState={{ selected, checked: selected }}
+    onPress={() => { if (!selected) selectionFeedback(); onPress(); }} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
     style={({ pressed }) => [styles.chip, selected && styles.selected, focused && styles.focus, pressed && styles.pressed]}>
     <Text style={[type.label, selected && styles.selectedLabel]}>{selected ? 'Selected · ' : ''}{route.mode}</Text>
-  </Pressable>;
+  </MotionPressable>;
 }
 const styles = StyleSheet.create({
   chip: { minHeight: theme.target, maxWidth: '100%', justifyContent: 'center', padding: theme.space.sm, borderRadius: theme.radius.md, borderWidth: 2, borderColor: theme.color.outline },
