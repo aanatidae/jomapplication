@@ -76,6 +76,10 @@ def _ranked_candidates(
     candidates = []
     boundary_cost = None
     try:
+        if limit == 1 and time_cap is None and source.graph.get("data_kind") == "OPENSTREETMAP":
+            # The geographic baseline needs one shortest path, not Yen's next alternative.
+            # Canonical weighted-graph insertion keeps equal-cost traversal reproducible.
+            return [tuple(nx.shortest_path(weighted, origin, destination, weight="cost"))]
         paths = nx.shortest_simple_paths(weighted, origin, destination, weight="cost")
         for examined, nodes in enumerate(paths, start=1):
             path = tuple(nodes)
@@ -146,7 +150,11 @@ def compute_routes(
             sum(e.estimated_time_s for e in baseline) + preferences.max_detour_minutes * 60
         )
         cap = min(cap, preference_cap) if cap is not None else preference_cap
-    weighted = _weighted_graph(graph, profile, as_of, entrances, crossings, preferences)
+    weighted = (
+        fastest_graph
+        if profile == RouteProfile.FASTEST and preferences == DEFAULT_PREFERENCES
+        else _weighted_graph(graph, profile, as_of, entrances, crossings, preferences)
+    )
     paths = _ranked_candidates(weighted, graph, origin, destination, max_results, cap)
     return tuple(
         _result(graph, weighted, path, profile, baseline, as_of, entrances, crossings)
@@ -171,18 +179,32 @@ def _result(
         :16
     ]
     geometry = edges[0].geometry + tuple(point for e in edges[1:] for point in e.geometry[1:])
+    geographic = graph.graph["data_kind"] == "OPENSTREETMAP"
     warnings = [
-        "SIMULATED / DEMO graph; not for navigation or real-world safety claims.",
+        "OpenStreetMap pedestrian mapping; incomplete and not field verified."
+        if geographic
+        else "SIMULATED / DEMO graph; not for navigation or real-world safety claims.",
         "Environmental indicators are not guarantees; conditions may change.",
         *confidence.factors,
     ]
     if profile == RouteProfile.STEP_FREE:
-        warnings.append(
-            "Step-free based on recorded demo attributes; not an accessibility guarantee."
+        warnings.append("Step-free based on recorded attributes; not an accessibility guarantee.")
+    if geographic:
+        warnings.extend(
+            [
+                "Route starts and ends on snapped network nodes. Access from your chosen point is "
+                "not mapped or included in the distance; check the marked endpoints.",
+                "Lighting, activity, crossings and staffed security are not independently "
+                "verified. "
+                "Safer at Night may return the same path as Fastest.",
+                "Walking time is an estimate at 1.25 m/s, without traffic, signals "
+                "or indoor navigation.",
+            ]
         )
     return RouteResult(
         id=f"{profile}-{digest}",
         dataset_id=graph.graph["dataset_id"],
+        data_kind=graph.graph["data_kind"],
         profile=profile,
         node_path=path,
         segment_ids=ids,
@@ -193,7 +215,7 @@ def _result(
         reasons=build_route_reasons(edges, baseline, as_of, entrances),
         warnings=tuple(warnings),
         confidence=confidence,
-        verification_summary=verification_summary(edges),
+        verification_summary=verification_summary(edges, geographic=geographic),
         data_quality=RouteDataQuality(
             sources=tuple(sorted({e.source for e in edges})),
             oldest_updated_at=min(

@@ -1,11 +1,12 @@
 import { localCollection, localId } from '../../services/localCollection';
 import { type KeyValueStorage } from '../../services/localStorage';
 import { seededCommunityRoutes } from './data';
+import { validMapPoint } from '../planner/geographic';
 import { accessibilityTags, purposeTags, routeWarnings, type CommunityRoute, type CommunityRouteRepository, type CreateCommunityRouteInput } from './types';
 export function validateShare(input: CreateCommunityRouteInput): Record<string, string> {
   const errors: Record<string, string> = {};
   if (!input.title.trim() || input.title.trim().length > 100) errors.title = 'Enter a title of 1–100 characters.';
-  if (!input.route || input.route.geometry.length < 2) errors.route = 'Choose a route to share.';
+  if (!input.route || input.route.geometry.length < 2 || input.route.geometry.length > 1000 || input.route.geometry.some(p => !validMapPoint(p, input.route!.coordinateSystem))) errors.route = 'Choose a route to share.';
   if (!input.purposeTags.length || input.purposeTags.some(t => !purposeTags.includes(t))) errors.purpose = 'Choose at least one purpose.';
   if (input.notes.length > 2000) errors.notes = 'Keep notes within 2,000 characters.';
   if (input.accessibilityTags.some(t => !accessibilityTags.includes(t)) || (input.accessibilityTags.includes('Step-free') && input.accessibilityTags.includes('Stairs present'))) errors.accessibility = 'Step-free and stairs present cannot be selected together.';

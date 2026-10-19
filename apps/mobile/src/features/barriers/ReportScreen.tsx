@@ -7,6 +7,8 @@ import { PrimaryButton, SecondaryButton } from '../../components/Buttons';
 import { Choice, ErrorText, Field, FormPage, form } from '../../components/Forms';
 import { LocalPhoto } from '../../components/LocalPhoto';
 import { type } from '../../theme/tokens';
+import { GeographicMap } from '../planner/GeographicMap';
+import { pointLabel } from '../planner/geographic';
 import type { SharedPath } from '../community/types';
 import { SharedMap, VerificationBadge } from '../community/components';
 import { barrierCategories, getReportRoute, routeLocations, type BarrierReport, type BarrierReportRepository, type ConditionType, type CreateBarrierReportInput } from './model';
@@ -37,9 +39,13 @@ export function ReportScreen({ repository = barrierRepository, initialDraft, rou
     <Text style={type.caption}>Report barrier · Step {step + 1} of 4</Text>
     <SecondaryButton label="Cancel report" disabled={busy} onPress={() => router.replace('/')}/>
     {step === 0 && <View style={form.group}>{Object.entries(barrierCategories).map(([id, label]) => <Choice key={id} radio label={label} selected={draft.category === id} onPress={() => update({ category: id as keyof typeof barrierCategories })}/>)}{errors.category && <ErrorText text={errors.category}/>}</View>}
-    {step === 1 && <><Text style={type.body}>Choose the closest point. These are schematic demo locations, not GPS coordinates.</Text>
-      {route ? <SharedMap route={route}/> : <Text style={type.caption}>No active route or live location is available. You can associate this report with the labelled demo location.</Text>}
-      {locations.map((location, index) => <Choice key={index} radio label={location.label} selected={draft.location?.label === location.label} onPress={() => update({ location })}/>)}
+    {step === 1 && <><Text style={type.body}>{route?.coordinateSystem === 'schematic_demo' ? 'Choose the closest schematic demo point. These are not GPS coordinates.' : 'Tap the map at the issue or choose a mapped location. Reports remain unverified.'}</Text>
+      {route?.coordinateSystem === 'schematic_demo' ? <SharedMap route={route}/> : <GeographicMap compact selected={route?.id ?? ''} origin={route?.origin ?? 'Brickfields'} destination={route?.destination ?? 'Report location'}
+        originPoint={draft.location?.coordinateSystem === 'WGS84' ? { longitude: draft.location.point[0], latitude: draft.location.point[1] } : undefined}
+        routeOptions={route ? [{ id: route.id, mode: 'Report route', minutes: route.durationMinutes, distance: route.distanceM, geometry: route.geometry, coordinateSystem: 'WGS84', reasons: [], confidence: 'Unverified', quality: 'community', freshness: '' }] : []}
+        onPick={point => update({ location: { label: pointLabel(point), point: [point.longitude, point.latitude], coordinateSystem: 'WGS84', ...(route ? { routeId: route.id } : {}) } })} />}
+      {draft.location && <Text accessibilityLiveRegion="polite" style={type.body}>Selected: {draft.location.label}</Text>}
+      {locations.filter((_, index) => locations.length <= 20 || index % Math.ceil(locations.length / 18) === 0 || index === locations.length - 1).map((location, index) => <Choice key={index} radio label={location.label} selected={draft.location?.label === location.label} onPress={() => update({ location })}/>)}
       {errors.location && <ErrorText text={errors.location}/>}</>}
     {step === 2 && <><Field label="Issue description" value={draft.description} maxLength={2000} multiline error={errors.description} onChangeText={description => update({ description })}/>
       <Text style={type.title}>How long might it last?</Text><View style={form.row}>{(['temporary', 'permanent', 'unknown'] as ConditionType[]).map(conditionType => <Choice key={conditionType} radio label={conditionType === 'unknown' ? 'Not sure' : conditionType === 'temporary' ? 'Temporary' : 'Permanent'} selected={draft.conditionType === conditionType} onPress={() => update({ conditionType })}/>)}</View>
@@ -47,7 +53,7 @@ export function ReportScreen({ repository = barrierRepository, initialDraft, rou
       <LocalPhoto uri={draft.photoUri} onChange={photoUri => update({ photoUri })}/>
       {errors.photo && <ErrorText text={errors.photo}/>}</>}
     {step === 3 && <View style={form.panel}><Text style={type.title}>{draft.category && barrierCategories[draft.category]}</Text>
-      <Text style={type.body}>{draft.location?.label}</Text><Text style={type.caption}>Schematic demo location · not GPS</Text>
+      <Text style={type.body}>{draft.location?.label}</Text><Text style={type.caption}>{draft.location?.coordinateSystem === 'WGS84' ? 'Geographic location · OpenStreetMap context' : 'Schematic demo location · not GPS'}</Text>
       <ExpandableText text={draft.description}/><Text style={type.body}>Condition: {draft.conditionType}</Text>
       <Text style={type.caption}>{draft.photoUri ? 'One photo attached' : 'No photo attached'}</Text><VerificationBadge level="community_submitted"/>
       <Text style={type.caption}>{persistenceDescription} This report may need confirmation.</Text></View>}

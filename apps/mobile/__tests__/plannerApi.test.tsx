@@ -37,12 +37,12 @@ it('loads API cards, changes profile requests, caches results and selects an alt
   expect(fetcher).toHaveBeenCalledTimes(3);
 });
 
-it('sends real pilot node IDs when the destination changes', async () => {
+it('sends real WGS84 coordinates when the destination changes', async () => {
   render(<PlannerScreen />); await screen.findByText('Fastest · Option 1');
-  fireEvent.press(screen.getByRole('button', { name: 'To · Residential Block' }));
-  fireEvent.press(screen.getByRole('button', { name: 'Community Mall' }));
+  fireEvent.press(screen.getByRole('button', { name: 'To · NU Sentral · main entrance' }));
+  fireEvent.press(screen.getByRole('button', { name: 'Little India · mapped approach' }));
   await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
-  expect(JSON.parse(fetcher.mock.calls[1][1].body).destination.node_id).toBe('mall_entrance');
+  expect(JSON.parse(fetcher.mock.calls[1][1].body).destination).toEqual({ latitude: 3.1289663, longitude: 101.6839915 });
 });
 
 it('shows a single valid option and complete backend warnings/explanations', async () => {
@@ -77,7 +77,7 @@ it.each(['no_route', 'timeout', 'network'] as const)('renders %s with retry and 
   await screen.findByText(kind === 'no_route' ? 'No route available' : "Couldn't load routes.");
   if (kind === 'timeout') expect(screen.getByText('The routing service took too long to respond.')).toBeTruthy();
   expect(screen.queryByText('private network error')).toBeNull();
-  expect(screen.getByRole('button', { name: 'To · Residential Block' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'To · NU Sentral · main entrance' })).toBeTruthy();
   fetcher.mockResolvedValue({ ok: true, json: async () => fixtures.fastest });
   fireEvent.press(screen.getByRole('button', { name: 'Retry' }));
   await screen.findByText('Fastest · Option 1');

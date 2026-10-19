@@ -12,6 +12,29 @@ Rules for Codex:
 - Before a phase is marked complete, run its tests and manually inspect the user-visible behavior.
 - Do not fabricate real-world safety/accessibility data. Use clearly labelled simulated data until verified pilot data exists.
 
+## Brickfields geographic integration — 2026-10-19
+
+- [x] Read harness and inspect existing Expo map, NetworkX engine, API contracts, repositories and Supabase validators.
+- [x] Cache a real 2 km Brickfields OSM walking network with source/provenance, actual geometry, tags, directions and separate parallel paths.
+- [x] Default to real coordinate requests with WGS84 geometry, bounded snapping, distance/ETA, truthful explanations and clean outside/unreachable/same-node handling.
+- [x] Real interactive OSM map renders in Expo Android, with zoom/pan/pins/route polylines and preserved native Jom! screens/cards/tokens.
+- [x] Keep native map configurable; diagnose actual Google authorization error and document restricted build keys.
+- [x] Add source-backed KL Sentral, NU Sentral, Vivekananda Ashram, Little India and Buddhist Maha Vihara entrance/approach destinations.
+- [x] Map origin/destination selection; opt-in foreground location; denied/unavailable and timeout fallback; no background location/history.
+- [x] Preserve strict Step-Free exclusions and unknown data; real stair edges rejected; unavailable rather than invented accessible route.
+- [x] Preserve Night weights without fabricated lighting/activity/security; raw OSM lighting tags remain distinct from verification.
+- [x] Community/report snapshots and bounded client validators support geographic coordinates; old schematic content and verification rules retained.
+- [x] Prepare backward-compatible Supabase geographic validator migration.
+- [ ] Apply and verify hosted migration: user chose to apply SQL; read-only probe still rejects WGS84 before application. No admin session available to agent.
+- [x] Three real geographic trips pass exact source-geometry, distance, ETA and fastest-path checks, including live HTTP.
+- [x] Mobile lint/types/104 tests; API Ruff/138 Pytests; clean pinned npm ci; Android export pass.
+- [x] Native map, route, zoom/pan/selection, denied permission/manual recovery and strict Step-Free unavailable inspected. Large-text map overlap found and fixed.
+- [x] Document source, coverage, refresh, limitations, ODbL attribution, tile policy and actual evidence in docs/brickfields.
+- [x] Restore test display/location permission settings and original saved preferences, with explicit saved-state confirmation.
+- [ ] Final hosted handoff: verify the user-applied migration and geographic write/ownership tests; record final status in PLAN/results.
+
+Historical phases below describe the original simulated MVP; their demo values are not geographic claims.
+
 ## Phase 0 — Repository audit and technical spikes
 
 Native verification targets: **Android Studio emulator + physical Android phone**, with Expo Go permitted for testing (user-confirmed 2026-10-15). Check ADB connectivity before claiming mobile/map acceptance.

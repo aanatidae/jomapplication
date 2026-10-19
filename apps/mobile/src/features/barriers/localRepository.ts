@@ -3,11 +3,12 @@ import type { KeyValueStorage } from '../../services/localStorage';
 import { barrierCategories, type BarrierReport, type BarrierReportRepository, type CreateBarrierReportInput } from './model';
 // Configurable demo policy: temporary reports need reconfirmation after 24 hours.
 import { TEMPORARY_REPORT_HOURS } from '../quality/policy';
+import { validMapPoint } from '../planner/geographic';
 export { TEMPORARY_REPORT_HOURS } from '../quality/policy';
 export function validateBarrier(input: CreateBarrierReportInput): Record<string, string> {
   const errors: Record<string, string> = {};
   if (!input.category || !Object.hasOwn(barrierCategories, input.category)) errors.category = 'Choose an issue category.';
-  if (!input.location || input.location.coordinateSystem !== 'schematic_demo' || !input.location.label.trim() || input.location.point.length !== 2 || input.location.point.some(v => !Number.isFinite(v) || v < 0 || v > 1)) errors.location = 'Choose a labelled route point or demo location.';
+  if (!input.location || !input.location.label.trim() || !validMapPoint(input.location.point, input.location.coordinateSystem)) errors.location = 'Choose a labelled route point or map location.';
   if (!input.description.trim() || input.description.trim().length > 2000) errors.description = 'Describe the issue in 1–2,000 characters.';
   if (!['temporary', 'permanent', 'unknown'].includes(input.conditionType)) errors.condition = 'Choose the condition duration.';
   if (input.photoUri && !/^(file|content):\/\//.test(input.photoUri)) errors.photo = 'Choose a local image.';

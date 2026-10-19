@@ -4,6 +4,7 @@ import { SecondaryButton } from '../../components/Buttons';
 import { type } from '../../theme/tokens';
 import { RouteReasonBadge } from '../planner/RouteBadges';
 import { MapCanvas } from '../planner/MapCanvas';
+import { GeographicMap } from '../planner/GeographicMap';
 import type { CommunityRoute, SharedPath } from './types';
 import { freshnessDays, isStale, verificationLabel } from '../quality/policy';
 import { FreshnessLabel, RouteWarningBanner, useQualityClock } from '../quality/components';
@@ -12,6 +13,8 @@ export function TagChoices({ title, options, selected, onChange }: { title: stri
   return <View style={form.group}><Text style={type.title}>{title}</Text><View style={form.row}>{options.map(tag => <Choice key={tag} label={tag} selected={selected.includes(tag)} onPress={() => onChange(selected.includes(tag) ? selected.filter(t => t !== tag) : [...selected, tag])}/>)}</View></View>;
 }
 export function SharedMap({ route }: { route: SharedPath }) {
+  if (route.coordinateSystem === 'WGS84') return <GeographicMap compact selected={route.id} origin={route.origin} destination={route.destination}
+    routeOptions={[{ id: route.id, mode: 'Shared route', minutes: route.durationMinutes, distance: route.distanceM, geometry: route.geometry, coordinateSystem: 'WGS84', reasons: [], confidence: 'Community submitted', quality: 'community', freshness: '' }]} />;
   return <MapCanvas compact selected={route.id} origin={route.origin} destination={route.destination} routeOptions={[{ id: route.id, mode: 'Shared demo route', minutes: route.durationMinutes, distance: route.distanceM, geometry: route.geometry, reasons: [], confidence: 'Community submitted', quality: 'community', freshness: '' }]}/>;
 }
 export function CommunityRouteCard({ route, onOpen }: { route: CommunityRoute; onOpen: () => void }) {

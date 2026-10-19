@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Annotated, Literal
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, FiniteFloat, model_validator
 
 from ..routing.models import Coordinate, Identifier, RouteConfidence, RouteDataQuality, RouteProfile
 
@@ -13,7 +13,18 @@ class ApiModel(BaseModel):
 
 
 class RoutePoint(ApiModel):
-    node_id: Identifier
+    node_id: Identifier | None = None
+    latitude: Annotated[FiniteFloat, Field(ge=-90, le=90)] | None = None
+    longitude: Annotated[FiniteFloat, Field(ge=-180, le=180)] | None = None
+
+    @model_validator(mode="after")
+    def one_location(self) -> "RoutePoint":
+        coordinates = self.latitude is not None and self.longitude is not None
+        if (self.node_id is not None) == coordinates or (
+            (self.latitude is None) != (self.longitude is None)
+        ):
+            raise ValueError("Provide a node_id or both latitude and longitude")
+        return self
 
 
 class RoutePreferences(ApiModel):
@@ -35,7 +46,9 @@ class RouteRequest(ApiModel):
 
 class RouteGeometry(ApiModel):
     type: Literal["LineString"] = "LineString"
-    coordinate_system: Literal["local_metres_not_geographic"] = "local_metres_not_geographic"
+    coordinate_system: Literal["local_metres_not_geographic", "WGS84"] = (
+        "local_metres_not_geographic"
+    )
     coordinates: Annotated[tuple[Coordinate, ...], Field(min_length=2)]
 
 
@@ -55,6 +68,7 @@ class RouteOption(ApiModel):
 
 class RouteResponse(ApiModel):
     dataset_id: str
-    data_kind: Literal["SIMULATED_DEMO"] = "SIMULATED_DEMO"
+    data_kind: Literal["SIMULATED_DEMO", "OPENSTREETMAP"] = "SIMULATED_DEMO"
     reference_time: datetime
     routes: Annotated[tuple[RouteOption, ...], Field(min_length=1, max_length=3)]
+    snapped_endpoints: dict | None = None

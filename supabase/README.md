@@ -1,5 +1,12 @@
 # Supabase
 
+Brickfields integration adds `202610190001_geographic_snapshots.sql`. Apply it
+to the existing project before geographic route sharing/reporting. It extends
+bounded JSON validators to WGS84 `[longitude, latitude]`, retains old schematic
+rows and leaves RLS, ownership, verification guards, expiry and Storage intact.
+The application uses the same repositories and public-key client. See
+`docs/brickfields/README.md` for data/source details and actual verification.
+
 Phase 9 uses a fresh free development project in Singapore. Actual public connection
 details stay in ignored `apps/mobile/.env.local`; examples contain placeholders only.
 Database passwords, secret keys and service-role credentials never belong in Expo.

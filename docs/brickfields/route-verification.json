@@ -1,0 +1,46 @@
+{
+  "trips": [
+    {
+      "origin": "KL Sentral \u00b7 south entrance",
+      "destination": "NU Sentral \u00b7 main entrance",
+      "distance_m": 316.41,
+      "duration_s": 253.13,
+      "geometry_points": 20,
+      "segments": 19,
+      "calculation_s": 0.282,
+      "accessibility_incomplete": true,
+      "last_verified_at": null,
+      "http_geometry_matches_graph": true
+    },
+    {
+      "origin": "NU Sentral \u00b7 main entrance",
+      "destination": "Vivekananda Ashram \u00b7 mapped approach",
+      "distance_m": 426.87,
+      "duration_s": 341.5,
+      "geometry_points": 23,
+      "segments": 22,
+      "calculation_s": 0.187,
+      "accessibility_incomplete": true,
+      "last_verified_at": null,
+      "http_geometry_matches_graph": true
+    },
+    {
+      "origin": "Vivekananda Ashram \u00b7 mapped approach",
+      "destination": "Little India \u00b7 mapped approach",
+      "distance_m": 308.04,
+      "duration_s": 246.43,
+      "geometry_points": 23,
+      "segments": 22,
+      "calculation_s": 0.281,
+      "accessibility_incomplete": true,
+      "last_verified_at": null,
+      "http_geometry_matches_graph": true
+    }
+  ],
+  "step_free": "Unavailable: critical accessibility attributes unknown; no stairs fallback",
+  "confirmed_stair_segments": 992,
+  "step_free_eligible_segments": 0,
+  "osm_lighting_tag_segments": 438,
+  "verified_lighting_score_segments": 0,
+  "verified_security_segments": 0
+}

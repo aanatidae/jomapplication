@@ -11,7 +11,7 @@ export function ReportSummary({ report }: { report: BarrierReport }) {
   const asOf = useQualityClock();
   return <View style={form.panel}><Text style={type.title}>{barrierCategories[report.category]}</Text>
     <VerificationBadge level={report.verificationLevel}/><ExpandableText text={report.description}/>
-    <Text style={type.body}>{report.location.label}</Text><Text style={type.caption}>Schematic demo location · not GPS</Text>
+    <Text style={type.body}>{report.location.label}</Text><Text style={type.caption}>{report.location.coordinateSystem === 'WGS84' ? `Geographic location · ${report.location.point[1].toFixed(6)}, ${report.location.point[0].toFixed(6)}` : 'Schematic demo location · not GPS'}</Text>
     <Text style={type.body}>Condition: {report.conditionType}</Text>
     <RouteWarningBanner text={reportStatus(report, asOf)}/>
     <FreshnessLabel kind="Community reported" date={report.reportedAt} now={asOf}/>

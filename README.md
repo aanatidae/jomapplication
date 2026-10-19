@@ -2,29 +2,58 @@
 
 A pedestrian-first route-planning hackathon MVP: **same origin, same destination,
 different need, different best route**. Fastest, Safer at Night and Step-Free are
-computed by FastAPI/NetworkX. The Expo Android app renders their geometry on a
-clearly labelled **simulated schematic**, compares explanations/data confidence,
+computed by FastAPI/NetworkX. The Expo Android app renders **real Brickfields
+OpenStreetMap routes**, compares explanations/data confidence,
 and supports guest preferences, community sharing, photos and barrier reports.
 
 **Safer based on available data.** Environmental indicators are not guarantees.
-All pilot attributes are synthetic. This is not geographic navigation or a
-production-ready mobility service.
+The 2 km geographic pilot has incomplete, unverified safety/accessibility data.
+Step-Free is unavailable when critical evidence is missing. This is not a
+production-ready mobility service. See [Brickfields setup, source, refresh,
+licensing and limitations](docs/brickfields/README.md).
 
 ## Architecture and scope
 
 | Part | Responsibility |
 | --- | --- |
-| Expo SDK 57 / React Native / TypeScript | Native screens, schematic projection, typed API boundary, accessible controls and reduced motion |
+| Expo SDK 57 / React Native / TypeScript | Interactive Leaflet/OSM map, optional native map, typed API boundary, accessible controls and reduced motion |
 | FastAPI / Pydantic / NetworkX | Deterministic graph routing, exclusions, scoring, reasons and confidence |
 | Supabase Auth / Postgres / Storage | Anonymous guest sessions, private preferences, owned writes, public published community reads/photos |
 | Explicit local mode | Separate device-only community/preferences/report persistence; never automatic failover |
 
 Routing owns no Supabase write side effects. Reports never automatically change the
-pilot graph. The default trip with all needs off and no detour limit gives
-**8 min/600 m**, **10 min/720 m**, **12 min/830 m**. Supported saved needs can
+pilot graph. The default trip is KL Sentral south entrance → NU Sentral main
+entrance. The historic **8/10/12-minute** scenarios remain explicit simulated
+test fixtures. Supported saved needs can
 legitimately change these results. Covered/shaded and ramp/elevator preferences
 remain visibly saved-only. Guest identity survives restart; clearing app storage
-loses it. No IC number, age inference, live location or automatic route history.
+loses it. Foreground location is opt-in; manual map/landmark selection works
+without permission. No IC number, age inference or automatic route history.
+
+## Geographic pilot quick start
+
+The real OSM extract and derived graph are checked in; route requests work
+without downloading OSM. Start the existing API and Expo using the commands
+below. The default Leaflet renderer needs no map key. For native maps, set
+`EXPO_PUBLIC_MAP_RENDERER=native`; Android custom builds additionally require
+`GOOGLE_MAPS_ANDROID_API_KEY` in the build environment.
+
+Apply `supabase/migrations/202610190001_geographic_snapshots.sql` to your existing
+Supabase project before sharing geographic routes/reports. It preserves old
+schematic content and existing security/verification rules. Hosted migration
+application requires an administrator session; a public app key cannot apply it.
+
+Request example:
+
+```json
+{"origin":{"latitude":3.1337503,"longitude":101.6867582},"destination":{"latitude":3.1331516,"longitude":101.687547},"profile":"fastest"}
+```
+
+Returned `WGS84` geometry is `[longitude, latitude]`, with snap distances and
+uncertainty. Run `python -m scripts.verify_brickfields --api http://127.0.0.1:8000`
+with the configured Python environment to compare three geographic HTTP trips
+against the cached graph. Earlier demo-only examples below require explicitly
+selecting `JOM_ROUTING_DATASET=simulated_demo`; they are not geographic results.
 
 ## Prerequisites
 

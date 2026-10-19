@@ -1,0 +1,42 @@
+[
+  {
+    "label": "KL Sentral · south entrance",
+    "latitude": 3.1337503,
+    "longitude": 101.6867582,
+    "node_id": "osm_11925140813",
+    "osm_feature": "https://www.openstreetmap.org/way/638688527",
+    "osm_name": "KL Sentral"
+  },
+  {
+    "label": "NU Sentral · main entrance",
+    "latitude": 3.1331516,
+    "longitude": 101.687547,
+    "node_id": "osm_7045493653",
+    "osm_feature": "https://www.openstreetmap.org/way/670478935",
+    "osm_name": "Nu Sentral"
+  },
+  {
+    "label": "Vivekananda Ashram · mapped approach",
+    "latitude": 3.1305064,
+    "longitude": 101.6857396,
+    "node_id": "osm_10996608757",
+    "osm_feature": "https://www.openstreetmap.org/way/466004234",
+    "osm_name": "Vivekananda Ashram"
+  },
+  {
+    "label": "Little India · mapped approach",
+    "latitude": 3.1289663,
+    "longitude": 101.6839915,
+    "node_id": "osm_14053107260",
+    "osm_feature": "https://www.openstreetmap.org/node/4327707896",
+    "osm_name": "Little India"
+  },
+  {
+    "label": "Buddhist Maha Vihara · mapped approach",
+    "latitude": 3.1282138,
+    "longitude": 101.6866623,
+    "node_id": "osm_5735922047",
+    "osm_feature": "https://www.openstreetmap.org/way/467858444",
+    "osm_name": "Buddhist Maha Vihara Buddha Hall"
+  }
+]

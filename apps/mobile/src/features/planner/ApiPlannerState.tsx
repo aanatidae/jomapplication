@@ -8,6 +8,7 @@ export function ApiPlannerState({ status, error, profile, onRetry }: {
 }) {
   const title = status === 'loading' ? 'Loading routes' : status === 'empty' ? 'No route available' : "Couldn't load routes.";
   const message = status === 'loading' ? 'Calculating routes for your selected trip and priority.' :
+    error === 'same_point' ? 'Choose different locations. These points snap to the same mapped pedestrian node.' :
     status === 'empty' ? (profile === 'step_free' ? 'No verified step-free route is available for this trip.' : 'Try a different pilot origin or destination.') :
     error === 'timeout' ? 'The routing service took too long to respond.' :
     error === 'configuration' ? 'The routing service is not configured yet. Ask the demo operator to start the service.' :

@@ -102,6 +102,8 @@ def edge_cost(
     entrance: bool = False,
     crossing: bool = False,
 ) -> float:
+    if profile.safety == profile.accessibility == profile.confidence == 0:
+        return edge.estimated_time_s / TIME_REFERENCE_S * profile.time
     penalties = normalized_penalties(edge, as_of, entrance, crossing)
     return penalties.time * (
         profile.time

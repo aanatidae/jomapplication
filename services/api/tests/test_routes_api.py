@@ -64,7 +64,7 @@ def test_same_node_returns_validation_error():
     assert client.post("/v1/routes", json=payload(destination="transit_stop")).status_code == 422
 
 
-def test_coordinates_and_unimplemented_preferences_are_rejected():
+def test_coordinates_require_geographic_dataset_and_unimplemented_preferences_are_rejected():
     body = payload()
     body["origin"] = {"latitude": 3, "longitude": 101}
     assert client.post("/v1/routes", json=body).status_code == 422

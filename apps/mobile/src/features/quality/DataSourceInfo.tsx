@@ -17,7 +17,7 @@ export function DataSourceInfo({ route }: { route: MockRoute }) {
         <Text style={type.title}>{route.mode}</Text><Text style={type.body}>{route.confidence}</Text>
         <Text style={type.body}>Data confidence describes the quality of recorded information, not the probability of personal safety.</Text>
         <Text style={type.body}>Source: {quality?.sources.length ? quality.sources.join(', ') : 'Source information unavailable'}</Text>
-        <Text style={type.caption}>Simulated pilot data. Not for real-world navigation.</Text>
+        <Text style={type.caption}>{route.coordinateSystem === 'WGS84' ? 'OpenStreetMap community mapping. Safety and pedestrian accessibility coverage are incomplete; no field verification.' : 'Simulated pilot data. Not for real-world navigation.'}</Text>
         <FreshnessLabel kind="Verified" date={quality?.last_verified_at ?? undefined} now={now}/>
         <FreshnessLabel kind="Last updated" date={quality?.oldest_updated_at ?? undefined} now={now}/>
         <Text style={type.caption}>Oldest known segment update. Editing a record does not verify its conditions.</Text>

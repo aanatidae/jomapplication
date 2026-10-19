@@ -68,6 +68,8 @@ class Edge(Record):
     verification_level: Verification
     confidence_score: Score | None = None
     last_updated_at: datetime | None = None
+    osm_way_id: int | None = None
+    osm_tags: dict[str, str] = Field(default_factory=dict)
 
     @field_validator("last_updated_at")
     @classmethod
@@ -147,7 +149,7 @@ class RouteDataQuality(Record):
 class RouteResult(Record):
     id: str
     dataset_id: str
-    data_kind: Literal["SIMULATED_DEMO"] = "SIMULATED_DEMO"
+    data_kind: Literal["SIMULATED_DEMO", "OPENSTREETMAP"] = "SIMULATED_DEMO"
     profile: RouteProfile
     node_path: tuple[str, ...]
     segment_ids: tuple[str, ...]

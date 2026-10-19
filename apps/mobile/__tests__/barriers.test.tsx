@@ -13,8 +13,8 @@ it('all required categories render and category/location/details validation prev
   for (const category of Object.values(barrierCategories)) expect(screen.getByRole('radio', { name: category })).toBeTruthy();
   fireEvent.press(screen.getByText('Continue')); expect(screen.getByText('Choose an issue category.')).toBeTruthy();
   fireEvent.press(screen.getByRole('radio', { name: 'Broken or blocked walkway' })); fireEvent.press(screen.getByText('Continue'));
-  fireEvent.press(screen.getByText('Continue')); expect(screen.getByText('Choose a labelled route point or demo location.')).toBeTruthy();
-  fireEvent.press(screen.getByRole('radio', { name: 'Transit Stop · deterministic demo location' })); fireEvent.press(screen.getByText('Continue'));
+  fireEvent.press(screen.getByText('Continue')); expect(screen.getByText('Choose a labelled route point or map location.')).toBeTruthy();
+  fireEvent.press(screen.getByRole('radio', { name: 'KL Sentral · south entrance' })); fireEvent.press(screen.getByText('Continue'));
   fireEvent.press(screen.getByText('Continue')); expect(screen.getByText('Describe the issue in 1–2,000 characters.')).toBeTruthy();
 });
 it('temporary submission records timestamp, persists on reload, and is inspectable as community submitted', async () => {

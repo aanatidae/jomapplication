@@ -1,5 +1,5 @@
 export type RouteProfile = 'fastest' | 'safer_at_night' | 'step_free';
-export type RoutePoint = { node_id: string };
+export type RoutePoint = { node_id: string } | { latitude: number; longitude: number };
 export type RoutePreferences = {
   prefer_well_lit?: boolean; avoid_stairs?: boolean; avoid_steep_slopes?: boolean;
   prefer_public_areas?: boolean; max_detour_minutes?: number;
@@ -10,7 +10,7 @@ export type RouteRequest = {
 };
 export type RouteOption = {
   id: string; profile: RouteProfile;
-  geometry: { type: 'LineString'; coordinate_system: 'local_metres_not_geographic'; coordinates: [number, number][] };
+  geometry: { type: 'LineString'; coordinate_system: 'local_metres_not_geographic' | 'WGS84'; coordinates: [number, number][] };
   distance_m: number; estimated_time_s: number; total_cost: number;
   reasons: string[]; warnings: string[];
   confidence: { level: 'High' | 'Medium' | 'Low'; factors: string[]; as_of: string };
@@ -21,9 +21,9 @@ export type RouteOption = {
   };
 };
 export type RouteResponse = {
-  dataset_id: string; data_kind: 'SIMULATED_DEMO'; reference_time: string; routes: RouteOption[];
+  dataset_id: string; data_kind: 'SIMULATED_DEMO' | 'OPENSTREETMAP'; reference_time: string; routes: RouteOption[];
 };
-export type RoutingErrorKind = 'timeout' | 'no_route' | 'outside_network' | 'network' | 'invalid_response' | 'server' | 'configuration';
+export type RoutingErrorKind = 'timeout' | 'no_route' | 'outside_network' | 'network' | 'invalid_response' | 'server' | 'configuration' | 'same_point';
 export class RoutingApiError extends Error {
   constructor(public readonly kind: RoutingErrorKind) { super(kind); }
 }
@@ -42,7 +42,7 @@ function validRoute(value: unknown): value is RouteOption {
     typeof q.accessibility_incomplete !== 'boolean' || typeof q.stale !== 'boolean')) return false;
   return typeof value.id === 'string' && value.id.length > 0 &&
     ['fastest', 'safer_at_night', 'step_free'].includes(String(value.profile)) &&
-    g.type === 'LineString' && g.coordinate_system === 'local_metres_not_geographic' &&
+    g.type === 'LineString' && ['local_metres_not_geographic', 'WGS84'].includes(String(g.coordinate_system)) &&
     Array.isArray(g.coordinates) && g.coordinates.length >= 2 && g.coordinates.every(p => Array.isArray(p) && p.length === 2 && p.every(finite)) &&
     finite(value.distance_m) && value.distance_m > 0 && finite(value.estimated_time_s) && value.estimated_time_s > 0 &&
     finite(value.total_cost) && value.total_cost >= 0 && strings(value.reasons) && strings(value.warnings) &&
@@ -50,9 +50,11 @@ function validRoute(value: unknown): value is RouteOption {
     typeof value.verification_summary === 'string';
 }
 export function parseRouteResponse(value: unknown): RouteResponse {
-  if (!record(value) || typeof value.dataset_id !== 'string' || value.data_kind !== 'SIMULATED_DEMO' ||
+  if (!record(value) || typeof value.dataset_id !== 'string' || !['SIMULATED_DEMO', 'OPENSTREETMAP'].includes(String(value.data_kind)) ||
       !date(value.reference_time) || !Array.isArray(value.routes) || value.routes.length > 3 ||
-      !value.routes.every(validRoute) || new Set(value.routes.map(r => r.id)).size !== value.routes.length) {
+      !value.routes.every(validRoute) || new Set(value.routes.map(r => r.id)).size !== value.routes.length ||
+      value.routes.some(r => (value.data_kind === 'OPENSTREETMAP') !== (r.geometry.coordinate_system === 'WGS84')) ||
+      value.routes.some(r => r.geometry.coordinate_system === 'WGS84' && r.geometry.coordinates.some(([x, y]) => Math.abs(x) > 180 || Math.abs(y) > 90))) {
     throw new RoutingApiError('invalid_response');
   }
   return value as RouteResponse;
@@ -79,6 +81,7 @@ export async function planRoutes(request: RouteRequest, options: {
       if (response.status === 404 && record(body) && typeof body.detail === 'string') {
         throw new RoutingApiError(body.detail.includes('outside') ? 'outside_network' : 'no_route');
       }
+      if (response.status === 422 && record(body) && typeof body.detail === 'string' && body.detail.includes('different')) throw new RoutingApiError('same_point');
       throw new RoutingApiError('server');
     }
     const result = parseRouteResponse(await response.json());

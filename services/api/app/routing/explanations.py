@@ -57,7 +57,7 @@ def build_route_reasons(
     return tuple(reasons)
 
 
-def verification_summary(edges: tuple[Edge, ...]) -> str:
+def verification_summary(edges: tuple[Edge, ...], *, geographic: bool = False) -> str:
     counts: dict[str, int] = {}
     for edge in edges:
         counts[edge.verification_level] = counts.get(edge.verification_level, 0) + 1
@@ -66,7 +66,10 @@ def verification_summary(edges: tuple[Edge, ...]) -> str:
     dates = [e.last_updated_at for e in edges if e.last_updated_at is not None]
     oldest = min(dates).isoformat() if dates else "unknown"
     missing = len(edges) - len(dates)
+    label = (
+        "OSM community mapping; no field verification" if geographic else "SIMULATED / DEMO only"
+    )
     return (
-        f"SIMULATED / DEMO only; {levels}; sources: {sources}; "
+        f"{label}; {levels}; sources: {sources}; "
         f"oldest known update: {oldest}; missing timestamps: {missing}"
     )

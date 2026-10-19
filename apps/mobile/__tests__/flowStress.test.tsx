@@ -34,12 +34,12 @@ it('validates long text, real dates and accessibility contradictions at the data
   expect(validateShare({ ...valid, notes: 'x'.repeat(2001) }).notes).toBeTruthy();
   expect(validateShare({ ...valid, lastWalkedAt: '2026-02-30' }).date).toBeTruthy();
 });
-it('barrier without a map or photo can use the explicit demo location and maximum details', async () => {
+it('barrier without a selected route or photo can use a real landmark and maximum details', async () => {
   const repository = createBarrierRepository(memory());
   render(<ReportScreen routeOverride={null} repository={repository} initialDraft={{ category: 'construction', location: null, description: worstNotes, conditionType: 'temporary' }}/>);
   fireEvent.press(screen.getByText('Continue'));
-  expect(screen.getByText('No active route or live location is available. You can associate this report with the labelled demo location.')).toBeTruthy();
-  fireEvent.press(screen.getByRole('radio', { name: 'Transit Stop · deterministic demo location' }));
+  expect(screen.getByText('Tap the map at the issue or choose a mapped location. Reports remain unverified.')).toBeTruthy();
+  fireEvent.press(screen.getByRole('radio', { name: 'KL Sentral · south entrance' }));
   fireEvent.press(screen.getByText('Continue')); fireEvent.press(screen.getByText('Continue')); fireEvent.press(screen.getByText('Submit report'));
   await screen.findByText('Report submitted'); expect((await repository.listReports())[0].description).toBe(worstNotes);
 });

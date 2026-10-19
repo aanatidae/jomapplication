@@ -1,6 +1,6 @@
 import type { Point } from '../planner/mockRoutes';
 export type VerificationLevel = 'community_submitted' | 'confirmed' | 'verified';
-export type SharedPath = { id: string; label: string; origin: string; destination: string; geometry: readonly Point[]; distanceM: number; durationMinutes: number; coordinateSystem: 'schematic_demo' };
+export type SharedPath = { id: string; label: string; origin: string; destination: string; geometry: readonly Point[]; distanceM: number; durationMinutes: number; coordinateSystem: 'schematic_demo' | 'WGS84' };
 export type CommunityRoute = {
   id: string; author: string; title: string; notes: string; purposeTags: string[];
   route: SharedPath; accessibilityTags: string[]; routeWarnings: string[]; photos: string[];

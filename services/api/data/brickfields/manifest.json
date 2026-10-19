@@ -1,0 +1,16 @@
+{
+  "source": "OpenStreetMap contributors",
+  "license": "ODbL-1.0",
+  "attribution": "https://www.openstreetmap.org/copyright",
+  "endpoint": "https://overpass-api.de/api/interpreter",
+  "query": "[out:json][timeout:180];\n(\n  way(around:2200,3.1334,101.6869)[\"highway\"];\n  nwr(around:2000,3.1334,101.6869)[\"name\"][\"railway\"=\"station\"];\n  nwr(around:2000,3.1334,101.6869)[\"name\"][\"shop\"=\"mall\"];\n  nwr(around:2000,3.1334,101.6869)[\"name\"][\"amenity\"=\"place_of_worship\"];\n  nwr(around:2000,3.1334,101.6869)[\"name\"][\"tourism\"];\n); out meta center; >; out meta;",
+  "downloaded_at": "2026-10-19T04:13:55.507790+00:00",
+  "osm_timestamp": "2026-10-19T04:10:48Z",
+  "center": [
+    101.6869,
+    3.1334
+  ],
+  "radius_m": 2000,
+  "nodes": 19009,
+  "edges": 42508
+}

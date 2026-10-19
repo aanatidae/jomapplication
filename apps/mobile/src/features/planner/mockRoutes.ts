@@ -6,6 +6,7 @@ export type MockRoute = {
   reasons: string[]; confidence: string; freshness: string;
   warnings?: string[]; detour?: string; quality: 'verified' | 'community' | 'unknown' | 'data'; geometry: readonly Point[];
   dataQuality?: RouteOption['data_quality']; qualityFactors?: string[];
+  coordinateSystem?: 'schematic_demo' | 'WGS84';
 };
 export const places = ['Transit Stop', 'Community Mall', 'Residential Block', 'Park Entrance'] as const;
 export const routes: readonly MockRoute[] = [
