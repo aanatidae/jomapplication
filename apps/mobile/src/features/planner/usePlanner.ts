@@ -1,7 +1,7 @@
 import { usePreferences } from '../preferences/PreferencesProvider';
 import { toRoutePreferences } from '../preferences/model';
 import { useEffect, useRef, useState } from 'react';
-import { planRoutes, RoutingApiError, type RouteOption, type RouteProfile, type RouteResponse } from '../../services/routingApi';
+import { demoClosureId, planRoutes, RoutingApiError, type RouteOption, type RouteProfile, type RouteResponse } from '../../services/routingApi';
 import { brickfieldsPlaces, resolvePlace } from './geographic';
 
 export const pilotPlaces = brickfieldsPlaces;
@@ -9,7 +9,7 @@ export const profileLabels: Record<RouteProfile, string> = {
   fastest: 'Fastest', safer_at_night: 'Safer at Night', step_free: 'Step-Free',
 };
 type Result = { key: string; status: 'loading' | 'ready' | 'empty' | 'error'; routes: RouteOption[]; error?: RoutingApiError };
-export function usePlanner() {
+export function usePlanner(demoClosure = false, enabled = true) {
   const { preferences } = usePreferences();
   const preferenceKey = JSON.stringify(toRoutePreferences(preferences));
   const [origin, setOrigin] = useState('KL Sentral · south entrance');
@@ -19,15 +19,17 @@ export function usePlanner() {
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState<Result>({ key: '', status: 'loading', routes: [] });
   const cache = useRef(new Map<string, RouteResponse>());
-  const key = `${origin}|${destination}|${selectedProfile}|${preferenceKey}|${attempt}`;
-  const cacheKey = `${origin}|${destination}|${selectedProfile}|${preferenceKey}`;
+  useEffect(() => { cache.current.clear(); }, [demoClosure]);
+  const key = `${origin}|${destination}|${selectedProfile}|${preferenceKey}|${demoClosure}|${attempt}`;
+  const cacheKey = `${origin}|${destination}|${selectedProfile}|${preferenceKey}|${demoClosure}`;
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
-    if (origin === destination) return () => { active = false; controller.abort(); };
+    if (!enabled || origin === destination) return () => { active = false; controller.abort(); };
     const cached = cache.current.get(cacheKey);
     const request = cached ? Promise.resolve(cached) : planRoutes({
       origin: resolvePlace(origin), destination: resolvePlace(destination), profile: selectedProfile, preferences: JSON.parse(preferenceKey),
+      ...(demoClosure ? { demo_closure: demoClosureId } : {}),
     }, { signal: controller.signal });
     request.then(response => {
       if (!active) return;
@@ -40,7 +42,7 @@ export function usePlanner() {
       setResult({ key, status: ['no_route', 'insufficient_safety_data'].includes(failure.kind) ? 'empty' : 'error', routes: [], error: failure });
     });
     return () => { active = false; controller.abort(); };
-  }, [key, cacheKey, origin, destination, selectedProfile, preferenceKey]);
+  }, [key, cacheKey, origin, destination, selectedProfile, preferenceKey, demoClosure, enabled]);
   const current: Result = origin === destination ? { key, status: 'empty', routes: [], error: new RoutingApiError('same_point') } :
     result.key === key ? result : { key, status: 'loading', routes: [] };
   const selectedRoute = current.routes.find(r => r.id === selectedId) ?? current.routes[0];

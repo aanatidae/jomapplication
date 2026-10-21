@@ -10,13 +10,13 @@ import { useMotionReduced } from '../motion/Motion';
 const source = { html: leafletDocument, baseUrl: 'https://github.com/aanatidae/jomapplication/' };
 export function LeafletMap({ selected, origin, destination, routeOptions = [], routesVisible = true,
   compact, originPoint, destinationPoint, currentLocation, onPick, selectionLabel,
-  fill, navigating, following, heading, accuracy, remainingPath, onExplore, mapInsets }: GeographicMapProps) {
+  fill, navigating, following, heading, accuracy, remainingPath, onExplore, mapInsets, demoBlockage }: GeographicMapProps) {
   const reducedMotion = useMotionReduced();
   const web = useRef<WebView>(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [tileLoaded, setTileLoaded] = useState(false);
-  const state = scriptJson({ selected, routes: routesVisible ? routeOptions.map(r => ({ id: r.id, geometry: r.geometry })) : [], origin: originPoint, destination: destinationPoint, currentLocation, navigating, following, heading, accuracy, remainingPath, reducedMotion, insets: mapInsets });
+  const state = scriptJson({ selected, routes: routesVisible ? routeOptions.map(r => ({ id: r.id, geometry: r.geometry })) : [], origin: originPoint, destination: destinationPoint, currentLocation, navigating, following, heading, accuracy, remainingPath, reducedMotion, insets: mapInsets, demoBlockage });
   useEffect(() => {
     if (ready) web.current?.injectJavaScript(`window.jomUpdate(${state});true;`);
   }, [ready, state]);
@@ -30,7 +30,7 @@ export function LeafletMap({ selected, origin, destination, routeOptions = [], r
   return <View style={[styles.frame, fill && styles.fill]}>
     {!fill && <View style={styles.legend}><Text style={type.label}>Brickfields · Kuala Lumpur</Text>
       <Text style={type.caption}>{selectionLabel ?? 'Pan and pinch to zoom · A = start · B = destination'}</Text></View>}
-    <View accessible accessibilityRole="image" accessibilityLabel={`Interactive geographic map. From ${origin} to ${destination}. ${summary}`}
+    <View accessible accessibilityRole="image" accessibilityLabel={`Interactive geographic map. From ${origin} to ${destination}. ${summary}${demoBlockage ? ' Simulated blocked pedestrian crossing marked with a red X.' : ''}`}
       style={fill ? styles.fill : { height: compact ? theme.layout.mapCompactHeight : theme.layout.mapHeight }}>
       {Platform.OS === 'web' ? <Text style={type.body}>Open Jom! in Expo on Android or iOS to use the interactive map.</Text> :
       <WebView ref={web} source={source} style={styles.web} originWhitelist={['https://github.com', 'about:blank']}

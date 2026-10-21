@@ -10,6 +10,7 @@ import networkx as nx
 from fastapi import APIRouter, Depends, HTTPException
 
 from ..models.routes import RouteGeometry, RouteOption, RouteRequest, RouteResponse
+from ..routing.demo_closure import demo_crossing, with_demo_closure
 from ..routing.engine import compute_routes
 from ..routing.errors import (
     InsufficientSafetyDataError,
@@ -41,6 +42,14 @@ def get_graph() -> nx.DiGraph:
         ) from error
 
 
+@router.get("/v1/demo-crossing")
+def supported_demo_crossing(graph: Annotated[nx.DiGraph, Depends(get_graph)]) -> dict:
+    try:
+        return demo_crossing(graph)
+    except ValueError as error:
+        raise HTTPException(503, "Supported demo crossing is unavailable.") from error
+
+
 @router.post("/v1/routes", response_model=RouteResponse)
 def routes(
     request: RouteRequest, graph: Annotated[nx.DiGraph, Depends(get_graph)]
@@ -70,6 +79,13 @@ def routes(
     if origin == destination:
         raise HTTPException(422, "Choose different origin and destination nodes.")
     try:
+        if request.demo_closure:
+            try:
+                graph = with_demo_closure(graph, origin, destination)
+            except ValueError as error:
+                if isinstance(error, NoRouteError):
+                    raise
+                raise HTTPException(503, "Supported demo crossing is unavailable.") from error
         # Departure is metadata, not field verification. Real data uses today's quality
         # clock; the explicitly selected demo fixture retains its fixed assessment time.
         preferences = (
@@ -82,6 +98,11 @@ def routes(
             origin,
             destination,
             request.profile,
+            # Enumerating extra geographic Fastest options can exceed the mobile
+            # timeout. Reuse the engine's existing single-shortest-route path.
+            max_results=1 if request.demo_closure or (
+                graph.graph["data_kind"] == "OPENSTREETMAP" and request.profile == "fastest"
+            ) else 3,
             preferences=preferences,
             as_of=datetime.now(UTC) if graph.graph["data_kind"] == "OPENSTREETMAP" else None,
         )
@@ -97,6 +118,9 @@ def routes(
                                  "warnings"}
                     ),
                     warnings=result.warnings + ((
+                        "Simulated crossing closure · Hackathon demo. Detour uses mapped "
+                        "pedestrian connections, including unmarked crossings; not field verified.",
+                    ) if request.demo_closure else ()) + ((
                         f"Start snapped {snapped['origin']['distance_m']:g} m; "
                         f"destination snapped {snapped['destination']['distance_m']:g} m. "
                         "These access gaps are not included in the mapped route.",
@@ -116,7 +140,8 @@ def routes(
             "No step-free route could be verified for this destination. "
             "Critical accessibility information is missing or a known barrier blocks the route."
             if request.profile == "step_free"
-            else "No route is available for the selected profile."
+            else "No suitable mapped pedestrian alternative is available for this demo closure."
+            if request.demo_closure else "No route is available for the selected profile."
         )
         raise HTTPException(404, detail) from error
     except RoutingInputError as error:
@@ -124,6 +149,8 @@ def routes(
     except SearchLimitError as error:
         logger.exception("Pilot routing search limit reached")
         raise HTTPException(503, "Routing service is temporarily unavailable.") from error
+    except HTTPException:
+        raise
     except Exception as error:
         logger.exception("Unexpected route calculation failure")
         raise HTTPException(500, "Couldn't calculate routes. Please try again.") from error

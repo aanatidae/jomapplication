@@ -19,6 +19,8 @@ html,body,#map{height:100%;margin:0;background:#F5F5EF;font-family:system-ui,san
 .jom-endpoint{background:#172F2C;color:white;border:2px solid white;border-radius:50%;text-align:center;line-height:28px;font-weight:700;font-size:16px}
 .jom-puck{background:#234D78;border:3px solid white;border-radius:50%;box-shadow:0 2px 6px #172F2C66}
 .jom-direction{position:absolute;left:-18px;top:-18px;width:56px;height:56px;transform-origin:28px 28px;pointer-events:none}
+.jom-closure{display:flex;align-items:center;justify-content:center;background:transparent}
+.jom-closure span{width:28px;height:28px;background:white;color:#B3261E;border:2px solid #B3261E;border-radius:50%;text-align:center;line-height:26px;font-size:26px;font-weight:800;box-shadow:0 2px 5px #172F2C55}
 </style></head><body><div id="map" role="application" aria-label="Interactive Brickfields walking map"></div>
 <script>${assets.js}
 const send=value=>window.ReactNativeWebView&&window.ReactNativeWebView.postMessage(JSON.stringify(value));
@@ -42,13 +44,16 @@ window.jomUpdate=state=>{
 if(state.following&&!lastFollowing)localFollowing=true;
 const insetKey=JSON.stringify(state.insets),height=map.getSize().y;
 const top=Math.min(state.insets?.top||0,height*0.35),bottom=Math.min(state.insets?.bottom||0,height*0.55);
-const staticKey=JSON.stringify([state.routes,state.selected,state.origin,state.destination,state.navigating,insetKey]);
+const staticKey=JSON.stringify([state.routes,state.selected,state.origin,state.destination,state.navigating,insetKey,state.demoBlockage]);
 if(staticKey!==lastStatic){
 drawings.clearLayers();
 const ordered=state.routes.filter(r=>r.id!==state.selected).concat(state.routes.filter(r=>r.id===state.selected));
 ordered.forEach(r=>L.polyline(r.geometry.map(p=>[p[1],p[0]]),{color:r.id===state.selected?(state.navigating?'#7C8B82':'#006653'):'#52635D',weight:r.id===state.selected?7:4,opacity:1,interactive:false}).addTo(drawings));
 const marker=(point,label,color)=>{if(!point)return;L.marker([point.latitude,point.longitude],{icon:L.divIcon({className:'jom-endpoint',html:label,iconSize:[32,32],iconAnchor:[16,16]})}).addTo(drawings);};
 marker(state.origin,'A');marker(state.destination,'B');
+if(state.demoBlockage){const closure=L.marker([state.demoBlockage.latitude,state.demoBlockage.longitude],{title:'Simulated blocked pedestrian crossing',alt:'Simulated blocked pedestrian crossing',zIndexOffset:2000,icon:L.divIcon({className:'jom-closure',html:'<span aria-hidden="true">×</span>',iconSize:[44,44],iconAnchor:[22,22]})}).addTo(drawings);
+closure.bindPopup('<strong>Crossing blocked</strong><br>Simulated closure · Hackathon demo<br>JOM is avoiding this crossing. Check route status for the recalculation result.');
+if(closure.getElement())closure.getElement().setAttribute('aria-label','Simulated blocked pedestrian crossing');}
 const selected=state.routes.find(r=>r.id===state.selected);
 if(selected){selected.geometry.filter((_,i)=>i===0||i===selected.geometry.length-1).forEach(p=>L.circleMarker([p[1],p[0]],{radius:5,color:'#172F2C',fillColor:'#fff',fillOpacity:1,weight:2,interactive:false}).addTo(drawings));
 if((lastRoute!==selected.id||lastInsets!==insetKey)&&!state.navigating){programmatic=true;map.fitBounds(L.latLngBounds(selected.geometry.map(p=>[p[1],p[0]])),{paddingTopLeft:[24,top+12],paddingBottomRight:[24,bottom+12],maxZoom:18,animate:false});programmatic=false;}lastRoute=selected.id;}

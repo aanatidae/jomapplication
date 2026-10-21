@@ -15,7 +15,7 @@ import { barrierCategories, getReportRoute, routeLocations, type BarrierReport, 
 import { barrierRepository, validateBarrier } from './repository';
 import { ReportSummary } from './ReportSummary';
 import { persistenceDescription } from '../../services/persistenceMode';
-export function ReportScreen({ repository = barrierRepository, initialDraft, routeOverride }: { routeOverride?: SharedPath | null; repository?: BarrierReportRepository; initialDraft?: CreateBarrierReportInput }) {
+export function ReportScreen({ repository = barrierRepository, initialDraft, routeOverride, onClose, onReports }: { onClose?: () => void; onReports?: () => void; routeOverride?: SharedPath | null; repository?: BarrierReportRepository; initialDraft?: CreateBarrierReportInput }) {
   const submitting = useRef(false);
   const route = routeOverride === undefined ? getReportRoute() : routeOverride; const locations = routeLocations(route);
   const [draft, setDraft] = useState<CreateBarrierReportInput>(initialDraft ?? { category: null, location: route ? locations[0] : null, description: '', conditionType: 'unknown' });
@@ -33,11 +33,11 @@ export function ReportScreen({ repository = barrierRepository, initialDraft, rou
     submitting.current = true; setBusy(true); setFailure(''); try { setCreated(await repository.createReport(draft)); successFeedback(); } catch { setFailure('Could not save your report. Your details are still here. Retry submission.'); } finally { submitting.current = false; setBusy(false); }
   }
   if (created) return <FormPage animateStep title="Report submitted"><Text style={type.body}>Thanks for helping improve route information. This report is community submitted and may require confirmation.</Text>
-    <ReportSummary report={created}/><PrimaryButton label="View reports" onPress={() => router.replace('/barrier-reports')}/>
-    <SecondaryButton label="Back to Planner" onPress={() => router.replace('/')}/></FormPage>;
+    <ReportSummary report={created}/><PrimaryButton label="View reports" onPress={onReports ?? (() => router.replace('/barrier-reports'))}/>
+    <SecondaryButton label={onClose ? 'Return to map' : 'Back to Planner'} onPress={onClose ?? (() => router.replace('/'))}/></FormPage>;
   return <FormPage animateStep title={['What is the issue?', 'Where is it?', 'Add details', 'Review your report'][step]}>
     <Text style={type.caption}>Report barrier · Step {step + 1} of 4</Text>
-    <SecondaryButton label="Cancel report" disabled={busy} onPress={() => router.replace('/')}/>
+    <SecondaryButton label="Cancel report" disabled={busy} onPress={onClose ?? (() => router.replace('/'))}/>
     {step === 0 && <View style={form.group}>{Object.entries(barrierCategories).map(([id, label]) => <Choice key={id} radio label={label} selected={draft.category === id} onPress={() => update({ category: id as keyof typeof barrierCategories })}/>)}{errors.category && <ErrorText text={errors.category}/>}</View>}
     {step === 1 && <><Text style={type.body}>{route?.coordinateSystem === 'schematic_demo' ? 'Choose the closest schematic demo point. These are not GPS coordinates.' : 'Tap the map at the issue or choose a mapped location. Reports remain unverified.'}</Text>
       {route?.coordinateSystem === 'schematic_demo' ? <SharedMap route={route}/> : <GeographicMap compact selected={route?.id ?? ''} origin={route?.origin ?? 'Brickfields'} destination={route?.destination ?? 'Report location'}

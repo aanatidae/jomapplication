@@ -1,4 +1,6 @@
 export type RouteProfile = 'fastest' | 'safer_at_night' | 'step_free';
+export const demoClosureId = 'brickfields_crossing_1264710459' as const;
+export type DemoCrossing = { id: typeof demoClosureId; latitude: number; longitude: number; label: string };
 export type RoutePoint = { node_id: string } | { latitude: number; longitude: number };
 export type RoutePreferences = {
   prefer_well_lit?: boolean; avoid_stairs?: boolean; avoid_steep_slopes?: boolean;
@@ -7,6 +9,7 @@ export type RoutePreferences = {
 export type RouteRequest = {
   origin: RoutePoint; destination: RoutePoint; profile: RouteProfile;
   departure_time?: string; preferences?: RoutePreferences | null;
+  demo_closure?: typeof demoClosureId;
 };
 export type RouteOption = {
   id: string; profile: RouteProfile;
@@ -26,6 +29,20 @@ export type RouteResponse = {
 export type RoutingErrorKind = 'timeout' | 'no_route' | 'insufficient_safety_data' | 'outside_network' | 'network' | 'invalid_response' | 'server' | 'configuration' | 'same_point';
 export class RoutingApiError extends Error {
   constructor(public readonly kind: RoutingErrorKind) { super(kind); }
+}
+
+export async function loadDemoCrossing(): Promise<DemoCrossing> {
+  const baseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  if (!baseUrl || !/^https?:\/\//.test(baseUrl)) throw new RoutingApiError('configuration');
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+  try {
+    const response = await fetch(`${baseUrl.replace(/\/$/, '')}/v1/demo-crossing`, { signal: controller.signal });
+    const value: unknown = await response.json();
+    if (!response.ok || !record(value) || value.id !== demoClosureId || typeof value.label !== 'string' ||
+      !finite(value.latitude) || Math.abs(value.latitude) > 90 || !finite(value.longitude) || Math.abs(value.longitude) > 180) throw new RoutingApiError('invalid_response');
+    return value as DemoCrossing;
+  } finally { clearTimeout(timer); }
 }
 
 const record = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;

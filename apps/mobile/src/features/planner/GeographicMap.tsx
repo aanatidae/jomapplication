@@ -14,13 +14,14 @@ export type GeographicMapProps = {
   fill?: boolean; navigating?: boolean; following?: boolean; heading?: number; accuracy?: number | null;
   remainingPath?: readonly (readonly [number, number])[]; onExplore?: () => void; reducedMotion?: boolean;
   mapInsets?: { top: number; bottom: number };
+  demoBlockage?: GeographicPoint;
 };
 export function GeographicMap(props: GeographicMapProps) {
   return process.env.EXPO_PUBLIC_MAP_RENDERER === 'native' ? <NativeGeographicMap {...props}/> : <LeafletMap {...props}/>;
 }
 function NativeGeographicMap({ selected, origin, destination, routeOptions = [], routesVisible = true,
   compact, originPoint, destinationPoint, currentLocation, onPick, selectionLabel,
-  fill, navigating, following, heading, accuracy, remainingPath, onExplore, reducedMotion, mapInsets }: GeographicMapProps) {
+  fill, navigating, following, heading, accuracy, remainingPath, onExplore, reducedMotion, mapInsets, demoBlockage }: GeographicMapProps) {
   const map = useRef<MapView>(null);
   const [ready, setReady] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
@@ -55,6 +56,7 @@ function NativeGeographicMap({ selected, origin, destination, routeOptions = [],
             strokeWidth={route.id === selected ? 7 : 4} strokeColor={route.id === selected ? theme.color.accent : theme.color.alternateRoute} zIndex={route.id === selected ? 2 : 1} />)}
         {originPoint && <Marker coordinate={originPoint} title={`A · ${origin}`} pinColor={theme.color.accent} />}
         {destinationPoint && <Marker coordinate={destinationPoint} title={`B · ${destination}`} />}
+        {demoBlockage && <Marker coordinate={demoBlockage} title="Simulated blocked pedestrian crossing" description="Simulated closure · Hackathon demo" zIndex={2000}><Text style={{ color: theme.color.error, backgroundColor: theme.color.surface, fontSize: 26 }}>✕</Text></Marker>}
         {currentLocation && <>{accuracy != null && <Circle center={currentLocation} radius={accuracy} strokeColor={theme.color.accessibility} fillColor="#234D7820" />}
           <Marker coordinate={currentLocation} title="Current location" rotation={heading ?? 0} anchor={{ x: 0.5, y: 0.5 }} flat>
             <View style={styles.puck}>{heading !== undefined && <View style={styles.direction}/>}</View>

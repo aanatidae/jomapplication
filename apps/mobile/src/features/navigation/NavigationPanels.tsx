@@ -3,17 +3,18 @@ import { PrimaryButton, SecondaryButton } from '../../components/Buttons';
 import { theme, type } from '../../theme/tokens';
 import type { NavigationState } from './session';
 import { profileLabels } from '../planner/usePlanner';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 export function NavigationGuidance({ state, destination }: { state: NavigationState; destination: string }) {
   return <ScrollView style={styles.guidance} contentContainerStyle={styles.panel}>
-    <Text accessibilityRole="header" style={styles.guidanceTitle}>{state.status === 'arrived' ? 'You have arrived' : state.rerouting ? 'Recalculating route' : state.status === 'starting' ? 'Preparing navigation' : state.status === 'paused' ? 'Navigation paused' : 'Follow the route'}</Text>
+    <Text accessibilityRole="header" style={styles.guidanceTitle}>{state.status === 'arrived' ? 'You have arrived' : state.rerouting ? 'Recalculating route' : state.routeInvalidated ? 'Waiting for an alternative route' : state.status === 'starting' ? 'Preparing navigation' : state.status === 'paused' ? 'Navigation paused' : 'Follow the route'}</Text>
     <Text style={styles.destination}>{destination}</Text>
     {!!state.warning && <Text accessibilityLiveRegion="polite" style={styles.warning}>{state.warning}</Text>}
   </ScrollView>;
 }
-export function NavigationProgress({ state, onStop, onResume, onRetry }: {
+export function NavigationProgress({ state, onStop, onResume, onRetry, onReport, notice }: {
   state: NavigationState; onStop: () => void; onResume: () => void; onRetry: () => void;
+  onReport?: () => void; notice?: ReactNode;
 }) {
   const [details, setDetails] = useState(false);
   const largeText = useWindowDimensions().fontScale > 1.5;
@@ -31,12 +32,14 @@ export function NavigationProgress({ state, onStop, onResume, onRetry }: {
     <View style={styles.summary}>
       {!largeText && <View style={styles.stats}>{metrics}</View>}
       <SecondaryButton label={state.status === 'arrived' ? 'Return to Planner' : 'Stop Navigation'} onPress={onStop}/>
+      {onReport && <SecondaryButton label="Report Barrier" onPress={onReport}/>}
     </View>
       {progress !== undefined && <View accessible accessibilityRole="progressbar" accessibilityLabel="Walk progress"
         accessibilityValue={{ min: 0, max: 100, now: progress }} style={styles.track}>
         <View style={[styles.fill, { width: `${progress}%` }]}/>
       </View>}
     <ScrollView style={styles.details} contentContainerStyle={styles.detailContent}>
+      {notice}
       {largeText && metrics}
       <SecondaryButton label={details ? 'Hide walking details' : 'Walking details'} accessibilityState={{ expanded: details }} onPress={() => setDetails(value => !value)}/>
       {details && <>

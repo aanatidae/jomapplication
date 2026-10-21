@@ -1,4 +1,5 @@
 import type { RouteOption, RoutePreferences, RouteRequest, RouteResponse } from '../../services/routingApi';
+import { demoClosureId } from '../../services/routingApi';
 import type { GeographicPoint } from '../planner/geographic';
 import { distance, project, type Projection } from './geometry';
 
@@ -20,6 +21,7 @@ export type NavigationState = {
   status: 'idle' | 'starting' | 'active' | 'paused' | 'arrived'; route?: RouteOption;
   position?: Fix; progress?: Projection; remainingM?: number; remainingS?: number;
   following: boolean; heading?: number; rerouting: boolean; error?: string; warning?: string;
+  routeInvalidated?: boolean;
 };
 const initial = (): NavigationState => ({ status: 'idle', following: false, rerouting: false });
 export function navigationError(error: unknown): string {
@@ -36,6 +38,8 @@ export class NavigationSession {
   state = initial();
   private listeners = new Set<() => void>();
   private epoch = 0;
+  private routeVersion = 0;
+  private demoClosure = false;
   private positionSub?: Subscription;
   private headingSub?: Subscription;
   private request?: AbortController;
@@ -53,6 +57,7 @@ export class NavigationSession {
   snapshot = () => this.state;
   private update(change: Partial<NavigationState>) { this.state = { ...this.state, ...change }; this.listeners.forEach(fn => fn()); }
   private cleanup() {
+    this.routeVersion++;
     this.epoch++; this.positionSub?.remove(); this.positionSub = undefined;
     this.headingSub?.remove(); this.headingSub = undefined;
     this.request?.abort(); this.request = undefined;
@@ -66,15 +71,17 @@ export class NavigationSession {
     this.cleanup(); this.update({ status: 'paused', rerouting: false, warning: 'Navigation paused in background. Resume when you return.', heading: undefined });
   };
   resume = async () => {
-    if (this.state.status === 'paused' && this.state.route && this.destination) await this.start(this.state.route, this.destination, this.preferences);
+    if (this.state.status === 'paused' && this.state.route && this.destination) await this.start(this.state.route, this.destination, this.preferences, this.demoClosure);
   };
-  async start(route: RouteOption, destination: GeographicPoint, preferences?: RoutePreferences) {
+  async start(route: RouteOption, destination: GeographicPoint, preferences?: RoutePreferences, demoClosure = false) {
     if (['starting', 'active'].includes(this.state.status)) return;
+    const mustRecalculate = this.state.routeInvalidated;
     this.cleanup(); const epoch = this.epoch;
+    this.demoClosure = demoClosure;
     this.destination = { ...destination }; this.preferences = preferences ? { ...preferences } : undefined;
     this.offRouteCount = 0; this.arrivalCount = 0; this.lastReroute = -Infinity;
     this.progressAt = 0;
-    this.update({ ...initial(), status: 'starting', route, position: undefined, progress: undefined, remainingM: undefined, remainingS: undefined, error: undefined, warning: undefined, heading: undefined });
+    this.update({ ...initial(), status: 'starting', route, routeInvalidated: mustRecalculate, position: undefined, progress: undefined, remainingM: undefined, remainingS: undefined, error: undefined, warning: undefined, heading: undefined });
     try {
       if (route.geometry.coordinate_system !== 'WGS84') throw new Error('Location navigation requires a geographic route.');
       if (!await this.ports.permission()) throw new Error('Location permission denied. Enable precise foreground location or use manual planning.');
@@ -87,12 +94,12 @@ export class NavigationSession {
       const projection = project(fix, route.geometry.coordinates);
       this.update({ position: fix });
       // Never guide a user along a preview that starts elsewhere, or invent a connector.
-      if (projection.deviation > navigationPolicy.offRouteM) {
+      if (mustRecalculate || projection.deviation > navigationPolicy.offRouteM) {
         this.update({ rerouting: true });
         route = await this.calculate(fix, epoch);
         if (epoch !== this.epoch) return;
       }
-      this.update({ status: 'active', route, following: true, rerouting: false });
+      this.update({ status: 'active', route, routeInvalidated: false, following: true, rerouting: false });
       this.accept(fix, false);
       const sub = await this.ports.watch(value => { if (epoch === this.epoch) this.accept(value); }, () => {
         if (epoch === this.epoch) this.update({ warning: 'Location signal unavailable. Progress is paused until a reliable reading arrives.' });
@@ -134,6 +141,7 @@ export class NavigationSession {
     const progress = project(fix, route.geometry.coordinates, this.state.progress?.along);
     const offRoute = progress.deviation > Math.max(navigationPolicy.offRouteM, (fix.accuracy ?? 0) * 1.5);
     this.update({ position: fix, warning: undefined });
+    if (this.state.routeInvalidated) return;
     if (offRoute) {
       this.arrivalCount = 0;
       if (!this.offRouteCount) this.offRouteSince = fix.timestamp;
@@ -167,27 +175,51 @@ export class NavigationSession {
   private async calculate(fix: Fix, epoch: number): Promise<RouteOption> {
     if (!this.state.route || !this.destination) throw new Error('Missing session');
     this.request?.abort(); const controller = new AbortController(); this.request = controller;
+    const version = this.routeVersion;
     const result = await this.ports.routes({ origin: { latitude: fix.latitude, longitude: fix.longitude }, destination: this.destination,
-      profile: this.state.route.profile, preferences: this.preferences }, { signal: controller.signal });
+      profile: this.state.route.profile, preferences: this.preferences,
+      ...(this.demoClosure ? { demo_closure: demoClosureId } : {}) }, { signal: controller.signal });
     const route = result.routes[0];
-    if (epoch !== this.epoch || !route || route.profile !== this.state.route.profile || route.geometry.coordinate_system !== 'WGS84') throw new Error('Unusable route');
+    if (epoch !== this.epoch || version !== this.routeVersion || !route || route.profile !== this.state.route.profile || route.geometry.coordinate_system !== 'WGS84') throw new Error('Unusable route');
     if (project(fix, route.geometry.coordinates).deviation > navigationPolicy.offRouteM) throw new Error('Location is too far from a mapped pedestrian path. Move closer to the mapped network and retry.');
     return route;
   }
-  reroute = async () => {
+  setDemoClosure = async (active: boolean): Promise<boolean> => {
+    this.demoClosure = active; this.routeVersion++; this.request?.abort();
+    if (this.state.status === 'idle') return true;
+    const epoch = this.epoch; const version = this.routeVersion;
+    if (this.state.status === 'active' && (!this.state.position || !this.valid(this.state.position))) {
+      // A distance-filtered watcher can be quiet while the walker is stationary.
+      // Ask the device for a real fresh fix before falling back to Planner.
+      this.update({ routeInvalidated: true, rerouting: true, progress: undefined, remainingM: undefined, remainingS: undefined });
+      try {
+        const fix = await this.ports.current();
+        if (epoch !== this.epoch || version !== this.routeVersion) return true;
+        if (this.valid(fix)) this.update({ position: fix });
+      } catch { /* The validity check below retains the honest Planner fallback. */ }
+      if (epoch !== this.epoch || version !== this.routeVersion) return true;
+    }
+    if (this.state.status !== 'active' || !this.state.position || !this.valid(this.state.position)) {
+      this.stop(); return false; // Planner preview is honest when a current GPS origin is unavailable.
+    }
+    this.update({ routeInvalidated: true, rerouting: false, progress: undefined, remainingM: undefined, remainingS: undefined });
+    await this.reroute(true);
+    return true;
+  };
+  reroute = async (force = false) => {
     if (this.state.status !== 'active' || this.state.rerouting || !this.state.position) return;
-    if (this.ports.now() - this.lastReroute < navigationPolicy.rerouteCooldownMs) return;
+    if (!force && this.ports.now() - this.lastReroute < navigationPolicy.rerouteCooldownMs) return;
     if (!this.valid(this.state.position)) { this.update({ error: 'Location is stale. Wait for a reliable reading before retrying.' }); return; }
-    this.lastReroute = this.ports.now(); const epoch = this.epoch;
+    this.lastReroute = this.ports.now(); const epoch = this.epoch; const version = this.routeVersion;
     this.update({ rerouting: true, error: undefined, warning: undefined });
     try {
       const route = await this.calculate(this.state.position, epoch);
-      if (epoch !== this.epoch) return;
+      if (epoch !== this.epoch || version !== this.routeVersion) return;
       this.offRouteCount = 0; this.arrivalCount = 0;
-      this.update({ route, progress: undefined, rerouting: false, error: undefined });
+      this.update({ route, progress: undefined, routeInvalidated: false, remainingM: undefined, remainingS: undefined, rerouting: false, error: undefined });
       if (this.state.position) this.accept(this.state.position, false);
     } catch (error) {
-      if (epoch === this.epoch) this.update({ rerouting: false, error: navigationError(error) });
+      if (epoch === this.epoch && version === this.routeVersion) this.update({ rerouting: false, error: navigationError(error) });
     }
   };
 }

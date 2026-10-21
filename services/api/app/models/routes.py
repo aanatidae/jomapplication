@@ -42,6 +42,7 @@ class RouteRequest(ApiModel):
     profile: RouteProfile
     departure_time: AwareDatetime | None = None
     preferences: RoutePreferences | None = None
+    demo_closure: Literal["brickfields_crossing_1264710459"] | None = None
 
 
 class RouteGeometry(ApiModel):

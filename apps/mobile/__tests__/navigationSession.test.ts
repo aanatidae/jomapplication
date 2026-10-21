@@ -1,5 +1,5 @@
 import fixture from './fixtures/routes.json';
-import type { RouteOption, RouteResponse } from '../src/services/routingApi';
+import { demoClosureId, type RouteOption, type RouteResponse } from '../src/services/routingApi';
 import { distance, point, project } from '../src/features/navigation/geometry';
 import { NavigationSession, type Fix, type NavigationPorts } from '../src/features/navigation/session';
 
@@ -22,6 +22,65 @@ beforeEach(() => {
   session = new NavigationSession(ports);
 });
 afterEach(() => { session.stop(); jest.useRealTimers(); });
+
+it('applies and clears a demo closure without restarting GPS and rejects a stale detour response', async () => {
+  await session.start(route, destination);
+  let finish!: (value: RouteResponse) => void;
+  (ports.routes as jest.Mock).mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+  const pending = session.setDemoClosure(true);
+  expect(session.state.routeInvalidated).toBe(true);
+  expect(session.state.remainingM).toBeUndefined();
+  expect((ports.routes as jest.Mock).mock.calls[0][0].demo_closure).toBe(demoClosureId);
+  await session.setDemoClosure(false);
+  expect((ports.routes as jest.Mock).mock.calls[1][0].demo_closure).toBeUndefined();
+  finish({ routes: [{ ...route, id: 'stale-detour' }] } as RouteResponse); await pending;
+  expect(session.state.route?.id).toBe(route.id);
+  expect(session.state.routeInvalidated).toBe(false);
+  expect(session.state.remainingM).toBeCloseTo(route.distance_m);
+  expect(remove).not.toHaveBeenCalled();
+  expect(ports.watch).toHaveBeenCalledTimes(1);
+});
+
+it('keeps the blocked route invalid after failure and retains the closure for retry', async () => {
+  await session.start(route, destination);
+  (ports.routes as jest.Mock).mockRejectedValueOnce({ kind: 'no_route' });
+  await session.setDemoClosure(true);
+  expect(session.state.routeInvalidated).toBe(true);
+  expect(session.state.error).toBeDefined();
+  await send(101.6861, 3.13, 21000);
+  expect(session.state.remainingM).toBeUndefined();
+  await session.reroute();
+  expect((ports.routes as jest.Mock).mock.calls.at(-1)[0].demo_closure).toBe(demoClosureId);
+  expect(session.state.routeInvalidated).toBe(false);
+});
+
+it('falls back to planner preview when a closure change has no fresh valid GPS origin', async () => {
+  await session.start(route, destination); now += 16000;
+  (ports.current as jest.Mock).mockResolvedValueOnce({ ...fix(), timestamp: now - 16000 });
+  expect(await session.setDemoClosure(true)).toBe(false);
+  expect(session.state.status).toBe('idle'); expect(remove).toHaveBeenCalledTimes(1);
+  expect(ports.routes).not.toHaveBeenCalled();
+});
+
+it('refreshes a stationary device fix before rerouting without restarting the GPS watcher', async () => {
+  await session.start(route, destination); now += 16000;
+  expect(await session.setDemoClosure(true)).toBe(true);
+  expect(ports.current).toHaveBeenCalledTimes(2);
+  expect(session.state.status).toBe('active');
+  expect(session.state.routeInvalidated).toBe(false);
+  expect(session.state.remainingM).toBeCloseTo(route.distance_m);
+  expect(remove).not.toHaveBeenCalled();
+});
+
+it('does not revive navigation when Stop happens during a fresh-fix request', async () => {
+  await session.start(route, destination); now += 16000;
+  let finish!: (fix: Fix) => void;
+  (ports.current as jest.Mock).mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+  const pending = session.setDemoClosure(true);
+  session.stop(); finish(fix()); await pending;
+  expect(session.state.status).toBe('idle');
+  expect(ports.routes).not.toHaveBeenCalled();
+});
 
 it('projects onto the network polyline, rather than straight-line distance to destination', () => {
   const p = project(fix(), route.geometry.coordinates);
