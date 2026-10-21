@@ -108,6 +108,42 @@ def _ranked_candidates(
     return [path for _, path in sorted(candidates)[:limit]]
 
 
+def _use_separate_sidewalks(
+    weighted: nx.DiGraph, source: nx.DiGraph, origin: str, destination: str
+) -> nx.DiGraph:
+    """Avoid mapped carriageways only when a permitted connected alternative exists.
+
+    Keep a carriageway needed to reach an endpoint or disconnected sidepath. The
+    profile-filtered graph supplies access, closure, direction and preference rules;
+    neither source topology nor OSM geometry is changed.
+    """
+    carriageways: dict[int, set[tuple[str, str]]] = {}
+    for a, b in weighted.edges:
+        edge = source[a][b]["record"]
+        tags = edge.osm_tags
+        both = tags.get("sidewalk:both", tags.get("sidewalk"))
+        if (
+            edge.osm_way_id is not None
+            and tags.get("highway") in {
+                "primary", "primary_link", "secondary", "secondary_link",
+                "tertiary", "tertiary_link", "unclassified", "residential",
+                "living_street", "service", "road",
+            }
+            and tags.get("sidewalk:left", both) == "separate"
+            and tags.get("sidewalk:right", both) == "separate"
+        ):
+            carriageways.setdefault(edge.osm_way_id, set()).add((a, b))
+    avoided: set[tuple[str, str]] = set()
+    for way in sorted(carriageways):
+        blocked = avoided | carriageways[way]
+        alternative = nx.subgraph_view(
+            weighted, filter_edge=lambda a, b, blocked=blocked: (a, b) not in blocked
+        )
+        if nx.has_path(alternative, origin, destination):
+            avoided = blocked
+    return nx.subgraph_view(weighted, filter_edge=lambda a, b: (a, b) not in avoided)
+
+
 def compute_routes(
     graph: nx.DiGraph,
     origin: str,
@@ -137,6 +173,7 @@ def compute_routes(
     entrances = _segments_at_kind(graph, "entrance")
     crossings = _segments_at_kind(graph, "crossing")
     fastest_graph = _weighted_graph(graph, RouteProfile.FASTEST, as_of, entrances, crossings)
+    fastest_graph = _use_separate_sidewalks(fastest_graph, graph, origin, destination)
     baseline_path = _ranked_candidates(fastest_graph, graph, origin, destination, 1, None)[0]
     baseline = path_edges(graph, baseline_path)
     config = PROFILES[profile]
@@ -155,6 +192,8 @@ def compute_routes(
         if profile == RouteProfile.FASTEST and preferences == DEFAULT_PREFERENCES
         else _weighted_graph(graph, profile, as_of, entrances, crossings, preferences)
     )
+    if weighted is not fastest_graph:
+        weighted = _use_separate_sidewalks(weighted, graph, origin, destination)
     paths = _ranked_candidates(weighted, graph, origin, destination, max_results, cap)
     if profile == RouteProfile.SAFER_AT_NIGHT and not any(
         any(value is not None for value in (

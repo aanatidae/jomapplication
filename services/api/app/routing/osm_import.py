@@ -54,6 +54,9 @@ LANDMARKS = (
     ("Vivekananda Ashram · mapped approach", "way", 466004234, None),
     ("Little India · mapped approach", "node", 4327707896, None),
     ("Buddhist Maha Vihara · mapped approach", "way", 467858444, None),
+    # Existing sidewalk outside the private gate, not a verified college entrance.
+    ("Methodist College Kuala Lumpur (MCKL) · mapped approach", "way", 1323590725,
+     "osm_11443497173"),
 )
 
 
@@ -74,7 +77,7 @@ def landmark_catalog(extract: dict, graph: nx.DiGraph) -> list[dict]:
                 "longitude": lon,
                 "node_id": node,
                 "osm_feature": f"https://www.openstreetmap.org/{kind}/{osm_id}",
-                "osm_name": feature["tags"]["name"],
+                "osm_name": feature.get("tags", {}).get("name"),
             }
         )
     return result

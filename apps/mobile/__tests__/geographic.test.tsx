@@ -10,6 +10,7 @@ import { validateBarrier } from '../src/features/barriers/localRepository';
 import { defaultPreferences } from '../src/features/preferences/model';
 import { getCurrentOrigin } from '../src/services/currentLocation';
 import fixtures from './fixtures/routes.json';
+import { brickfieldsPlaces, resolvePlace } from '../src/features/planner/geographic';
 
 const simulatedFixture = parseRouteResponse(fixtures.fastest);
 const response: RouteResponse = {
@@ -31,6 +32,26 @@ it('preserves longitude/latitude geometry without schematic projection', () => {
   expect(toDisplayRoutes(parseRouteResponse(response).routes)[0].geometry).toEqual(response.routes[0].geometry.coordinates);
   expect(() => parseRouteResponse({ ...response, routes: [{ ...response.routes[0], geometry: { ...response.routes[0].geometry, coordinates: [[181, 3], [101, 3]] } }] })).toThrow('invalid_response');
   expect(scriptJson('</script>\u2028')).not.toContain('<');
+});
+
+it('resolves MCKL as a mapped approach and preserves custom map coordinates', () => {
+  const label = 'Methodist College Kuala Lumpur (MCKL) · mapped approach';
+  expect(resolvePlace(label)).toEqual({ latitude: 3.1318006, longitude: 101.6906217 });
+  expect(Object.keys(brickfieldsPlaces)).toHaveLength(6);
+  expect(Object.keys(brickfieldsPlaces).some(name => /crossing/i.test(name))).toBe(false);
+  expect(resolvePlace('3.133155, 101.687648')).toEqual({ latitude: 3.133155, longitude: 101.687648 });
+});
+
+it.each(['origin', 'destination'] as const)('selects MCKL as the %s through the existing picker', async field => {
+  const label = 'Methodist College Kuala Lumpur (MCKL) · mapped approach';
+  render(<PlannerScreen/>); await screen.findByText('Fastest · Option 1');
+  const current = field === 'origin' ? 'From · KL Sentral · south entrance' : 'To · NU Sentral · main entrance';
+  fireEvent.press(screen.getByRole('button', { name: current }));
+  fireEvent.changeText(screen.getByLabelText('Search Brickfields places'), 'MCKL');
+  fireEvent.press(screen.getByRole('button', { name: label }));
+  await waitFor(() => expect(JSON.parse(jest.mocked(fetch).mock.calls.at(-1)![1]!.body as string)[field])
+    .toEqual({ latitude: 3.1318006, longitude: 101.6906217 }));
+  expect(screen.getByRole('button', { name: `${field === 'origin' ? 'From' : 'To'} · ${label}` })).toBeTruthy();
 });
 
 it('does not ask for location until requested and keeps manual selection after denial', async () => {

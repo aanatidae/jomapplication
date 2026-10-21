@@ -45,6 +45,20 @@ it('shows permission denial and keeps manual planning available', async () => {
   fireEvent.press(screen.getByRole('button', { name: 'Start navigation' }));
   await screen.findByText(/Location permission denied/); expect(screen.getByRole('button', { name: /From/ })).toBeTruthy();
 });
+it('starts and stops foreground navigation with MCKL selected', async () => {
+  const label = 'Methodist College Kuala Lumpur (MCKL) · mapped approach';
+  render(<PlannerScreen/>); await screen.findByText('Fastest · Option 1');
+  fireEvent.press(screen.getByRole('button', { name: 'To · NU Sentral · main entrance' }));
+  fireEvent.press(screen.getByRole('button', { name: label }));
+  await screen.findByText('Fastest · Option 1');
+  fireEvent.press(screen.getByRole('button', { name: 'Start navigation' }));
+  await screen.findByText('150 m · 2 min left');
+  expect(screen.getByText(label)).toBeTruthy();
+  expect(Location.watchPositionAsync).toHaveBeenCalled();
+  fireEvent.press(screen.getByRole('button', { name: 'Stop Navigation' }));
+  expect(remove).toHaveBeenCalledTimes(1);
+  await screen.findByRole('button', { name: `To · ${label}` });
+});
 it('cleans subscriptions when Planner unmounts', async () => {
   const view = render(<PlannerScreen/>); await screen.findByText('Fastest · Option 1');
   fireEvent.press(screen.getByRole('button', { name: 'Start navigation' })); await screen.findByText('150 m · 2 min left');

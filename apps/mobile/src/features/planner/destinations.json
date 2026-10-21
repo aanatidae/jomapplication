@@ -38,5 +38,13 @@
     "node_id": "osm_5735922047",
     "osm_feature": "https://www.openstreetmap.org/way/467858444",
     "osm_name": "Buddhist Maha Vihara Buddha Hall"
+  },
+  {
+    "label": "Methodist College Kuala Lumpur (MCKL) · mapped approach",
+    "latitude": 3.1318006,
+    "longitude": 101.6906217,
+    "node_id": "osm_11443497173",
+    "osm_feature": "https://www.openstreetmap.org/way/1323590725",
+    "osm_name": null
   }
 ]
