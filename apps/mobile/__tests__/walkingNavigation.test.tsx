@@ -28,7 +28,7 @@ afterEach(() => { globalThis.fetch = originalFetch; jest.restoreAllMocks(); dele
 it('previews before Start, installs a real watcher, updates progress, supports manual exploration/Recenter and Stop', async () => {
   render(<PlannerScreen/>); await screen.findByText('Fastest · Option 1');
   expect(screen.queryByRole('button', { name: 'Stop Navigation' })).toBeNull();
-  fireEvent.press(screen.getByRole('button', { name: 'Start' }));
+  fireEvent.press(screen.getByRole('button', { name: 'Start navigation' }));
   await screen.findByText('150 m · 2 min left');
   expect(Location.watchPositionAsync).toHaveBeenLastCalledWith(expect.objectContaining({ accuracy: 4, timeInterval: 3000, distanceInterval: 2 }), expect.any(Function), expect.any(Function));
   await act(async () => update(reading(101.6868582, first.latitude, Date.now() + 1500)));
@@ -37,17 +37,17 @@ it('previews before Start, installs a real watcher, updates progress, supports m
   fireEvent.press(screen.getByRole('button', { name: 'Recenter' }));
   expect(screen.getByRole('button', { name: 'Following your location' })).toBeTruthy();
   fireEvent.press(screen.getByRole('button', { name: 'Stop Navigation' }));
-  expect(remove).toHaveBeenCalledTimes(1); await screen.findByRole('button', { name: 'Start' });
+  expect(remove).toHaveBeenCalledTimes(1); await screen.findByRole('button', { name: 'Start navigation' });
 });
 it('shows permission denial and keeps manual planning available', async () => {
   jest.mocked(Location.requestForegroundPermissionsAsync).mockResolvedValue({ granted: false } as Location.LocationPermissionResponse);
   render(<PlannerScreen/>); await screen.findByText('Fastest · Option 1');
-  fireEvent.press(screen.getByRole('button', { name: 'Start' }));
+  fireEvent.press(screen.getByRole('button', { name: 'Start navigation' }));
   await screen.findByText(/Location permission denied/); expect(screen.getByRole('button', { name: /From/ })).toBeTruthy();
 });
 it('cleans subscriptions when Planner unmounts', async () => {
   const view = render(<PlannerScreen/>); await screen.findByText('Fastest · Option 1');
-  fireEvent.press(screen.getByRole('button', { name: 'Start' })); await screen.findByText('150 m · 2 min left');
+  fireEvent.press(screen.getByRole('button', { name: 'Start navigation' })); await screen.findByText('150 m · 2 min left');
   view.unmount(); expect(remove).toHaveBeenCalledTimes(1);
 });
 it('pauses in background and resumes through the normal watcher API', async () => {
@@ -58,7 +58,7 @@ it('pauses in background and resumes through the normal watcher API', async () =
     return { remove: () => changes.delete(listener as (state: AppStateStatus) => void) };
   });
   render(<PlannerScreen/>); await screen.findByText('Fastest · Option 1');
-  fireEvent.press(screen.getByRole('button', { name: 'Start' })); await screen.findByText('150 m · 2 min left');
+  fireEvent.press(screen.getByRole('button', { name: 'Start navigation' })); await screen.findByText('150 m · 2 min left');
   act(() => change('background')); expect(screen.getByText('Navigation paused')).toBeTruthy(); expect(remove).toHaveBeenCalledTimes(1);
   await act(async () => change('active')); await waitFor(() => expect(screen.getByText('Follow the route')).toBeTruthy());
 });
@@ -71,12 +71,37 @@ it('renders long guidance, rerouting errors, paused GPS, arrival and reachable S
   expect(screen.getByText('Recalculating route')).toBeTruthy(); expect(screen.getByText(state.error!)).toBeTruthy();
   fireEvent.press(screen.getByRole('button', { name: 'Stop Navigation' })); expect(stop).toHaveBeenCalledTimes(1);
 });
+it('shows measured walking progress and does not invent progress before a GPS projection', () => {
+  const base: NavigationState = { status: 'active', following: true, rerouting: false };
+  const props = { onStop: jest.fn(), onResume: jest.fn(), onRetry: jest.fn() };
+  const view = render(<NavigationProgress {...props} state={base}/>);
+  expect(screen.queryByRole('progressbar')).toBeNull();
+  view.rerender(<NavigationProgress {...props} state={{ ...base, remainingM: 150, remainingS: 120,
+    progress: { along: 50, total: 200, remaining: 150, deviation: 1, segment: 0, coordinate: [101.6868, 3.1337] } }}/>);
+  expect(screen.getByRole('progressbar', { name: 'Walk progress' }).props.accessibilityValue.now).toBe(25);
+  view.rerender(<NavigationProgress {...props} state={{ ...base, status: 'arrived' }}/>);
+  expect(screen.getByRole('progressbar').props.accessibilityValue.now).toBe(100);
+  expect(screen.getByRole('button', { name: 'Return to Planner' })).toBeTruthy();
+});
+it('keeps accuracy and Stop visible while route caveats expand independently', () => {
+  const state: NavigationState = { status: 'active', following: true, rerouting: false,
+    route: route as unknown as NavigationState['route'], remainingM: 150, remainingS: 120,
+    position: { ...first, accuracy: 5, timestamp: Date.now() } };
+  render(<NavigationProgress state={state} onStop={jest.fn()} onResume={jest.fn()} onRetry={jest.fn()}/>);
+  expect(screen.getByText('Location accuracy ±5 m')).toBeTruthy();
+  expect(screen.queryByText(/Turn-by-turn instructions unavailable/)).toBeNull();
+  fireEvent.press(screen.getByRole('button', { name: 'Walking details' }));
+  expect(screen.getByRole('button', { name: 'Hide walking details' }).props.accessibilityState.expanded).toBe(true);
+  expect(screen.getByText(/Turn-by-turn instructions unavailable/)).toBeTruthy();
+  for (const warning of route.warnings) expect(screen.getByText(warning)).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Stop Navigation' })).toBeTruthy();
+});
 it('shows insufficient Night evidence without enabling Start or substituting Fastest', async () => {
   render(<PlannerScreen/>); await screen.findByText('Fastest · Option 1');
   jest.mocked(fetch).mockResolvedValueOnce({ ok: false, status: 404, json: async () => ({ detail: 'Insufficient lighting, crossing and activity information to recommend a safer night route.' }) } as Response);
   fireEvent.press(screen.getByRole('radio', { name: 'Safer at Night' }));
   await screen.findByText(/Insufficient lighting, crossing and activity information/);
   expect(screen.getByRole('radio', { name: 'Safer at Night' }).props.accessibilityState.checked).toBe(true);
-  expect(screen.getByRole('button', { name: 'Start' }).props.accessibilityState.disabled).toBe(true);
+  expect(screen.getByRole('button', { name: 'Start navigation' }).props.accessibilityState.disabled).toBe(true);
   expect(screen.getByRole('image').props.accessibilityLabel).toContain('No route is displayed');
 });

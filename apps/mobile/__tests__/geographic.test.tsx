@@ -66,6 +66,7 @@ it('releases the location request when GPS never resolves', async () => {
 
 it('routes a map-selected destination and ignores malformed bridge coordinates', async () => {
   render(<PlannerScreen/>); await screen.findByText('Fastest · Option 1');
+  fireEvent.press(screen.getByRole('button', { name: 'Compare 1 route' }));
   fireEvent.press(screen.getByRole('button', { name: 'Set destination on map' }));
   fireEvent(screen.getByTestId('leaflet-map'), 'message', { nativeEvent: { data: JSON.stringify({ type: 'pick', latitude: 3.1305, longitude: 101.6857 }) } });
   await waitFor(() => expect(JSON.parse(jest.mocked(fetch).mock.calls.at(-1)![1]!.body as string).destination).toEqual({ latitude: 3.1305, longitude: 101.6857 }));

@@ -48,7 +48,7 @@ export function PlannerScreen() {
     // Location initialization happens once, rather than resetting manual trip edits.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [selecting, setSelecting] = useState<'origin' | 'destination' | null>(null);
 
   const [locationStatus, setLocationStatus] = useState('');
@@ -61,7 +61,7 @@ export function PlannerScreen() {
     catch (error) { setLocationStatus(error instanceof LocationUnavailable && error.reason === 'denied' ? 'Location permission denied. Choose a start place or select a start on the map.' : 'Current location unavailable. Choose a start place or select a start on the map.'); }
     finally { locatingRef.current = false; if (alive.current) setLocating(false); }
   }
-  const { fontScale } = useWindowDimensions();
+  const { fontScale, height } = useWindowDimensions();
   const routes = useMemo(() => toDisplayRoutes(planner.routeOptions), [planner.routeOptions]);
   const displayedRoutes = useMemo(() => navigating && navigation.route ? toDisplayRoutes([navigation.route]) : routes, [navigating, navigation.route, routes]);
   const selectedId = navigating ? navigation.route?.id ?? '' : planner.selectedRoute?.id ?? '';
@@ -87,7 +87,7 @@ export function PlannerScreen() {
           routesVisible={navigating || planner.status === 'ready'} routeOptions={displayedRoutes} />}
     </View>
     {navigating ? <View onLayout={event => setTopInset(event.nativeEvent.layout.height)} style={styles.guidance}><NavigationGuidance state={navigation} destination={planner.destination}/></View> : <ScrollView onLayout={event => setTopInset(event.nativeEvent.layout.height + theme.space.md)} style={styles.search} keyboardShouldPersistTaps="handled">
-      <View style={styles.header}><Text style={type.title}>Jom!</Text><Text style={type.caption}>Walk Brickfields</Text></View>
+      <View style={styles.header}><Text style={styles.brand}>Jom!</Text><Text style={styles.eyebrow}>BRICKFIELDS · ON FOOT</Text></View>
       <TripSearchBar compact geographic origin={planner.origin} destination={planner.destination} availablePlaces={Object.keys(pilotPlaces)}
         onChange={(field, value) => { manuallySelectedOrigin.current = true; (field === 'origin' ? planner.setOrigin : planner.setDestination)(value); }} />
     </ScrollView>}
@@ -95,12 +95,13 @@ export function PlannerScreen() {
       {selecting && <View style={styles.selection}><Text style={type.body}>Tap the map to choose your {selecting === 'origin' ? 'start' : 'destination'}.</Text><SecondaryButton label="Cancel map selection" onPress={() => setSelecting(null)}/></View>}
       <View style={styles.controls}>
         <Text allowFontScaling={false} accessibilityRole="link" onPress={() => void Linking.openURL('https://www.openstreetmap.org/copyright')} style={styles.attribution}>Leaflet · © OpenStreetMap contributors</Text>
-        {navigating ? <SecondaryButton accessibilityLabel={navigation.following ? 'Following your location' : 'Recenter'} label={navigation.following ? (fontScale > 1.5 ? 'Following' : 'Following your location') : 'Recenter'} onPress={session.recenter}/> :
-          <SecondaryButton accessibilityLabel={locating ? 'Finding location…' : 'Use current location'} label={locating ? 'Finding location…' : fontScale > 1.5 ? 'Locate' : 'Use current location'} disabled={locating} onPress={() => void locate()} />}
+        {navigating ? <SecondaryButton accessibilityLabel={navigation.following ? 'Following your location' : 'Recenter'} label={navigation.following ? 'Following' : 'Recenter'} onPress={session.recenter}/> :
+          <SecondaryButton accessibilityLabel={locating ? 'Finding location…' : 'Use current location'} label={locating ? 'Locating…' : 'Locate me'} disabled={locating} onPress={() => void locate()} />}
       </View>
     </View>
     {navigating ? <View onLayout={event => setBottomInset(event.nativeEvent.layout.height + 80)} style={styles.navigationBottom}><NavigationProgress state={navigation} onStop={stopNavigation} onResume={() => void session.resume()} onRetry={() => void session.reroute()}/></View> :
-      <View onLayout={event => setBottomInset(event.nativeEvent.layout.height + 80)} style={[styles.sheet, { maxHeight: expanded ? '42%' : '30%' }]}>
+      <View onLayout={event => setBottomInset(event.nativeEvent.layout.height + 80)} style={[styles.sheet, { maxHeight: expanded ? '55%' : height < 700 ? '50%' : '42%' }]}>
+        <View accessible={false} style={styles.handle} />
         {fontScale <= 1.5 && priorityStrip}
         <ScrollView keyboardShouldPersistTaps="handled" style={styles.comparison}>
           {fontScale > 1.5 && priorityStrip}
@@ -109,6 +110,7 @@ export function PlannerScreen() {
           {planner.status === 'ready' ? <RouteComparisonSheet routes={routes} selected={planner.selectedRoute?.id ?? ''}
             onSelect={planner.selectRoute} expanded={expanded} onToggle={() => setExpanded(v => !v)} hideProfiles /> :
             <ApiPlannerState status={planner.status} error={planner.error?.kind} profile={planner.selectedProfile} onRetry={planner.retry} />}
+          {(expanded || planner.status !== 'ready') && <>
           <View style={styles.mapActions}>
             <SecondaryButton label="Set start on map" onPress={() => setSelecting('origin')} />
             <SecondaryButton label="Set destination on map" onPress={() => setSelecting('destination')} />
@@ -124,8 +126,9 @@ export function PlannerScreen() {
       setReportRoute(selected ? { id: selected.id, label: selected.mode, origin: planner.origin, destination: planner.destination, geometry: selected.geometry, distanceM: selected.distance, durationMinutes: selected.minutes, coordinateSystem: selected.coordinateSystem ?? 'schematic_demo' } : null);
       router.push('/report-barrier');
     }}/><SecondaryButton label="Reports" onPress={() => router.push('/barrier-reports')}/></View>
+          </>}
         </ScrollView>
-        <View style={styles.start}><PrimaryButton label="Start" disabled={!planner.selectedRoute || !destinationPoint || locating} onPress={() => {
+        <View style={styles.start}><PrimaryButton label="Start navigation" disabled={!planner.selectedRoute || !destinationPoint || locating} onPress={() => {
           if (planner.selectedRoute && destinationPoint) { setSelecting(null); void session.start(planner.selectedRoute, destinationPoint, toRoutePreferences(preferences)); }
         }}/></View>
       </View>}
@@ -133,17 +136,20 @@ export function PlannerScreen() {
 }
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: theme.color.map },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: theme.space.md, paddingVertical: theme.space.xs, gap: theme.space.xs },
+  header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: theme.space.md, paddingTop: theme.space.xs, paddingBottom: theme.space.xxs, gap: theme.space.xxs },
+  brand: { ...type.title, fontWeight: '800', color: theme.color.accent },
+  eyebrow: { ...type.caption, fontSize: 11, letterSpacing: 1, fontWeight: '600' },
   search: { flexGrow: 0, maxHeight: '30%', margin: theme.space.sm, backgroundColor: theme.color.surface, borderRadius: theme.radius.lg, ...theme.elevation.sheet },
   mapSpace: { flex: 1, justifyContent: 'flex-end' },
-  controls: { alignSelf: 'flex-end', margin: theme.space.sm },
-  attribution: { ...type.caption, backgroundColor: theme.color.surface, padding: theme.space.xxs },
-  guidance: { maxHeight: '30%' }, navigationBottom: { maxHeight: '38%' },
+  controls: { alignSelf: 'flex-end', alignItems: 'flex-end', gap: theme.space.xxs, margin: theme.space.sm },
+  attribution: { ...type.caption, fontSize: 10, lineHeight: 14, backgroundColor: theme.color.surface, paddingHorizontal: theme.space.xxs, borderRadius: theme.radius.sm },
+  guidance: { maxHeight: '30%' }, navigationBottom: { maxHeight: '42%' },
   selection: { margin: theme.space.sm, padding: theme.space.sm, gap: theme.space.xs, backgroundColor: theme.color.surface, borderRadius: theme.radius.md },
   sheet: { flexShrink: 1, backgroundColor: theme.color.surface, borderTopLeftRadius: theme.radius.sheet, borderTopRightRadius: theme.radius.sheet, ...theme.elevation.sheet },
-  priority: { flexDirection: 'row', padding: theme.space.xs, gap: theme.space.xs, alignItems: 'flex-start' },
+  handle: { alignSelf: 'center', width: 32, height: 4, borderRadius: theme.radius.pill, backgroundColor: theme.color.outline, marginTop: theme.space.xs },
+  priority: { flexDirection: 'row', paddingHorizontal: theme.space.sm, paddingVertical: theme.space.xs, gap: theme.space.xs, alignItems: 'flex-start' },
   comparison: { flexShrink: 1 },
-  start: { padding: theme.space.sm },
+  start: { paddingHorizontal: theme.space.md, paddingVertical: theme.space.xs, borderTopWidth: 1, borderTopColor: theme.color.raised },
   message: { ...type.body, padding: theme.space.md },
   mapActions: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: theme.space.md, paddingVertical: theme.space.xs, gap: theme.space.xs },
 });

@@ -10,11 +10,11 @@ export function RouteProfileChip({ route, selected, onPress }: { route: Pick<Moc
   return <MotionPressable accessibilityRole="radio" accessibilityLabel={route.mode} accessibilityState={{ selected, checked: selected }}
     onPress={() => { if (!selected) selectionFeedback(); onPress(); }} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
     style={({ pressed }) => [styles.chip, selected && styles.selected, focused && styles.focus, pressed && styles.pressed]}>
-    <Text style={[type.label, selected && styles.selectedLabel]}>{selected ? 'Selected · ' : ''}{route.mode}</Text>
+    <Text style={[type.label, selected && styles.selectedLabel]}>{route.mode}</Text>
   </MotionPressable>;
 }
 const styles = StyleSheet.create({
-  chip: { minHeight: theme.target, maxWidth: '100%', justifyContent: 'center', padding: theme.space.sm, borderRadius: theme.radius.md, borderWidth: 2, borderColor: theme.color.outline },
-  selected: { backgroundColor: theme.color.accent, borderColor: theme.color.accent }, selectedLabel: { color: theme.color.onAccent },
+  chip: { minHeight: theme.target, maxWidth: '100%', justifyContent: 'center', paddingHorizontal: theme.space.sm, paddingVertical: theme.space.xs, borderRadius: theme.radius.pill, borderWidth: 2, borderColor: theme.color.raised, backgroundColor: theme.color.raised },
+  selected: { backgroundColor: theme.color.selected, borderColor: theme.color.accent }, selectedLabel: { color: theme.color.accent },
   focus: { borderColor: theme.color.focus }, pressed: { opacity: 0.7 },
 });

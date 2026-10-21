@@ -20,6 +20,7 @@ it('loads API cards, changes profile requests, caches results and selects an alt
   expect(screen.getByRole('progressbar')).toBeTruthy();
   await screen.findByText('Fastest · Option 1');
   expect(screen.getAllByText('600 m').length).toBeGreaterThan(0);
+  fireEvent.press(screen.getByRole('button', { name: 'Compare 3 routes' }));
   const options = within(screen.getByLabelText('Route options')).getAllByRole('radio');
   fireEvent.press(options[1]);
   expect(screen.getByRole('image').props.accessibilityLabel).toContain('Selected Fastest · Option 2');
@@ -49,6 +50,7 @@ it('shows a single valid option and complete backend warnings/explanations', asy
   const response = { ...fixtures.step_free, routes: fixtures.step_free.routes.slice(0, 1) };
   fetcher.mockResolvedValue({ ok: true, json: async () => ({ ...response, routes: response.routes.map(r => ({ ...r, profile: 'fastest' })) }) });
   render(<PlannerScreen />); await screen.findByText('Fastest · Option 1');
+  fireEvent.press(screen.getByRole('button', { name: 'Compare 1 route' }));
   expect(screen.getByRole('button', { name: 'Collapse comparison' })).toBeTruthy();
   expect(within(screen.getByLabelText('Route options')).getAllByRole('radio')).toHaveLength(1);
   for (const reason of response.routes[0].reasons) expect(screen.getByText(reason)).toBeTruthy();
@@ -58,10 +60,27 @@ it('shows a single valid option and complete backend warnings/explanations', asy
 
 it('surfaces unknown accessibility directly from API warnings', async () => {
   render(<PlannerScreen />); await screen.findByText('Fastest · Option 1');
+  fireEvent.press(screen.getByRole('button', { name: 'Compare 3 routes' }));
   fireEvent.press(screen.getByRole('radio', { name: 'Safer at Night' }));
   await screen.findByText('Safer at Night · Option 1');
   const card = within(screen.getByLabelText('Route options')).getAllByRole('radio')[0];
   for (const warning of fixtures.safer_at_night.routes[0].warnings) expect(within(card).getByText(warning)).toBeTruthy();
+});
+
+it('opens with one concise route and keeps Start reachable while expanding details and trip tools', async () => {
+  render(<PlannerScreen />); await screen.findByText('Fastest · Option 1');
+  const toggle = screen.getByRole('button', { name: 'Compare 3 routes' });
+  expect(toggle.props.accessibilityState.expanded).toBe(false);
+  expect(within(screen.getByLabelText('Route options')).getAllByRole('radio')).toHaveLength(1);
+  expect(screen.getByRole('button', { name: 'Start navigation' })).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Set destination on map' })).toBeNull();
+  fireEvent.press(toggle);
+  expect(screen.getByRole('button', { name: 'Collapse comparison' }).props.accessibilityState.expanded).toBe(true);
+  expect(screen.getByRole('button', { name: 'Set destination on map' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Share selected route' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Report Barrier' })).toBeTruthy();
+  fireEvent.press(screen.getByRole('button', { name: 'Collapse comparison' }));
+  expect(screen.getByRole('button', { name: 'Start navigation' })).toBeTruthy();
 });
 
 it.each(['no_route', 'timeout', 'network'] as const)('renders %s with retry and preserves the trip', async kind => {

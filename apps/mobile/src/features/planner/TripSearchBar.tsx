@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Keyboard, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, View, KeyboardAvoidingView } from 'react-native';
+import { Keyboard, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, View, KeyboardAvoidingView, useWindowDimensions } from 'react-native';
+import { MotionPressable } from '../motion/Motion';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { IconButton, PrimaryButton, SecondaryButton } from '../../components/Buttons';
 import { theme, type } from '../../theme/tokens';
@@ -14,16 +15,29 @@ type Props = {
 export function TripSearchBar({ origin, destination, onChange, requestedField, onClose, availablePlaces = places, geographic = false, compact }: Props) {
   const [editing, setEditing] = useState<'origin' | 'destination' | null>(null);
   const [query, setQuery] = useState('');
+  const [focused, setFocused] = useState<string | null>(null);
+  const { fontScale } = useWindowDimensions();
   const activeField = requestedField ?? editing;
   function closePicker() { Keyboard.dismiss(); setEditing(null); setQuery(''); onClose?.(); }
   function choose(value: string) { if (activeField) onChange(activeField, value); closePicker(); }
   const matches = availablePlaces.filter(p => p.toLowerCase().includes(query.trim().toLowerCase()));
   return <View style={styles.trip}>
     {!compact && <Text style={type.caption}>Same trip. A route for your needs.</Text>}
-    <View style={compact ? styles.row : styles.fields}>
+    {compact ? <View style={styles.fields}>
+      {(['origin', 'destination'] as const).map(field => <MotionPressable key={field}
+        accessibilityRole="button" accessibilityLabel={`${field === 'origin' ? 'From' : 'To'} · ${field === 'origin' ? origin : destination}`}
+        accessibilityHint="Choose a mapped place" onPress={() => { setQuery(''); setEditing(field); }}
+        onFocus={() => setFocused(field)} onBlur={() => setFocused(null)}
+        style={({ pressed }) => [styles.place, field === 'destination' && styles.destination, (pressed || focused === field) && styles.pressed]}>
+        <View accessible={false} style={[styles.marker, field === 'destination' && styles.destinationMarker]} />
+        <Text style={styles.fieldLabel}>{field === 'origin' ? 'From' : 'To'}</Text>
+        <Text numberOfLines={fontScale > 1.5 ? undefined : 1} style={styles.placeName}>{field === 'origin' ? origin : destination}</Text>
+        <Text accessible={false} style={styles.chevron}>›</Text>
+      </MotionPressable>)}
+    </View> : <View style={styles.fields}>
       <View style={compact && styles.flex}><SecondaryButton label={`From · ${origin}`} onPress={() => { setQuery(''); setEditing('origin'); }} /></View>
       <View style={compact && styles.flex}><SecondaryButton label={`To · ${destination}`} onPress={() => { setQuery(''); setEditing('destination'); }} /></View>
-    </View>
+    </View>}
     <Modal visible={activeField !== null} animationType="none" onRequestClose={closePicker}>
       <SafeAreaView style={styles.modal}>
         <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -42,8 +56,16 @@ export function TripSearchBar({ origin, destination, onChange, requestedField, o
   </View>;
 }
 const styles = StyleSheet.create({
-  trip: { paddingHorizontal: theme.space.md, paddingBottom: theme.space.md, gap: theme.space.xs, backgroundColor: theme.color.surface },
-  row: { flexDirection: 'row', gap: theme.space.xs }, fields: { gap: theme.space.xs },
+  trip: { paddingHorizontal: theme.space.sm, paddingBottom: theme.space.xs, gap: theme.space.xs, backgroundColor: theme.color.surface },
+  fields: { gap: theme.space.xxs },
+  place: { minHeight: theme.target, flexDirection: 'row', alignItems: 'center', gap: theme.space.sm, paddingHorizontal: theme.space.xs, borderRadius: theme.radius.sm, borderWidth: 2, borderColor: 'transparent' },
+  destination: { backgroundColor: theme.color.selected },
+  marker: { width: 12, height: 12, borderRadius: 6, borderWidth: 3, borderColor: theme.color.accent },
+  destinationMarker: { borderRadius: 3, backgroundColor: theme.color.accent },
+  fieldLabel: { ...type.caption, width: 38 },
+  placeName: { ...type.body, fontWeight: '600', flex: 1 },
+  chevron: { ...type.title, color: theme.color.accent },
+  pressed: { borderColor: theme.color.focus },
   modal: { flex: 1, backgroundColor: theme.color.background }, flex: { flex: 1 },
   picker: { padding: theme.space.lg, gap: theme.space.md },
   input: { ...type.body, minHeight: theme.target, padding: theme.space.sm, borderWidth: 2, borderColor: theme.color.accent, borderRadius: theme.radius.md, backgroundColor: theme.color.surface },
