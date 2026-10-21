@@ -12,6 +12,28 @@ Rules for Codex:
 - Before a phase is marked complete, run its tests and manually inspect the user-visible behavior.
 - Do not fabricate real-world safety/accessibility data. Use clearly labelled simulated data until verified pilot data exists.
 
+## Foreground navigation and profile diagnosis - 2026-10-21
+
+- [x] Read the harness/mobile guidance, inspect clean Git and reproduce real HTTP profiles before edits.
+- [x] Establish the actual causes: no normalized environmental evidence for Night; unknown strict access for Step-Free; saved Avoid stairs can also exclude unknown segments.
+- [x] Preserve backend route optimization, real OSM geometry/snapping, profile IDs, supported preferences and hard constraints. No Fastest fallback.
+- [x] Return and render explicit Night insufficient-evidence and Step-Free/no-route/outside errors; populated fixture Night/Step-Free remain valid and tested.
+- [x] Map-first preview/search/manual map selection, alternative selection, fixed Start and active guidance/progress/Stop.
+- [x] Real Expo foreground walking subscription, fresh precise position, GPS puck/accuracy/optional reliable compass, permission/services checks and generation-safe cleanup.
+- [x] Geometry projection, remaining path/distance/ETA, noise/outlier/hairpin protection and repeated confident arrival.
+- [x] Camera follow, manual exploration, Recenter; Leaflet north-up and inset-aware framing.
+- [x] Debounced/throttled API rerouting preserves selected profile/preferences and ignores stale completion after Stop.
+- [x] Emulator GPX replay uses normal Android location input; marker/camera/progress/ETA/pan/Recenter/arrival and real side-path reroute observed.
+- [x] Denied permission, disabled services and outside-Brickfields Start tested natively; lifecycle/race/accuracy/coarse/stale/failure cases additionally automated.
+- [x] 320dp/200% text, long destination/errors, Reduced Motion and visible Stop tested; independent finish findings are corrected and the final scope is approved.
+- [x] Failed map recovery moved into inset-aware visible map space; real offline tile failure/Retry inspected.
+- [x] Native background/resume/Stop location-registration readback and keyboard-open destination search verified.
+- [x] Final independent verdict, restored emulator preferences/settings and final full quality-gate counts recorded in PLAN/results: lint/types/128 mobile tests, Ruff/138 Pytests, Android export and live HTTP.
+- [ ] Physical outdoor Android field test; iOS, spoken TalkBack and release performance/haptic verification remain manual.
+- [ ] Survey sufficient real accessibility/environmental evidence before claiming real Night or strict Step-Free route availability.
+
+All historical checklist entries below retain their original evidence scope. Details and verification artifacts: docs/navigation/results.md.
+
 ## Brickfields geographic integration — 2026-10-19
 
 - [x] Read harness and inspect existing Expo map, NetworkX engine, API contracts, repositories and Supabase validators.

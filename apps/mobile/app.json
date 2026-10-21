@@ -24,6 +24,14 @@
     "plugins": [
       "expo-router",
       [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Jom! uses your location while open to follow your walk and update route progress.",
+          "isAndroidBackgroundLocationEnabled": false,
+          "isAndroidForegroundServiceEnabled": false
+        }
+      ],
+      [
         "expo-image-picker",
         {
           "photosPermission": "Choose a photo to attach to your route or barrier report.",

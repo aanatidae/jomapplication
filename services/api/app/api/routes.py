@@ -11,7 +11,12 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from ..models.routes import RouteGeometry, RouteOption, RouteRequest, RouteResponse
 from ..routing.engine import compute_routes
-from ..routing.errors import NoRouteError, RoutingInputError, SearchLimitError
+from ..routing.errors import (
+    InsufficientSafetyDataError,
+    NoRouteError,
+    RoutingInputError,
+    SearchLimitError,
+)
 from ..routing.geography import snap_coordinate
 from ..routing.graph_loader import load_graph
 from ..routing.osm_import import load_osm_graph
@@ -104,9 +109,12 @@ def routes(
                 for result in results
             ),
         )
+    except InsufficientSafetyDataError as error:
+        raise HTTPException(404, str(error)) from error
     except NoRouteError as error:
         detail = (
-            "No verified step-free route is available for this trip."
+            "No step-free route could be verified for this destination. "
+            "Critical accessibility information is missing or a known barrier blocks the route."
             if request.profile == "step_free"
             else "No route is available for the selected profile."
         )

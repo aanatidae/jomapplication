@@ -23,7 +23,7 @@ export type RouteOption = {
 export type RouteResponse = {
   dataset_id: string; data_kind: 'SIMULATED_DEMO' | 'OPENSTREETMAP'; reference_time: string; routes: RouteOption[];
 };
-export type RoutingErrorKind = 'timeout' | 'no_route' | 'outside_network' | 'network' | 'invalid_response' | 'server' | 'configuration' | 'same_point';
+export type RoutingErrorKind = 'timeout' | 'no_route' | 'insufficient_safety_data' | 'outside_network' | 'network' | 'invalid_response' | 'server' | 'configuration' | 'same_point';
 export class RoutingApiError extends Error {
   constructor(public readonly kind: RoutingErrorKind) { super(kind); }
 }
@@ -79,7 +79,7 @@ export async function planRoutes(request: RouteRequest, options: {
     if (!response.ok) {
       const body: unknown = await response.json().catch(() => null);
       if (response.status === 404 && record(body) && typeof body.detail === 'string') {
-        throw new RoutingApiError(body.detail.includes('outside') ? 'outside_network' : 'no_route');
+        throw new RoutingApiError(body.detail.includes('outside') ? 'outside_network' : body.detail.startsWith('Insufficient') ? 'insufficient_safety_data' : 'no_route');
       }
       if (response.status === 422 && record(body) && typeof body.detail === 'string' && body.detail.includes('different')) throw new RoutingApiError('same_point');
       throw new RoutingApiError('server');

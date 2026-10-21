@@ -4,11 +4,11 @@ A pedestrian-first route-planning hackathon MVP: **same origin, same destination
 different need, different best route**. Fastest, Safer at Night and Step-Free are
 computed by FastAPI/NetworkX. The Expo Android app renders **real Brickfields
 OpenStreetMap routes**, compares explanations/data confidence,
-and supports guest preferences, community sharing, photos and barrier reports.
+and supports foreground GPS walking navigation, guest preferences, community sharing, photos and barrier reports.
 
 **Safer based on available data.** Environmental indicators are not guarantees.
 The 2 km geographic pilot has incomplete, unverified safety/accessibility data.
-Step-Free is unavailable when critical evidence is missing. This is not a
+Step-Free is unavailable when critical evidence is missing. Safer at Night returns an explicit insufficient-evidence error when environmental indicators are absent; neither profile silently falls back to Fastest. This is not a
 production-ready mobility service. See [Brickfields setup, source, refresh,
 licensing and limitations](docs/brickfields/README.md).
 
@@ -241,9 +241,41 @@ docs/demo/                 Runbook, screenshots, verification and limitations
 .harness/                  Instructions, living execution plan and checklist
 ```
 
-The geographic map-provider spike remains unresolved; the accepted MVP uses the
-labelled schematic. No production moderation, route verification operations,
+The default geographic map uses bundled Leaflet/OSM; the optional native Google
+provider requires a correctly authorized build key. No production moderation, route verification operations,
 anonymous-account recovery, full pagination, automated orphan cleanup or release
 performance assurance. Current evidence distinguishes real end-to-end checks from
 fixtures and manual follow-ups. Git publication requires explicit approval for each
 push to the authorized repository.
+
+
+## Foreground walking navigation
+
+1. In Planner, tap **To** to search the five mapped Brickfields landmarks, or use **Set destination on map** in the comparison sheet. Search is a local landmark catalogue, not city-wide geocoding.
+2. Choose a manual start with **From** / **Set start on map**, or tap **Use current location** (shown as **Locate** at large font sizes). An existing foreground grant lets Planner show your location without prompting on launch. Being in Brickfields is never assumed.
+3. Choose Fastest, Safer at Night, or Step-Free. Compare and select alternatives; this does not start tracking. Scroll the comparison for full reasons, confidence, endpoint gaps and warnings. Preferences from Profile apply to every supported profile. Avoid stairs / avoid steep slopes can legitimately leave no route when critical data is unknown. Covered/shaded and ramps/elevators remain explicitly saved-only; there is no Custom profile.
+4. Press **Start**. Grant foreground **precise** location and enable device location services. Jom! obtains a fresh fix, then subscribes to walking GPS updates. If you are away from the preview, the API recalculates from your actual location with the same profile/preferences. It never draws an invented connector to your manual origin.
+5. The blue puck uses device coordinates and shows reliable compass heading where available. The grey path is the full route; teal shows the remaining path. Distance/ETA use projection along its geometry. Pan or zoom to explore, then **Recenter** to resume following. The default Leaflet map stays north-up; optional native maps can orient to heading.
+6. **Stop Navigation** ends subscriptions and cancels pending reroutes. Arrival needs repeated accurate fixes near both the route end and chosen destination. **Return to Planner** returns to preview.
+
+Only foreground navigation is implemented. Going to the background pauses location/heading subscriptions and pending requests; returning to the foreground rechecks permission/services/current position before resuming. Leaving Planner stops the session. Process termination, Expo reload and Android activity recreation end the in-memory session; press Start again. No background service, voice turns, reliable turn-by-turn maneuvers or route history is implemented.
+
+GPS with unknown accuracy or worse than 35 m cannot drive navigation; manual planning still works with denied/approximate location. Stale readings and implausible jumps do not advance progress. No recent update can mean stationary movement or signal loss; the UI says so. Three reliable off-route readings spanning at least 6 seconds and more than max(35 m, 1.5 times accuracy) trigger rerouting, at most once per 20 seconds. Failed reroutes keep the profile and offer Retry. Walking ETA uses the graph's estimated walking speed, not a personalized measured pace.
+
+The graph covers a 2 km pilot; snapping is limited to 75 m. Outside/unreachable positions produce a useful error. Navigation additionally requires being within 35 m of the mapped route, and unmapped endpoint gaps are never counted as walked paths. The cached real graph currently cannot establish a strict Step-Free or evidence-backed Night recommendation for the default trips. Valid-profile behavior is tested on the explicitly simulated fixture; real safety/accessibility data must be surveyed before those profiles can be field-validated.
+
+### Android Studio location testing
+
+Start the loopback API and Metro using the commands above. With ADB reverse, set `EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:8000` and reverse both API 8000 and Metro 8081. Without reverse, an Android Studio emulator can use `http://10.0.2.2:8000`; `localhost` on Android refers to Android itself. A physical phone needs USB reverse or an explicitly configured reachable host address.
+
+Use Android Emulator **Extended controls > Location** to set latitude/longitude. For the default trip, start at latitude **3.1337503**, longitude **101.6867582**. Press Start in Jom!, then change locations or load `docs/navigation/brickfields-walk.gpx`. These are simulated emulator readings, delivered through the normal Expo location subscription.
+
+A repeatable ADB alternative (override `--adb` and `--serial` on other machines):
+
+```powershell
+./.venv/Scripts/python.exe scripts/simulate_walk.py --prepare
+# Set the emulator to the printed first point, allow its GPS to settle, then tap Start.
+./.venv/Scripts/python.exe scripts/simulate_walk.py --replay
+```
+
+The script requests real API geometry, exports GPX and sends walking-speed fixes every 3 seconds. It never animates app state. `docs/navigation/results.md` distinguishes actual emulator verification, automated tests and untested physical-device behavior. The development-only `/spikes/navigation-qa` screen provides Demo data / Worst case / GPS unavailable / Recalculating / Arrived UI fixtures, clearly labelled as static UI previews without GPS.

@@ -1,0 +1,61 @@
+Location Manager State:
+  User Info:
+    current users: u[0]
+  Location Settings:
+    Location Setting: true
+    Location Allow/Deny Packages:
+    Throttling Allow Packages:
+      com.google.android.gms
+    Emergency Bypass Allow Packages:
+      com.google.android.dialer[*]
+      com.google.android.gms[.thunderbird]
+      com.google.android.apps.scone[satellite_esos]
+      com.android.phone[telephony]
+  Location Providers:
+    passive provider:
+      service: registered
+      listeners:
+        10234/com.google.android.gms[network_location_provider]/416959CF Request[PASSIVE, minUpdateInterval=0, hiddenFromAppOps, WorkSource{10234 com.google.android.gms}]
+        10234/com.google.android.gms[fused_location_provider]/EA3DE5F9 Request[@+24855d3h14m7s806ms BALANCED, minUpdateInterval=0, hiddenFromAppOps, WorkSource{10234 com.google.android.gms}]
+        1000/android[UwbCountryCode]/3552690E Request[PASSIVE, minUpdateInterval=+1h0m0s0ms, minUpdateDistance=5000.0, WorkSource{1000 android}]
+        1000/android[SensorNotificationService]/220ED427 Request[PASSIVE, minUpdateInterval=+30m0s0ms, minUpdateDistance=100000.0, WorkSource{1000 android}]
+      last location=Location[gps 3.133750,101.686757 hAcc=5.0 et=+51m2s291ms alt=0.0 vAcc=0.5 mslAlt=2.6363394568948264 mslAltAcc=0.5682429 vel=0.0 sAcc=0.5 bear=0.0 bAcc=30.0 {Bundle[{satellites=0, maxCn0=0, meanCn0=0}]}]
+      enabled=true
+      allowed=true
+      identity=1000/android[LocationService]
+      properties=ProviderProperties[powerUsage=Low, accuracy=Fine]
+    network provider:
+      service: ProviderRequest[OFF]
+      listeners:
+        1000/android[GnssService]/69913D32 Request[PASSIVE, minUpdateInterval=0, hiddenFromAppOps, WorkSource{1000 android}] (inactive)
+        10149/com.google.android.as/A4574003 Request[@+6h0m0s0ms BALANCED, minUpdateDistance=100000.0, WorkSource{10149 com.google.android.as}] (inactive)
+      last location=null
+      enabled=false
+      allowed=false
+      identity=10234/com.google.android.gms[network_location_provider]
+      extra attribution tags={awareness_provider, activity_recognition_provider, network_location_provider, gnss_location_provider, network_location_calibration, current_semantic_location, fused_location_provider, wearable_flp_shim, geofencer_provider}
+      properties=ProviderProperties[powerUsage=Medium, accuracy=Fine, requires=network, supports=[altitude]]
+      target service=10234/com.google.android.gms/com.google.android.location.network.NetworkLocationService@2
+      connected=true
+    fused provider:
+      service: ProviderRequest[OFF]
+      last location=Location[fused 3.133750,101.686757 hAcc=5.0 et=+51m2s291ms alt=25.0 vAcc=2.056667 mslAlt=27.636339095994547 mslAltAcc=2.074314 vel=0.0 sAcc=0.5]
+      enabled=true
+      allowed=true
+      identity=10234/com.google.android.gms[fused_location_provider]
+      extra attribution tags={awareness_provider, activity_recognition_provider, network_location_provider, gnss_location_provider, network_location_calibration, current_semantic_location, fused_location_provider, wearable_flp_shim, geofencer_provider}
+      properties=ProviderProperties[powerUsage=Low, accuracy=Fine, supports=[bearing,speed,altitude]]
+      target service=10234/com.google.android.gms/com.google.android.location.fused.FusedLocationService@1
+      connected=true
+    gps provider:
+      service: ProviderRequest[OFF]
+      last location=Location[gps 3.133750,101.686757 hAcc=5.0 et=+51m2s291ms alt=0.0 vAcc=0.5 mslAlt=2.6363394568948264 mslAltAcc=0.5682429 vel=0.0 sAcc=0.5 bear=0.0 bAcc=30.0 {Bundle[{satellites=0, maxCn0=0, meanCn0=0}]}]
+      enabled=true
+      allowed=true
+      identity=1000/android[GnssService]
+      properties=ProviderProperties[powerUsage=High, accuracy=Fine, requires=satellite, supports=[bearing,speed,altitude]]
+      mStarted=false   (changed +16s17ms ago)
+      mBatchingEnabled=true
+      mBatchingStarted=false
+      mBatchSize=4
+      mFixInterval=3000

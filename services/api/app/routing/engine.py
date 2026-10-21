@@ -7,7 +7,7 @@ from itertools import pairwise
 import networkx as nx
 
 from .confidence import compute_route_confidence, freshness_quality, unknown_accessibility
-from .errors import NoRouteError, RoutingInputError, SearchLimitError
+from .errors import InsufficientSafetyDataError, NoRouteError, RoutingInputError, SearchLimitError
 from .explanations import build_route_reasons, verification_summary
 from .models import Edge, RouteDataQuality, RouteProfile, RouteResult
 from .preferences import (
@@ -17,7 +17,7 @@ from .preferences import (
     preference_cost,
 )
 from .profiles import COST_SCALE, MAX_CANDIDATES, PROFILES
-from .scoring import edge_cost, is_edge_allowed
+from .scoring import edge_cost, is_edge_allowed, verified_security
 
 
 def path_edges(graph: nx.DiGraph, path: tuple[str, ...]) -> tuple[Edge, ...]:
@@ -156,6 +156,16 @@ def compute_routes(
         else _weighted_graph(graph, profile, as_of, entrances, crossings, preferences)
     )
     paths = _ranked_candidates(weighted, graph, origin, destination, max_results, cap)
+    if profile == RouteProfile.SAFER_AT_NIGHT and not any(
+        any(value is not None for value in (
+            edge.lighting_score, edge.crossing_score, edge.visibility_activity_score
+        )) or verified_security(edge, as_of)
+        for path in paths for edge in path_edges(graph, path)
+    ):
+        raise InsufficientSafetyDataError(
+            "Insufficient lighting, crossing and activity information to recommend a safer night "
+            "route. Choose Fastest to view an ordinary walking route."
+        )
     return tuple(
         _result(graph, weighted, path, profile, baseline, as_of, entrances, crossings)
         for path in paths
@@ -196,7 +206,7 @@ def _result(
                 "not mapped or included in the distance; check the marked endpoints.",
                 "Lighting, activity, crossings and staffed security are not independently "
                 "verified. "
-                "Safer at Night may return the same path as Fastest.",
+                "A night recommendation is unavailable without environmental evidence.",
                 "Walking time is an estimate at 1.25 m/s, without traffic, signals "
                 "or indoor navigation.",
             ]

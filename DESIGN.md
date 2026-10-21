@@ -103,6 +103,12 @@ Controls use 12dp corners; route cards 16dp; reason badges 8dp. The comparison s
 
 Development fixture URLs accept `demoState=loading|empty|mapUnavailable|permissionDenied|dataUnavailable|unknown|error`, `worstCase=1`, and `collapsed=1`. Release ignores these parameters and hides demo controls; these fixtures simulate states rather than exercising live services.
 
+### Navigation extension — 2026-10-21
+
+The Phase 2 snapshot above remains historical. The current geographic Planner extends its teal, warm-neutral, system-type identity: a full map sits behind compact search and bounded, scrollable comparison/guidance surfaces. Start and Stop remain outside scrolling details. At large text sizes, profile choices scroll horizontally inside the comparison region; primary navigation stacks to retain complete labels. Map-error recovery occupies the inset-adjusted map space so Retry remains reachable.
+
+Foreground navigation shows actual location, accuracy, remaining geometry and textual uncertainty. Guidance explicitly states that turn-by-turn instructions are unavailable. Pan/zoom relinquishes following; Recenter restores it. Location-puck movement and follow-camera transitions are bounded to 250 ms, interruptible, and disabled by the OS Reduce Motion preference. Route/profile changes and progress text commit immediately; no decorative route drawing or animated metrics are added. Existing colors, typography, radii and shared tokens are reused. Native review evidence and historical documentation drift are recorded in `docs/navigation/design-review.md`; this extension does not certify physical-device or iOS acceptance.
+
 ## Do's and Don'ts
 
 - Do reuse central tokens, preserve native text scaling, and provide textual selection/status cues.

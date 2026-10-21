@@ -1,0 +1,469 @@
+{
+  "dataset_id": "brickfields_osm_v1",
+  "data_kind": "OPENSTREETMAP",
+  "reference_time": "2026-10-19T04:10:48Z",
+  "routes": [
+    {
+      "id": "fastest-83cba7bcddc0043c",
+      "profile": "fastest",
+      "geometry": {
+        "type": "LineString",
+        "coordinate_system": "WGS84",
+        "coordinates": [
+          [
+            101.6867582,
+            3.1337503
+          ],
+          [
+            101.6867776,
+            3.1337121
+          ],
+          [
+            101.6868102,
+            3.1337288
+          ],
+          [
+            101.6868198,
+            3.1337108
+          ],
+          [
+            101.686823,
+            3.1337048
+          ],
+          [
+            101.6869156,
+            3.1337509
+          ],
+          [
+            101.686929,
+            3.1337263
+          ],
+          [
+            101.6869361,
+            3.1337133
+          ],
+          [
+            101.6875214,
+            3.1340463
+          ],
+          [
+            101.6876567,
+            3.1341386
+          ],
+          [
+            101.6877454,
+            3.1341981
+          ],
+          [
+            101.6877563,
+            3.1342047
+          ],
+          [
+            101.687911,
+            3.1340737
+          ],
+          [
+            101.6879722,
+            3.1340152
+          ],
+          [
+            101.6879974,
+            3.1339858
+          ],
+          [
+            101.6882218,
+            3.1336781
+          ],
+          [
+            101.6879884,
+            3.1334577
+          ],
+          [
+            101.6879548,
+            3.1334914
+          ],
+          [
+            101.6875679,
+            3.1331277
+          ],
+          [
+            101.687547,
+            3.1331516
+          ]
+        ]
+      },
+      "distance_m": 316.40725277673835,
+      "estimated_time_s": 253.1258022213907,
+      "total_cost": 0.421876337,
+      "reasons": [
+        "Shortest travel time",
+        "Contains stairs"
+      ],
+      "warnings": [
+        "OpenStreetMap pedestrian mapping; incomplete and not field verified.",
+        "Environmental indicators are not guarantees; conditions may change.",
+        "Accessibility information incomplete on 19 segment(s)",
+        "Contains community-only or unverified data",
+        "Contains stale, missing or future-dated record updates",
+        "Environmental indicators incomplete",
+        "Source confidence missing",
+        "Route starts and ends on snapped network nodes. Access from your chosen point is not mapped or included in the distance; check the marked endpoints.",
+        "Lighting, activity, crossings and staffed security are not independently verified. Safer at Night may return the same path as Fastest.",
+        "Walking time is an estimate at 1.25 m/s, without traffic, signals or indoor navigation.",
+        "Start snapped 0 m; destination snapped 0 m. These access gaps are not included in the mapped route."
+      ],
+      "confidence": {
+        "level": "Low",
+        "factors": [
+          "Accessibility information incomplete on 19 segment(s)",
+          "Contains community-only or unverified data",
+          "Contains stale, missing or future-dated record updates",
+          "Environmental indicators incomplete",
+          "Source confidence missing"
+        ],
+        "as_of": "2026-10-21T04:32:50.147663Z"
+      },
+      "verification_summary": "OSM community mapping; no field verification; unverified: 19; sources: OpenStreetMap contributors (ODbL); oldest known update: unknown; missing timestamps: 19",
+      "data_quality": {
+        "sources": [
+          "OpenStreetMap contributors (ODbL)"
+        ],
+        "oldest_updated_at": null,
+        "missing_update_count": 19,
+        "accessibility_incomplete": true,
+        "stale": true,
+        "last_verified_at": null
+      }
+    },
+    {
+      "id": "fastest-8d65ed65ad044d0a",
+      "profile": "fastest",
+      "geometry": {
+        "type": "LineString",
+        "coordinate_system": "WGS84",
+        "coordinates": [
+          [
+            101.6867582,
+            3.1337503
+          ],
+          [
+            101.6867776,
+            3.1337121
+          ],
+          [
+            101.6868102,
+            3.1337288
+          ],
+          [
+            101.6868198,
+            3.1337108
+          ],
+          [
+            101.686823,
+            3.1337048
+          ],
+          [
+            101.6869156,
+            3.1337509
+          ],
+          [
+            101.686929,
+            3.1337263
+          ],
+          [
+            101.6869361,
+            3.1337133
+          ],
+          [
+            101.6875214,
+            3.1340463
+          ],
+          [
+            101.6876567,
+            3.1341386
+          ],
+          [
+            101.6877454,
+            3.1341981
+          ],
+          [
+            101.6877563,
+            3.1342047
+          ],
+          [
+            101.687911,
+            3.1340737
+          ],
+          [
+            101.6879722,
+            3.1340152
+          ],
+          [
+            101.6879974,
+            3.1339858
+          ],
+          [
+            101.6882218,
+            3.1336781
+          ],
+          [
+            101.6879884,
+            3.1334577
+          ],
+          [
+            101.6879889,
+            3.1334247
+          ],
+          [
+            101.6878531,
+            3.1332902
+          ],
+          [
+            101.6877607,
+            3.1332493
+          ],
+          [
+            101.6875889,
+            3.1331037
+          ],
+          [
+            101.6875679,
+            3.1331277
+          ],
+          [
+            101.687547,
+            3.1331516
+          ]
+        ]
+      },
+      "distance_m": 316.8128206976188,
+      "estimated_time_s": 253.45025655809502,
+      "total_cost": 0.422417095,
+      "reasons": [
+        "+0.00540757 min vs fastest",
+        "Contains stairs"
+      ],
+      "warnings": [
+        "OpenStreetMap pedestrian mapping; incomplete and not field verified.",
+        "Environmental indicators are not guarantees; conditions may change.",
+        "Accessibility information incomplete on 22 segment(s)",
+        "Contains community-only or unverified data",
+        "Contains stale, missing or future-dated record updates",
+        "Environmental indicators incomplete",
+        "Source confidence missing",
+        "Route starts and ends on snapped network nodes. Access from your chosen point is not mapped or included in the distance; check the marked endpoints.",
+        "Lighting, activity, crossings and staffed security are not independently verified. Safer at Night may return the same path as Fastest.",
+        "Walking time is an estimate at 1.25 m/s, without traffic, signals or indoor navigation.",
+        "Start snapped 0 m; destination snapped 0 m. These access gaps are not included in the mapped route."
+      ],
+      "confidence": {
+        "level": "Low",
+        "factors": [
+          "Accessibility information incomplete on 22 segment(s)",
+          "Contains community-only or unverified data",
+          "Contains stale, missing or future-dated record updates",
+          "Environmental indicators incomplete",
+          "Source confidence missing"
+        ],
+        "as_of": "2026-10-21T04:32:50.147663Z"
+      },
+      "verification_summary": "OSM community mapping; no field verification; unverified: 22; sources: OpenStreetMap contributors (ODbL); oldest known update: unknown; missing timestamps: 22",
+      "data_quality": {
+        "sources": [
+          "OpenStreetMap contributors (ODbL)"
+        ],
+        "oldest_updated_at": null,
+        "missing_update_count": 22,
+        "accessibility_incomplete": true,
+        "stale": true,
+        "last_verified_at": null
+      }
+    },
+    {
+      "id": "fastest-374f285b1fab3614",
+      "profile": "fastest",
+      "geometry": {
+        "type": "LineString",
+        "coordinate_system": "WGS84",
+        "coordinates": [
+          [
+            101.6867582,
+            3.1337503
+          ],
+          [
+            101.6867776,
+            3.1337121
+          ],
+          [
+            101.6868102,
+            3.1337288
+          ],
+          [
+            101.6868198,
+            3.1337108
+          ],
+          [
+            101.686823,
+            3.1337048
+          ],
+          [
+            101.6869156,
+            3.1337509
+          ],
+          [
+            101.686929,
+            3.1337263
+          ],
+          [
+            101.6869361,
+            3.1337133
+          ],
+          [
+            101.6875214,
+            3.1340463
+          ],
+          [
+            101.6876567,
+            3.1341386
+          ],
+          [
+            101.6877454,
+            3.1341981
+          ],
+          [
+            101.6877563,
+            3.1342047
+          ],
+          [
+            101.6877734,
+            3.134215
+          ],
+          [
+            101.6877982,
+            3.1341959
+          ],
+          [
+            101.6878277,
+            3.1341775
+          ],
+          [
+            101.6878522,
+            3.1341705
+          ],
+          [
+            101.6878743,
+            3.1341697
+          ],
+          [
+            101.687895,
+            3.1341475
+          ],
+          [
+            101.6879068,
+            3.1341313
+          ],
+          [
+            101.6879168,
+            3.1341157
+          ],
+          [
+            101.6879269,
+            3.1340956
+          ],
+          [
+            101.687911,
+            3.1340737
+          ],
+          [
+            101.6879722,
+            3.1340152
+          ],
+          [
+            101.6879974,
+            3.1339858
+          ],
+          [
+            101.6882218,
+            3.1336781
+          ],
+          [
+            101.6879884,
+            3.1334577
+          ],
+          [
+            101.6879548,
+            3.1334914
+          ],
+          [
+            101.6875679,
+            3.1331277
+          ],
+          [
+            101.687547,
+            3.1331516
+          ]
+        ]
+      },
+      "distance_m": 321.8954253464714,
+      "estimated_time_s": 257.51634027717716,
+      "total_cost": 0.4291939,
+      "reasons": [
+        "+0.0731756 min vs fastest",
+        "Contains stairs"
+      ],
+      "warnings": [
+        "OpenStreetMap pedestrian mapping; incomplete and not field verified.",
+        "Environmental indicators are not guarantees; conditions may change.",
+        "Accessibility information incomplete on 28 segment(s)",
+        "Contains community-only or unverified data",
+        "Contains stale, missing or future-dated record updates",
+        "Environmental indicators incomplete",
+        "Source confidence missing",
+        "Route starts and ends on snapped network nodes. Access from your chosen point is not mapped or included in the distance; check the marked endpoints.",
+        "Lighting, activity, crossings and staffed security are not independently verified. Safer at Night may return the same path as Fastest.",
+        "Walking time is an estimate at 1.25 m/s, without traffic, signals or indoor navigation.",
+        "Start snapped 0 m; destination snapped 0 m. These access gaps are not included in the mapped route."
+      ],
+      "confidence": {
+        "level": "Low",
+        "factors": [
+          "Accessibility information incomplete on 28 segment(s)",
+          "Contains community-only or unverified data",
+          "Contains stale, missing or future-dated record updates",
+          "Environmental indicators incomplete",
+          "Source confidence missing"
+        ],
+        "as_of": "2026-10-21T04:32:50.147663Z"
+      },
+      "verification_summary": "OSM community mapping; no field verification; unverified: 28; sources: OpenStreetMap contributors (ODbL); oldest known update: unknown; missing timestamps: 28",
+      "data_quality": {
+        "sources": [
+          "OpenStreetMap contributors (ODbL)"
+        ],
+        "oldest_updated_at": null,
+        "missing_update_count": 28,
+        "accessibility_incomplete": true,
+        "stale": true,
+        "last_verified_at": null
+      }
+    }
+  ],
+  "snapped_endpoints": {
+    "origin": {
+      "node_id": "osm_11925140813",
+      "coordinates": [
+        101.6867582,
+        3.1337503
+      ],
+      "distance_m": 0.0
+    },
+    "destination": {
+      "node_id": "osm_7045493653",
+      "coordinates": [
+        101.687547,
+        3.1331516
+      ],
+      "distance_m": 0.0
+    }
+  }
+}

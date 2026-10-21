@@ -1,19 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
-import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { SecondaryButton } from '../../components/Buttons';
 import { theme, type } from '../../theme/tokens';
 import type { GeographicMapProps } from './GeographicMap';
 import { leafletDocument, scriptJson } from './leafletDocument';
+import { useMotionReduced } from '../motion/Motion';
 
 const source = { html: leafletDocument, baseUrl: 'https://github.com/aanatidae/jomapplication/' };
 export function LeafletMap({ selected, origin, destination, routeOptions = [], routesVisible = true,
-  compact, originPoint, destinationPoint, currentLocation, onPick, selectionLabel }: GeographicMapProps) {
+  compact, originPoint, destinationPoint, currentLocation, onPick, selectionLabel,
+  fill, navigating, following, heading, accuracy, remainingPath, onExplore, mapInsets }: GeographicMapProps) {
+  const reducedMotion = useMotionReduced();
   const web = useRef<WebView>(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [tileLoaded, setTileLoaded] = useState(false);
-  const state = scriptJson({ selected, routes: routesVisible ? routeOptions.map(r => ({ id: r.id, geometry: r.geometry })) : [], origin: originPoint, destination: destinationPoint, currentLocation });
+  const state = scriptJson({ selected, routes: routesVisible ? routeOptions.map(r => ({ id: r.id, geometry: r.geometry })) : [], origin: originPoint, destination: destinationPoint, currentLocation, navigating, following, heading, accuracy, remainingPath, reducedMotion, insets: mapInsets });
   useEffect(() => {
     if (ready) web.current?.injectJavaScript(`window.jomUpdate(${state});true;`);
   }, [ready, state]);
@@ -24,11 +27,11 @@ export function LeafletMap({ selected, origin, destination, routeOptions = [], r
   }, [tileLoaded]);
   const route = routeOptions.find(r => r.id === selected);
   const summary = routesVisible && route ? `Selected ${route.mode}, ${route.minutes} minutes.` : 'No route is displayed.';
-  return <View style={styles.frame}>
-    <View style={styles.legend}><Text style={type.label}>Brickfields · Kuala Lumpur</Text>
-      <Text style={type.caption}>{selectionLabel ?? 'Pan and pinch to zoom · A = start · B = destination'}</Text></View>
+  return <View style={[styles.frame, fill && styles.fill]}>
+    {!fill && <View style={styles.legend}><Text style={type.label}>Brickfields · Kuala Lumpur</Text>
+      <Text style={type.caption}>{selectionLabel ?? 'Pan and pinch to zoom · A = start · B = destination'}</Text></View>}
     <View accessible accessibilityRole="image" accessibilityLabel={`Interactive geographic map. From ${origin} to ${destination}. ${summary}`}
-      style={{ height: compact ? theme.layout.mapCompactHeight : theme.layout.mapHeight }}>
+      style={fill ? styles.fill : { height: compact ? theme.layout.mapCompactHeight : theme.layout.mapHeight }}>
       {Platform.OS === 'web' ? <Text style={type.body}>Open Jom! in Expo on Android or iOS to use the interactive map.</Text> :
       <WebView ref={web} source={source} style={styles.web} originWhitelist={['https://github.com', 'about:blank']}
         textZoom={100}
@@ -46,6 +49,7 @@ export function LeafletMap({ selected, origin, destination, routeOptions = [], r
             const message: unknown = JSON.parse(event.nativeEvent.data);
             if (!message || typeof message !== 'object' || !('type' in message)) return;
             if (message.type === 'ready') setReady(true);
+            if (message.type === 'explore') onExplore?.();
             if (message.type === 'tile_loaded') { setTileLoaded(true); setFailed(false); }
             if (message.type === 'tile_error') setFailed(true);
             if (message.type === 'pick' && 'latitude' in message && 'longitude' in message &&
@@ -56,16 +60,23 @@ export function LeafletMap({ selected, origin, destination, routeOptions = [], r
           } catch { /* Ignore malformed WebView messages. */ }
         }} />}
     </View>
-    <View style={styles.legend}>
-      <Text style={type.caption}>Thick line = selected route · Small circles = mapped route endpoints</Text>
-      <Text style={type.caption}>© OpenStreetMap contributors · ODbL · Accessibility and safety coverage incomplete</Text>
+    {fill && failed && <ScrollView style={[styles.recovery, { top: (mapInsets?.top ?? 0) + theme.space.xs, bottom: (mapInsets?.bottom ?? 0) + theme.space.xs }]} contentContainerStyle={styles.recoveryContent}>
+      <Text accessibilityLiveRegion="polite" style={type.body}>Map tiles unavailable. Check your connection. Manual place selection remains available.</Text>
+      <SecondaryButton label="Retry map" onPress={() => { setFailed(false); setReady(false); setTileLoaded(false); web.current?.reload(); }}/>
+    </ScrollView>}
+    {!fill && <View style={styles.legend}>
+      {!fill && <><Text style={type.caption}>Thick line = selected route · Small circles = mapped route endpoints</Text>
+      <Text style={type.caption}>© OpenStreetMap contributors · ODbL · Accessibility and safety coverage incomplete</Text></>}
       {failed && <><Text accessibilityLiveRegion="polite" style={type.caption}>Map tiles unavailable. Check your connection. Manual place selection remains available.</Text>
         <SecondaryButton label="Retry map" onPress={() => { setFailed(false); setReady(false); setTileLoaded(false); web.current?.reload(); }} /></>}
-    </View>
+    </View>}
   </View>;
 }
 const styles = StyleSheet.create({
   frame: { backgroundColor: theme.color.map },
+  fill: { flex: 1 },
+  recovery: { position: 'absolute', left: theme.space.sm, right: theme.space.sm, borderRadius: theme.radius.md, backgroundColor: theme.color.surface, ...theme.elevation.sheet },
+  recoveryContent: { padding: theme.space.sm, gap: theme.space.xs },
   legend: { paddingHorizontal: theme.space.md, paddingVertical: theme.space.xs, gap: theme.space.xs },
   web: { flex: 1, backgroundColor: theme.color.map },
 });

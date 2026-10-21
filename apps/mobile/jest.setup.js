@@ -15,8 +15,12 @@ jest.mock('react-native-maps', () => {
   };
 });
 jest.mock('expo-location', () => ({
+  getForegroundPermissionsAsync: jest.fn(async () => ({ granted: false })),
+  hasServicesEnabledAsync: jest.fn(async () => true),
+  watchPositionAsync: jest.fn(async () => ({ remove: jest.fn() })),
+  watchHeadingAsync: jest.fn(async () => ({ remove: jest.fn() })),
   requestForegroundPermissionsAsync: jest.fn(async () => ({ granted: false })),
-  getCurrentPositionAsync: jest.fn(), Accuracy: { Balanced: 3 },
+  getCurrentPositionAsync: jest.fn(), Accuracy: { Balanced: 3, High: 4 },
 }));
 jest.mock('react-native-webview', () => {
   const React = require('react'); const { View } = require('react-native');

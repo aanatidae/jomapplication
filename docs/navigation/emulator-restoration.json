@@ -1,0 +1,12 @@
+{
+  "density": "Physical density: 420",
+  "font_scale": "1.0",
+  "animator_duration_scale": "null",
+  "wifi_on": "1",
+  "mobile_data": "1",
+  "location_enabled": "true",
+  "permissions": [
+    "android.permission.ACCESS_FINE_LOCATION: granted=true, flags=[ USER_SET|USER_FIXED|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|SELECTED_LOCATION_ACCURACY]",
+    "android.permission.ACCESS_COARSE_LOCATION: granted=true, flags=[ USER_SET|USER_FIXED|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]"
+  ]
+}

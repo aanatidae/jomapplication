@@ -15,3 +15,7 @@ class NoRouteError(ValueError):
 
 class SearchLimitError(RuntimeError):
     """Candidate budget exhausted; never silently return an incomplete ranking."""
+
+
+class InsufficientSafetyDataError(NoRouteError):
+    """No environmental evidence supports a night recommendation."""

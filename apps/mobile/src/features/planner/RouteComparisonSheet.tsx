@@ -12,8 +12,7 @@ export function RouteComparisonSheet({ routes, selected, onSelect, expanded, onT
   const selectedRoute = routes.find(r => r.id === selected);
   const ordered = selectedRoute ? [selectedRoute, ...routes.filter(r => r.id !== selected)] : routes;
   return <View style={styles.sheet}>
-    <Text accessibilityRole="header" style={type.heading}>Your walk, your priority.</Text>
-    <Text style={type.body}>Same origin. Same destination. Different best route.</Text>
+    <Text accessibilityRole="header" style={type.title}>Choose your walk</Text>
     {!hideProfiles && <View accessibilityRole="radiogroup" accessibilityLabel="Route priority" style={styles.profiles}>
       {routes.map(route => <RouteProfileChip key={route.id} route={route} selected={selected === route.id} onPress={() => onSelect(route.id)} />)}
     </View>}
@@ -22,7 +21,7 @@ export function RouteComparisonSheet({ routes, selected, onSelect, expanded, onT
       {(expanded ? ordered : ordered.slice(0, 1)).map(route => <RouteOptionCard key={route.id} route={route} selected={selected === route.id} onPress={() => onSelect(route.id)} />)}
     </View>
     {selectedRoute && <DataSourceInfo key={selectedRoute.id} route={selectedRoute}/>}
-    <Text style={type.caption}>Demo data only. Lighting and public activity are indicators, not guarantees. Conditions may change.</Text>
+    <Text style={type.caption}>{selectedRoute?.coordinateSystem === 'WGS84' ? 'OpenStreetMap data; not field verified.' : 'Demo data only.'} Lighting and public activity are indicators, not guarantees. Conditions may change.</Text>
   </View>;
 }
 const styles = StyleSheet.create({

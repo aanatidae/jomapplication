@@ -1,0 +1,44 @@
+{
+  "health": {
+    "status": "ok"
+  },
+  "profiles": [
+    {
+      "profile": "fastest",
+      "status": 200,
+      "routes": [
+        {
+          "profile": "fastest",
+          "distance_m": 316.40725277673835,
+          "estimated_time_s": 253.1258022213907,
+          "coordinate_system": "WGS84"
+        },
+        {
+          "profile": "fastest",
+          "distance_m": 316.8128206976188,
+          "estimated_time_s": 253.45025655809502,
+          "coordinate_system": "WGS84"
+        },
+        {
+          "profile": "fastest",
+          "distance_m": 321.8954253464714,
+          "estimated_time_s": 257.51634027717716,
+          "coordinate_system": "WGS84"
+        }
+      ],
+      "elapsed_s": 2.125
+    },
+    {
+      "profile": "safer_at_night",
+      "status": 404,
+      "detail": "Insufficient lighting, crossing and activity information to recommend a safer night route. Choose Fastest to view an ordinary walking route.",
+      "elapsed_s": 1.516
+    },
+    {
+      "profile": "step_free",
+      "status": 404,
+      "detail": "No step-free route could be verified for this destination. Critical accessibility information is missing or a known barrier blocks the route.",
+      "elapsed_s": 0.468
+    }
+  ]
+}

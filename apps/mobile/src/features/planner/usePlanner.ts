@@ -37,7 +37,7 @@ export function usePlanner() {
       if (!active) return;
       const failure = error instanceof RoutingApiError ? error : new RoutingApiError('network');
       if (__DEV__) console.info('Routing request failed:', failure.kind);
-      setResult({ key, status: failure.kind === 'no_route' ? 'empty' : 'error', routes: [], error: failure });
+      setResult({ key, status: ['no_route', 'insufficient_safety_data'].includes(failure.kind) ? 'empty' : 'error', routes: [], error: failure });
     });
     return () => { active = false; controller.abort(); };
   }, [key, cacheKey, origin, destination, selectedProfile, preferenceKey]);

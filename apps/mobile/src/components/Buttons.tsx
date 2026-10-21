@@ -3,14 +3,14 @@ import { useState } from 'react';
 import { StyleSheet, Text, View, type PressableProps } from 'react-native';
 import { theme, type } from '../theme/tokens';
 
-type ButtonProps = Pick<PressableProps, 'onPress' | 'disabled' | 'accessibilityHint' | 'accessibilityState'> & {
+type ButtonProps = Pick<PressableProps, 'onPress' | 'disabled' | 'accessibilityLabel' | 'accessibilityHint' | 'accessibilityState'> & {
   label: string; variant?: 'primary' | 'secondary'; closeIcon?: boolean;
 };
 
 function Button({ label, variant = 'primary', disabled, closeIcon, ...props }: ButtonProps) {
   const [focused, setFocused] = useState(false);
   return <MotionPressable {...props} disabled={disabled} accessibilityRole="button"
-    accessibilityLabel={label} accessibilityState={{ ...props.accessibilityState, disabled: !!disabled }}
+    accessibilityLabel={props.accessibilityLabel ?? label} accessibilityState={{ ...props.accessibilityState, disabled: !!disabled }}
     onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
     style={({ pressed }) => [styles.button, variant === 'primary' ? styles.primary : styles.secondary,
       pressed && styles.pressed, disabled && styles.disabled, focused && styles.focus]}>

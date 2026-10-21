@@ -9,7 +9,8 @@ export function ApiPlannerState({ status, error, profile, onRetry }: {
   const title = status === 'loading' ? 'Loading routes' : status === 'empty' ? 'No route available' : "Couldn't load routes.";
   const message = status === 'loading' ? 'Calculating routes for your selected trip and priority.' :
     error === 'same_point' ? 'Choose different locations. These points snap to the same mapped pedestrian node.' :
-    status === 'empty' ? (profile === 'step_free' ? 'No verified step-free route is available for this trip.' : 'Try a different pilot origin or destination.') :
+    error === 'insufficient_safety_data' ? 'Insufficient lighting, crossing and activity information to recommend a safer night route. Select Fastest for an ordinary walking route.' :
+    status === 'empty' ? (profile === 'step_free' ? 'No verified step-free route is available for this trip.' : 'No pedestrian route satisfies this trip and your saved preferences. Choose another mapped point or review your needs in Profile.') :
     error === 'timeout' ? 'The routing service took too long to respond.' :
     error === 'configuration' ? 'The routing service is not configured yet. Ask the demo operator to start the service.' :
     error === 'outside_network' ? 'This place is outside the current pilot network. Choose another pilot place.' :

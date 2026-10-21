@@ -111,6 +111,11 @@ def test_geographic_http_contract(client, catalog):
     assert value["routes"][0]["geometry"]["coordinate_system"] == "WGS84"
     assert value["snapped_endpoints"]["origin"]["distance_m"] == 0
     assert value["routes"][0]["data_quality"]["last_verified_at"] is None
+    body["profile"] = "safer_at_night"
+    response = client.post("/v1/routes", json=body)
+    assert response.status_code == 404
+    assert response.json()["detail"].startswith("Insufficient lighting")
+    assert "routes" not in response.json()  # never substitute Fastest
     body["profile"] = "step_free"
     response = client.post("/v1/routes", json=body)
     assert response.status_code == 404 and "step-free" in response.json()["detail"]
