@@ -39,7 +39,8 @@
   },
   "scripts": {
     "start": "node --dns-result-order=ipv4first ../../scripts/expo.cjs start --localhost",
-    "android": "node --dns-result-order=ipv4first ../../scripts/expo.cjs start --localhost --android",
+    "android": "node --dns-result-order=ipv4first ../../scripts/expo.cjs run:android --device",
+    "android:prebuild": "node ../../scripts/expo.cjs prebuild --platform android --no-install",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",

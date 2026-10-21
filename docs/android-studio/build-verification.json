@@ -1,0 +1,32 @@
+{
+  "application_id": "com.aanatidae.jom",
+  "variant": "debug",
+  "abis": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "apk_bytes": 143088785,
+  "apk_sha256": "13920b23464d9c3970f5c3f5dd4e09a7b5753ca576e8f3993368f6e58fda0f0b",
+  "gradle": "9.3.1",
+  "daemon_java": "Temurin 17.0.20.1 selected by checked-in criteria",
+  "android_sdk": 36,
+  "ndk": "27.1.12297006",
+  "build": "assembleDebug passed; 392 tasks, 6m20s final run",
+  "mobile_checks": "lint/typecheck/128 tests in 18 suites passed",
+  "android_lint": "Full lintDebug fails inside react-native-worklets lintAnalyzeDebug: Cannot find a KaModule for the VirtualFile (Kotlin UAST Gradle-script analyzer). Not disabled or represented as passing.",
+  "permissions": [
+    "android.permission.ACCESS_COARSE_LOCATION",
+    "android.permission.ACCESS_FINE_LOCATION",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.FOREGROUND_SERVICE",
+    "android.permission.INTERNET",
+    "android.permission.READ_EXTERNAL_STORAGE",
+    "android.permission.RECEIVE_BOOT_COMPLETED",
+    "android.permission.SYSTEM_ALERT_WINDOW",
+    "android.permission.VIBRATE",
+    "android.permission.WAKE_LOCK",
+    "android.permission.WRITE_EXTERNAL_STORAGE",
+    "com.aanatidae.jom.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+  ],
+  "native_smoke": "ADB installed and launched com.aanatidae.jom on API 37 emulator; onboarding skipped, real Leaflet route loaded, precise foreground permission granted, simulated GPS advanced remaining geometry 316m to 308m, Stop removed native GPS request. No physical phone test."
+}

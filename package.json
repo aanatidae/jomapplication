@@ -8,6 +8,7 @@
   "scripts": {
     "start": "npm run start --workspace mobile",
     "android": "npm run android --workspace mobile",
+    "android:prebuild": "npm run android:prebuild --workspace mobile",
     "lint": "npm run lint --workspace mobile",
     "typecheck": "npm run typecheck --workspace mobile",
     "test": "npm run test --workspace mobile",
