@@ -22,3 +22,6 @@ allprojects {
 
 apply plugin: "expo-root-project"
 apply plugin: "com.facebook.react.rootproject"
+
+// Preserve quoted CMake paths during Expo Android Studio sync.
+apply from: "gradle/expo-stub-pch.gradle"

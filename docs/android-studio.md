@@ -12,6 +12,14 @@ The native project is **`apps/mobile/android`**. It is checked in, generated fro
 
 There is no dependency on Expo Go for this native app. The debug app still needs Metro for JavaScript and FastAPI for route calculations.
 
+## Recover the Expo stub PCH sync error
+
+If Studio reports `:expo-modules-core:generateStubPCH` with `clang++: error: no such file or directory` and a truncated `C:\Codex\Jom!` path, click **Try Again** after loading the current project files. Expo 57.0.23's IDE helper incorrectly splits quoted CMake command paths at spaces. The checked-in `gradle/expo-stub-pch.gradle` replaces that helper action with quote-aware argument parsing and complete-path substitution; the normal CMake configuration dependency and real build PCH generation remain enabled.
+
+The config plugin copies this script from `plugins/android/expo-stub-pch.gradle` and applies it from the root Gradle build, so it survives prebuild and a fresh npm install. The workaround does not edit `node_modules` or require moving the checkout. The exact failing `:expo-modules-core:prepareKotlinBuildScriptModel` task was reproduced, then passed for all four configured ABIs in the existing path. GUI sync still needs to be retried in Studio.
+
+The broader `prepareKotlinBuildScriptModel :app:assembleDebug "-PreactNativeArchitectures=arm64-v8a,x86_64" --max-workers=2` regression also passes, including Expo, Reanimated and Worklets IDE helpers and normal native compilation (395 tasks, 2m26s). Mobile lint/types/128 tests and config-mod regeneration checks pass. [Sync fix verification](android-studio/sync-verification.json).
+
 ## Run Metro and the API
 
 From the repository root, start the API in one PowerShell terminal:

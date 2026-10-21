@@ -1,9 +1,16 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const { withAppBuildGradle, withDangerousMod, withSettingsGradle } = require('expo/config-plugins');
+const { withAppBuildGradle, withDangerousMod, withProjectBuildGradle, withSettingsGradle } = require('expo/config-plugins');
 
 // Keep the checked-in native project portable. Regeneration owns these changes.
 module.exports = function withAndroidStudio(config) {
+  config = withProjectBuildGradle(config, config => {
+    const statement = 'apply from: "gradle/expo-stub-pch.gradle"';
+    if (!config.modResults.contents.includes(statement)) {
+      config.modResults.contents += `\n// Preserve quoted CMake paths during Expo Android Studio sync.\n${statement}\n`;
+    }
+    return config;
+  });
   config = withSettingsGradle(config, config => {
     config.modResults.contents = config.modResults.contents.replace(/[\t ]+$/gm, '');
     return config;
@@ -18,6 +25,10 @@ module.exports = function withAndroidStudio(config) {
         `toolchainUrl.${platform}=https\\://api.adoptium.net/v3/binary/latest/17/ga/${binary}/jdk/hotspot/normal/eclipse\n`).join('') +
       'toolchainVersion=17\n';
     await fs.writeFile(path.join(config.modRequest.platformProjectRoot, 'gradle/gradle-daemon-jvm.properties'), criteria);
+    await fs.copyFile(
+      path.join(__dirname, 'android/expo-stub-pch.gradle'),
+      path.join(config.modRequest.platformProjectRoot, 'gradle/expo-stub-pch.gradle'),
+    );
     return config;
   }]);
   return withAppBuildGradle(config, config => {

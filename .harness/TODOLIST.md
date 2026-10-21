@@ -14,6 +14,9 @@ Rules for Codex:
 
 ## Native Android Studio project - 2026-10-21
 
+- [x] Reproduce the user's Expo generateStubPCH IDE sync path-space failure and fix it through a regeneration-owned Gradle action; exact IDE model task passes all four configured ABIs.
+- [x] Broader IDE model tasks (Expo/Reanimated/Worklets) plus arm64/x86_64 APK build pass (395 tasks, 2m26s); regeneration preserves exactly one matching workaround, lint/types/128 mobile tests pass. Evidence: docs/android-studio/sync-verification.json. User must retry GUI sync.
+
 - [x] Retain the existing Expo/RN app and generate a tracked `apps/mobile/android` project with the pinned Expo 57 CLI.
 - [x] Add stable application ID, Gradle wrapper, native entry points/resources and regeneration/native-run commands.
 - [x] Keep SDK paths, build output and signing keys ignored; use local Android debug signing and an optional Maps-key build placeholder.
