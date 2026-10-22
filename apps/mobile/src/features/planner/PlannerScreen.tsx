@@ -19,6 +19,7 @@ import { toDisplayRoutes } from './routePresentation';
 import { useNavigation } from '../navigation/useNavigation';
 import { remainingGeometry } from '../navigation/geometry';
 import { NavigationGuidance, NavigationProgress } from '../navigation/NavigationPanels';
+import { reliableNavigationDisplay } from '../navigation/presentation';
 import { usePreferences } from '../preferences/PreferencesProvider';
 import { toRoutePreferences } from '../preferences/model';
 import { useMotionReduced } from '../motion/Motion';
@@ -30,6 +31,12 @@ export function PlannerScreen() {
   const [reporting, setReporting] = useState(false);
   const { state: navigation, session } = useNavigation();
   const navigating = navigation.status !== 'idle';
+  const [displayNow, setDisplayNow] = useState(Date.now);
+  useEffect(() => {
+    if (!navigating) return;
+    const timer = setInterval(() => setDisplayNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [navigating]);
   const planner = usePlanner(demoClosure, !navigating);
   const { preferences } = usePreferences();
   const reducedMotion = useMotionReduced();
@@ -80,9 +87,9 @@ export function PlannerScreen() {
   const demoSeconds = navigating ? navigation.remainingS : planner.selectedRoute?.estimated_time_s;
   const demoMeters = navigating ? navigation.remainingM : planner.selectedRoute?.distance_m;
   const demoNotice = demoClosure ? <View style={styles.demoNotice}>
-    <Text accessibilityLiveRegion="polite" style={type.caption}>{(navigating ? navigation.rerouting : planner.status === 'loading') ? 'Demo blockage active — calculating alternative…' :
+    <Text accessibilityLiveRegion="polite" style={styles.demoTitle}>{(navigating ? navigation.rerouting : planner.status === 'loading') ? 'Demo blockage active — calculating alternative…' :
       (navigating ? navigation.routeInvalidated : planner.status !== 'ready') ? 'Demo blockage active — no suitable alternative available. Retry or clear the simulation.' : 'Demo blockage active — alternative route calculated'}</Text>
-    {demoSeconds !== undefined && demoMeters !== undefined && <Text style={type.caption}>{Math.round(demoMeters)} m · {Math.floor(Math.round(demoSeconds) / 60)} min {Math.round(demoSeconds) % 60} sec walking · no waiting</Text>}
+    {!navigating && demoSeconds !== undefined && demoMeters !== undefined && <Text style={type.caption}>{Math.round(demoMeters)} m · {Math.floor(Math.round(demoSeconds) / 60)} min {Math.round(demoSeconds) % 60} sec walking · no waiting</Text>}
     <Text style={type.caption}>Unmarked crossings · not field verified.</Text>
     <SecondaryButton label="Clear demo blockage" disabled={navigation.status === 'starting'} onPress={() => void changeClosure(false)}/>
   </View> : demoReport ? <Text accessibilityLiveRegion="polite" style={styles.message}>Demo report pending · unverified. Open Report Barrier to activate the simulation.</Text> : null;
@@ -103,6 +110,7 @@ export function PlannerScreen() {
           currentLocation={navigating ? navigation.position : currentLocation} accuracy={navigation.position?.accuracy}
           heading={navigation.heading} navigating={navigating} following={navigating || currentLocation ? navigation.following : undefined}
           mapInsets={mapInsets} reducedMotion={reducedMotion} remainingPath={remainingPath} onExplore={session.explore}
+          showRouteDirections={!!navigation.progress && reliableNavigationDisplay(navigation, displayNow)}
           demoBlockage={demoClosure ? demoReport?.crossing : undefined}
           onPick={point => { if (!selecting || navigating) return; manuallySelectedOrigin.current = true; (selecting === 'origin' ? planner.setOrigin : planner.setDestination)(pointLabel(point)); setSelecting(null); }}
           routesVisible={navigating || planner.status === 'ready'} routeOptions={displayedRoutes} />}
@@ -110,6 +118,7 @@ export function PlannerScreen() {
     {navigating ? <View onLayout={event => setTopInset(event.nativeEvent.layout.height)} style={styles.guidance}><NavigationGuidance state={navigation} destination={planner.destination}/></View> : <ScrollView onLayout={event => setTopInset(event.nativeEvent.layout.height + theme.space.md)} style={styles.search} keyboardShouldPersistTaps="handled">
       <View style={styles.header}><Text style={styles.brand}>Jom!</Text><Text style={styles.eyebrow}>BRICKFIELDS · ON FOOT</Text></View>
       <TripSearchBar compact geographic origin={planner.origin} destination={planner.destination} availablePlaces={Object.keys(pilotPlaces)}
+        originLabel={currentLocation && planner.origin === pointLabel(currentLocation) ? 'Current location' : undefined}
         onChange={(field, value) => { manuallySelectedOrigin.current = true; (field === 'origin' ? planner.setOrigin : planner.setDestination)(value); }} />
     </ScrollView>}
     <View pointerEvents="box-none" style={styles.mapSpace}>
@@ -120,7 +129,7 @@ export function PlannerScreen() {
           <SecondaryButton accessibilityLabel={locating ? 'Finding location…' : 'Use current location'} label={locating ? 'Locating…' : 'Locate me'} disabled={locating} onPress={() => void locate()} />}
       </View>
     </View>
-    {navigating ? <View onLayout={event => setBottomInset(event.nativeEvent.layout.height + 80)} style={styles.navigationBottom}><NavigationProgress state={navigation} onStop={stopNavigation} onResume={() => void session.resume()} onRetry={() => void session.reroute()} onReport={() => setReporting(true)} notice={demoNotice}/></View> :
+    {navigating ? <View onLayout={event => setBottomInset(event.nativeEvent.layout.height + 80)} style={styles.navigationBottom}><NavigationProgress state={navigation} now={displayNow} onStop={stopNavigation} onResume={() => void session.resume()} onRetry={() => void session.reroute()} onReport={() => setReporting(true)} notice={demoNotice}/></View> :
       <View onLayout={event => setBottomInset(event.nativeEvent.layout.height + 80)} style={[styles.sheet, { maxHeight: expanded ? '55%' : height < 700 ? '50%' : '42%' }]}>
         <View accessible={false} style={styles.handle} />
         {fontScale <= 1.5 && priorityStrip}
@@ -145,9 +154,9 @@ export function PlannerScreen() {
     }}/></View>}
           </>}
         </ScrollView>
-        <View style={styles.start}><PrimaryButton label="Start navigation" disabled={!planner.selectedRoute || !destinationPoint || locating} onPress={() => {
+        <View style={styles.start}><View style={styles.primaryAction}><PrimaryButton label="Start navigation" disabled={!planner.selectedRoute || !destinationPoint || locating} onPress={() => {
           if (planner.selectedRoute && destinationPoint) { setSelecting(null); void session.start(planner.selectedRoute, destinationPoint, toRoutePreferences(preferences), demoClosure); }
-        }}/><SecondaryButton label="Report Barrier" onPress={() => setReporting(true)}/></View>
+        }}/></View><View style={styles.secondaryAction}><SecondaryButton label="Report Barrier" onPress={() => setReporting(true)}/></View></View>
       </View>}
     {reporting && <BarrierModal route={reportRoute} pending={demoReport} active={demoClosure} starting={navigation.status === 'starting'} onClose={() => setReporting(false)} onRecord={setDemoReport} onActivate={() => void changeClosure(true)}/>}
   </View>;
@@ -156,8 +165,8 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: theme.color.map },
   header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: theme.space.md, paddingTop: theme.space.xs, paddingBottom: theme.space.xxs, gap: theme.space.xxs },
   brand: { ...type.title, fontWeight: '800', color: theme.color.accent },
-  eyebrow: { ...type.caption, fontSize: 11, letterSpacing: 1, fontWeight: '600' },
-  search: { flexGrow: 0, maxHeight: '30%', margin: theme.space.sm, backgroundColor: theme.color.surface, borderRadius: theme.radius.lg, ...theme.elevation.sheet },
+  eyebrow: { ...type.caption, letterSpacing: 0.6, fontWeight: '600' },
+  search: { flexGrow: 0, maxHeight: '30%', margin: theme.space.sm, backgroundColor: theme.color.surface, borderRadius: theme.radius.lg, ...theme.elevation.floating },
   mapSpace: { flex: 1, justifyContent: 'flex-end' },
   controls: { alignSelf: 'flex-end', alignItems: 'flex-end', gap: theme.space.xxs, margin: theme.space.sm },
   attribution: { ...type.caption, fontSize: 10, lineHeight: 14, backgroundColor: theme.color.surface, paddingHorizontal: theme.space.xxs, borderRadius: theme.radius.sm },
@@ -168,7 +177,9 @@ const styles = StyleSheet.create({
   priority: { flexDirection: 'row', paddingHorizontal: theme.space.sm, paddingVertical: theme.space.xs, gap: theme.space.xs, alignItems: 'flex-start' },
   comparison: { flexShrink: 1 },
   start: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.space.xs, paddingHorizontal: theme.space.md, paddingVertical: theme.space.xs, borderTopWidth: 1, borderTopColor: theme.color.raised },
-  demoNotice: { paddingHorizontal: theme.space.sm, paddingVertical: theme.space.xs, gap: theme.space.xxs },
+  primaryAction: { flexGrow: 1, flexBasis: 170 }, secondaryAction: { flexGrow: 1, flexBasis: 130 },
+  demoNotice: { marginHorizontal: theme.space.sm, marginVertical: theme.space.xs, padding: theme.space.sm, gap: theme.space.xxs, backgroundColor: theme.color.safetySurface, borderRadius: theme.radius.md, borderLeftWidth: 3, borderLeftColor: theme.color.warning },
+  demoTitle: { ...type.label, color: theme.color.safety },
   message: { ...type.body, padding: theme.space.md },
   mapActions: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: theme.space.md, paddingVertical: theme.space.xs, gap: theme.space.xs },
 });

@@ -26,8 +26,8 @@ export function IconButton({ label, onPress }: Pick<ButtonProps, 'label' | 'onPr
   return <Button label={label} onPress={onPress} variant="secondary" closeIcon />;
 }
 const styles = StyleSheet.create({
-  button: { minWidth: theme.target, minHeight: theme.target, paddingHorizontal: theme.space.md, paddingVertical: theme.space.sm, borderRadius: theme.radius.md, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: theme.space.xs, borderWidth: 2, borderColor: 'transparent' },
-  primary: { backgroundColor: theme.color.accent }, secondary: { backgroundColor: theme.color.raised },
+  button: { minWidth: theme.target, minHeight: theme.target, paddingHorizontal: theme.space.md, paddingVertical: theme.space.xs, borderRadius: theme.radius.md, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: theme.space.xs, borderWidth: 2, borderColor: 'transparent' },
+  primary: { backgroundColor: theme.color.accent }, secondary: { backgroundColor: theme.color.raised, borderColor: theme.color.divider },
   label: { fontWeight: '600', textAlign: 'center', flexShrink: 1 }, primaryLabel: { color: theme.color.onAccent },
   pressed: { opacity: 0.7 }, disabled: { backgroundColor: theme.color.disabled }, disabledLabel: { color: theme.color.onDisabled },
   focus: { borderColor: theme.color.focus },

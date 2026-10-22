@@ -6,7 +6,7 @@ import { confidenceLabel } from '../quality/policy';
 // Fixed synthetic pilot bounds, in metres. This only projects geometry onto a canvas.
 export function toDisplayRoutes(routes: RouteOption[]): MockRoute[] {
   return routes.map((route, index) => ({
-    id: route.id, mode: `${profileLabels[route.profile]} · Option ${index + 1}`,
+    id: route.id, mode: routes.length === 1 ? `${profileLabels[route.profile]} walk` : `${profileLabels[route.profile]} · Option ${index + 1}`,
     minutes: Math.ceil(route.estimated_time_s / 60), distance: Math.round(route.distance_m),
     detour: '', reasons: route.reasons, warnings: route.warnings,
     confidence: confidenceLabel(route.confidence.level), quality: 'data',

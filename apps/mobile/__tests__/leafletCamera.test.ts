@@ -80,3 +80,31 @@ it('places the accessible demo X at the supplied graph coordinate, retains it on
   window.jomUpdate({ ...state, demoBlockage: undefined });
   expect(layer.clearLayers).toHaveBeenCalled(); expect(createMarker).not.toHaveBeenCalled();
 });
+
+it('renders supplied route chevrons only for a selected active route and keeps them separate from the GPS dot', () => {
+  const layer = { addTo: jest.fn().mockReturnThis(), on: jest.fn(), clearLayers: jest.fn() };
+  const marker = { ...layer, setIcon: jest.fn(), setLatLng: jest.fn(), getElement: () => ({ style: {} }) };
+  const createMarker = jest.fn<typeof marker, [number[], { icon: { className: string; html: string }; [key: string]: unknown }]>(() => marker);
+  const map = { on: jest.fn(), getContainer: () => ({ addEventListener: jest.fn() }), getSize: () => ({ y: 800 }),
+    attributionControl: { addAttribution: jest.fn() } };
+  const window = { jomUpdate: (_state: object) => {}, addEventListener: jest.fn(), ReactNativeWebView: { postMessage: jest.fn() } };
+  const source = 'const send=value=>' + leafletDocument.split('const send=value=>')[1].split('</script>')[0];
+  runInNewContext(source, { window, document: { createElement: () => ({ textContent: '' }) },
+    L: { map: () => map, tileLayer: () => layer, circle: () => layer, layerGroup: () => layer,
+      polyline: () => layer, circleMarker: () => layer, marker: createMarker, divIcon: (value: object) => value } });
+  const state = { routes: [{ id: 'walk', geometry: [[101.68, 3.13], [101.681, 3.13]] }], selected: 'walk', navigating: true,
+    following: false, currentLocation: { latitude: 3.13, longitude: 101.68 },
+    directions: [{ latitude: 3.13, longitude: 101.6805, bearing: 90 }] };
+  window.jomUpdate(state);
+  const chevrons = () => createMarker.mock.calls.filter(call => call[1]?.icon.className === 'jom-route-chevron');
+  expect(chevrons()).toHaveLength(1);
+  expect(chevrons()[0][0]).toEqual([3.13, 101.6805]);
+  expect(chevrons()[0][1]).toMatchObject({ interactive: false, keyboard: false, zIndexOffset: 400 });
+  expect(chevrons()[0][1].icon.html).toContain('rotate(90deg)');
+  expect(createMarker.mock.calls.find(call => call[1]?.icon.className === 'jom-puck')![1].icon.html).toBe('');
+  createMarker.mockClear();
+  window.jomUpdate({ ...state, directions: [] });
+  expect(chevrons()).toHaveLength(0);
+  window.jomUpdate({ ...state, navigating: false });
+  expect(chevrons()).toHaveLength(0);
+});

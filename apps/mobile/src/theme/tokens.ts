@@ -5,7 +5,7 @@ export const theme = {
   color: {
     background: '#F5F5EF', surface: '#FFFFFF', raised: '#EBEEE7',
     ink: '#172F2C', muted: '#52635D', accent: '#006653', onAccent: '#FFFFFF',
-    selected: '#E4F1E9', outline: '#7C8B82', focus: '#163FAD',
+    selected: '#E4F1E9', outline: '#7C8B82', divider: '#DCE4DC', focus: '#163FAD',
     safety: '#685016', safetySurface: '#FAF0CE', accessibility: '#234D78',
     accessibilitySurface: '#E8EFF8', verified: '#006653', success: '#21633D',
     warning: '#795215', error: '#A02C2C', errorSurface: '#FBEDEC',
@@ -19,7 +19,10 @@ export const theme = {
   target: 48,
   layout: { contentMax: 720, mapHeight: 320, mapCompactHeight: 260 },
   motion: { duration: 0, press: 120, release: 100, step: 180, pressScale: 0.97, easeOut: [0.23, 1, 0.32, 1] },
-  elevation: { sheet: { shadowColor: '#172F2C', shadowOffset: { width: 0, height: -3 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 } },
+  elevation: {
+    sheet: { shadowColor: '#172F2C', shadowOffset: { width: 0, height: -3 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 3 },
+    floating: { shadowColor: '#172F2C', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 10, elevation: 5 },
+  },
 } as const;
 
 export const type = StyleSheet.create({

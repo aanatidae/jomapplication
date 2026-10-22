@@ -19,7 +19,7 @@ export function RouteComparisonSheet({ routes, selected, onSelect, expanded, onT
         <Text accessibilityRole="header" style={expanded ? type.title : type.label}>{expanded ? 'Choose your walk' : selectedRoute?.mode ?? 'Your walk'}</Text>
         {!expanded && <Text style={styles.notice}>Unverified route data</Text>}
       </View>
-      <MotionPressable accessibilityRole="button" accessibilityLabel={expanded ? 'Collapse comparison' : `Compare ${routes.length} route${routes.length === 1 ? '' : 's'}`}
+      <MotionPressable accessibilityRole="button" accessibilityLabel={expanded ? 'Collapse comparison' : routes.length === 1 ? 'Walking route details' : `Compare ${routes.length} routes`}
         accessibilityState={{ expanded }} onPress={onToggle} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
         style={({ pressed }) => [styles.toggle, focused && styles.focused, pressed && styles.pressed]}>
         <Text style={styles.toggleLabel}>{expanded ? 'Less ↓' : 'Details ↑'}</Text>
@@ -44,6 +44,6 @@ const styles = StyleSheet.create({
   toggle: { minHeight: theme.target, minWidth: theme.target, paddingHorizontal: theme.space.xs, justifyContent: 'center', borderRadius: theme.radius.sm, borderWidth: 2, borderColor: 'transparent' },
   focused: { borderColor: theme.color.focus },
   toggleLabel: { ...type.label, color: theme.color.accent }, pressed: { backgroundColor: theme.color.selected },
-  notice: { ...type.caption, fontSize: 12, lineHeight: 18 },
+  notice: { ...type.caption },
   profiles: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.space.xs }, cards: { gap: theme.space.sm },
 });

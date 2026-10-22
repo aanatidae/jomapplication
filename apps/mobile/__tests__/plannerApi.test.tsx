@@ -29,7 +29,7 @@ it('loads API cards, changes profile requests, caches results and selects an alt
     fireEvent.press(screen.getByRole('radio', { name: label }));
     expect(screen.getByRole('progressbar')).toBeTruthy();
     expect(screen.getByRole('image').props.accessibilityLabel).toContain('No route is displayed');
-    await screen.findByText(`${label} · Option 1`);
+    await screen.findByText(fixtures[profile].routes.length === 1 ? `${label} walk` : `${label} · Option 1`);
     expect(screen.getAllByText(eta).length).toBeGreaterThan(0);
     expect(JSON.parse(fetcher.mock.calls.at(-1)![1].body).profile).toBe(profile);
   }
@@ -49,8 +49,8 @@ it('sends real WGS84 coordinates when the destination changes', async () => {
 it('shows a single valid option and complete backend warnings/explanations', async () => {
   const response = { ...fixtures.step_free, routes: fixtures.step_free.routes.slice(0, 1) };
   fetcher.mockResolvedValue({ ok: true, json: async () => ({ ...response, routes: response.routes.map(r => ({ ...r, profile: 'fastest' })) }) });
-  render(<PlannerScreen />); await screen.findByText('Fastest · Option 1');
-  fireEvent.press(screen.getByRole('button', { name: 'Compare 1 route' }));
+  render(<PlannerScreen />); await screen.findByText('Fastest walk');
+  fireEvent.press(screen.getByRole('button', { name: 'Walking route details' }));
   expect(screen.getByRole('button', { name: 'Collapse comparison' })).toBeTruthy();
   expect(within(screen.getByLabelText('Route options')).getAllByRole('radio')).toHaveLength(1);
   for (const reason of response.routes[0].reasons) expect(screen.getByText(reason)).toBeTruthy();
@@ -108,7 +108,7 @@ it('ignores an obsolete response after a rapid profile switch', async () => {
   fetcher.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
   render(<PlannerScreen />);
   fireEvent.press(screen.getByRole('radio', { name: 'Step-Free' }));
-  await screen.findByText('Step-Free · Option 1');
+  await screen.findByText('Step-Free walk');
   await act(async () => finish({ ok: true, json: async (): Promise<RouteResponse> => fixtures.fastest as RouteResponse }));
   expect(screen.queryByText('Fastest · Option 1')).toBeNull();
   expect(screen.getByRole('image').props.accessibilityLabel).toContain('Selected Step-Free');

@@ -34,6 +34,13 @@ it('preserves longitude/latitude geometry without schematic projection', () => {
   expect(scriptJson('</script>\u2028')).not.toContain('<');
 });
 
+it('uses natural wording for one route and keeps multiple alternatives distinguishable', () => {
+  expect(toDisplayRoutes(response.routes)[0].mode).toBe('Fastest walk');
+  expect(toDisplayRoutes(simulatedFixture.routes).map(route => route.mode)).toEqual([
+    'Fastest · Option 1', 'Fastest · Option 2', 'Fastest · Option 3',
+  ]);
+});
+
 it('resolves MCKL as a mapped approach and preserves custom map coordinates', () => {
   const label = 'Methodist College Kuala Lumpur (MCKL) · mapped approach';
   expect(resolvePlace(label)).toEqual({ latitude: 3.1318006, longitude: 101.6906217 });
@@ -44,7 +51,7 @@ it('resolves MCKL as a mapped approach and preserves custom map coordinates', ()
 
 it.each(['origin', 'destination'] as const)('selects MCKL as the %s through the existing picker', async field => {
   const label = 'Methodist College Kuala Lumpur (MCKL) · mapped approach';
-  render(<PlannerScreen/>); await screen.findByText('Fastest · Option 1');
+  render(<PlannerScreen/>); await screen.findByText('Fastest walk');
   const current = field === 'origin' ? 'From · KL Sentral · south entrance' : 'To · NU Sentral · main entrance';
   fireEvent.press(screen.getByRole('button', { name: current }));
   fireEvent.changeText(screen.getByLabelText('Search Brickfields places'), 'MCKL');
@@ -55,7 +62,7 @@ it.each(['origin', 'destination'] as const)('selects MCKL as the %s through the 
 });
 
 it('does not ask for location until requested and keeps manual selection after denial', async () => {
-  render(<PlannerScreen/>); await screen.findByText('Fastest · Option 1');
+  render(<PlannerScreen/>); await screen.findByText('Fastest walk');
   expect(Location.requestForegroundPermissionsAsync).not.toHaveBeenCalled();
   fireEvent.press(screen.getByRole('button', { name: 'Use current location' }));
   await screen.findByText('Location permission denied. Choose a start place or select a start on the map.');
@@ -68,11 +75,14 @@ it('does not ask for location until requested and keeps manual selection after d
 it('uses granted GPS coordinates as the origin', async () => {
   jest.mocked(Location.requestForegroundPermissionsAsync).mockResolvedValue({ granted: true } as Location.LocationPermissionResponse);
   jest.mocked(Location.getCurrentPositionAsync).mockResolvedValue({ coords: { latitude: 3.1335, longitude: 101.6868 } } as Location.LocationObject);
-  render(<PlannerScreen/>); await screen.findByText('Fastest · Option 1');
+  render(<PlannerScreen/>); await screen.findByText('Fastest walk');
   fireEvent.press(screen.getByRole('button', { name: 'Use current location' }));
   await screen.findByText('Current location selected. Check the mapped route start.');
   expect(Location.getCurrentPositionAsync).toHaveBeenCalledWith({ accuracy: Location.Accuracy.Balanced, mayShowUserSettingsDialog: false });
   await waitFor(() => expect(JSON.parse(jest.mocked(fetch).mock.calls.at(-1)![1]!.body as string).origin).toEqual({ latitude: 3.1335, longitude: 101.6868 }));
+  expect(screen.getByText('Current location')).toBeTruthy();
+  fireEvent.press(screen.getByRole('button', { name: 'From · Current location · 3.133500, 101.686800' }));
+  expect(screen.getByText('3.133500, 101.686800')).toBeTruthy();
 });
 
 it('releases the location request when GPS never resolves', async () => {
@@ -86,12 +96,13 @@ it('releases the location request when GPS never resolves', async () => {
 });
 
 it('routes a map-selected destination and ignores malformed bridge coordinates', async () => {
-  render(<PlannerScreen/>); await screen.findByText('Fastest · Option 1');
-  fireEvent.press(screen.getByRole('button', { name: 'Compare 1 route' }));
+  render(<PlannerScreen/>); await screen.findByText('Fastest walk');
+  fireEvent.press(screen.getByRole('button', { name: 'Walking route details' }));
   fireEvent.press(screen.getByRole('button', { name: 'Set destination on map' }));
   fireEvent(screen.getByTestId('leaflet-map'), 'message', { nativeEvent: { data: JSON.stringify({ type: 'pick', latitude: 3.1305, longitude: 101.6857 }) } });
   await waitFor(() => expect(JSON.parse(jest.mocked(fetch).mock.calls.at(-1)![1]!.body as string).destination).toEqual({ latitude: 3.1305, longitude: 101.6857 }));
   expect(screen.queryByText('Cancel map selection')).toBeNull();
+  expect(screen.queryByText('Current location')).toBeNull();
   fireEvent.press(screen.getByRole('button', { name: 'Set start on map' }));
   const count = jest.mocked(fetch).mock.calls.length;
   fireEvent(screen.getByTestId('leaflet-map'), 'message', { nativeEvent: { data: '{"type":"pick","latitude":91,"longitude":101}' } });

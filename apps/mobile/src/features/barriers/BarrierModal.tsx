@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Modal, Text } from 'react-native';
+import { Modal, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton, SecondaryButton } from '../../components/Buttons';
-import { Choice, Field, FormPage } from '../../components/Forms';
-import { type } from '../../theme/tokens';
+import { Choice, Field, FormPage, form } from '../../components/Forms';
+import { theme, type } from '../../theme/tokens';
 import { loadDemoCrossing, type DemoCrossing } from '../../services/routingApi';
 import type { SharedPath } from '../community/types';
 import { ReportsScreen } from './ReportsScreen';
@@ -40,25 +40,32 @@ export function BarrierModal({ route, pending, active, starting, onClose, onReco
     } });
   }
   return <Modal visible animationType="none" onRequestClose={onClose}>
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.screen}>
     {mode === 'community' ? <ReportScreen routeOverride={route} onClose={onClose} onReports={() => setMode('reports')}/> :
       mode === 'reports' ? <ReportsScreen onClose={onClose}/> :
       <FormPage title={mode === 'demo' ? 'Crossing blockage demo' : 'Report Barrier'}>
         <SecondaryButton label="Return to map" onPress={onClose}/>
         {mode === 'choose' ? <>
+          <View style={styles.card}>
+          <Text accessibilityRole="header" style={type.title}>Help improve the walk</Text>
           <Text style={type.body}>Community reports remain unverified and do not close routes automatically.</Text>
           <PrimaryButton label="Submit a community report" onPress={() => setMode('community')}/>
           <SecondaryButton label="View community reports" onPress={() => setMode('reports')}/>
+          </View>
+          <View style={[styles.card, styles.simulation]}>
           <Text style={type.title}>Hackathon simulation</Text>
           <Text style={type.body}>Record a session-only demo report, then explicitly simulate a crossing closure. Nothing is sent to the community database.</Text>
           <SecondaryButton label={busy ? 'Checking mapped crossing…' : 'Report a demo crossing blockage'} disabled={busy || active} onPress={() => void prepare()}/>
           {active && <Text style={type.caption}>A simulated closure is already active. Clear it on the map to repeat the demo.</Text>}
+          </View>
         </> : pending ? <>
-          <Text accessibilityLiveRegion="polite" style={type.title}>Demo report recorded · unverified</Text>
+          <View style={[styles.card, styles.simulation]}>
+          <Text accessibilityLiveRegion="polite" style={styles.status}>Demo report recorded · unverified</Text>
           <Text style={type.body}>{pending.crossing.label}</Text>
           {!!pending.report.description && <Text style={type.body}>{pending.report.description}</Text>}
           <Text style={type.body}>This report has not changed routing. Activation below simulates a closure for this session only.</Text>
           <PrimaryButton label="Activate simulated closure" disabled={starting || active} onPress={onActivate}/>
+          </View>
         </> : <>
           <Text style={type.body}>Supported pilot location only. This is a simulation, not a verified real-world hazard.</Text>
           <Choice radio label="Blocked pedestrian crossing" selected={category} onPress={() => setCategory(true)}/>
@@ -67,8 +74,15 @@ export function BarrierModal({ route, pending, active, starting, onClose, onReco
           <Field label="Description (optional)" value={description} onChangeText={setDescription} maxLength={2000} multiline/>
           <PrimaryButton label="Confirm demo report" disabled={!category || !located} onPress={record}/>
         </>}
-        {!!error && <Text accessibilityRole="alert" style={type.body}>{error}</Text>}
+        {!!error && <Text accessibilityRole="alert" style={styles.error}>{error}</Text>}
       </FormPage>}
     </SafeAreaView>
   </Modal>;
 }
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: theme.color.background },
+  card: { ...form.panel, borderWidth: 1, borderColor: theme.color.divider },
+  simulation: { borderColor: theme.color.safety, backgroundColor: theme.color.safetySurface },
+  status: { ...type.title, color: theme.color.safety },
+  error: { ...type.body, color: theme.color.error },
+});

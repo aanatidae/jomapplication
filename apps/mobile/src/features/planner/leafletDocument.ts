@@ -19,6 +19,7 @@ html,body,#map{height:100%;margin:0;background:#F5F5EF;font-family:system-ui,san
 .jom-endpoint{background:#172F2C;color:white;border:2px solid white;border-radius:50%;text-align:center;line-height:28px;font-weight:700;font-size:16px}
 .jom-puck{background:#234D78;border:3px solid white;border-radius:50%;box-shadow:0 2px 6px #172F2C66}
 .jom-direction{position:absolute;left:-18px;top:-18px;width:56px;height:56px;transform-origin:28px 28px;pointer-events:none}
+.jom-route-chevron{background:transparent;pointer-events:none}
 .jom-closure{display:flex;align-items:center;justify-content:center;background:transparent}
 .jom-closure span{width:28px;height:28px;background:white;color:#B3261E;border:2px solid #B3261E;border-radius:50%;text-align:center;line-height:26px;font-size:26px;font-weight:800;box-shadow:0 2px 5px #172F2C55}
 </style></head><body><div id="map" role="application" aria-label="Interactive Brickfields walking map"></div>
@@ -60,6 +61,8 @@ if((lastRoute!==selected.id||lastInsets!==insetKey)&&!state.navigating){programm
 lastStatic=staticKey;}
 progressLayer.clearLayers();
 if(state.remainingPath)L.polyline(state.remainingPath.map(p=>[p[1],p[0]]),{color:'#006653',weight:8,interactive:false}).addTo(progressLayer);
+if(state.navigating&&state.routes.some(r=>r.id===state.selected)){
+(state.directions||[]).forEach(p=>L.marker([p.latitude,p.longitude],{interactive:false,keyboard:false,zIndexOffset:400,icon:L.divIcon({className:'jom-route-chevron',html:'<svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18" style="transform:rotate('+p.bearing+'deg)"><path d="M4 11L9 6L14 11" fill="none" stroke="#006653" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 11L9 6L14 11" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(progressLayer));}
 const locationKey=JSON.stringify(state.currentLocation);
 if(state.currentLocation){
 const latlng=[state.currentLocation.latitude,state.currentLocation.longitude];

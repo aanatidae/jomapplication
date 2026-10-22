@@ -15,6 +15,7 @@ export type GeographicMapProps = {
   remainingPath?: readonly (readonly [number, number])[]; onExplore?: () => void; reducedMotion?: boolean;
   mapInsets?: { top: number; bottom: number };
   demoBlockage?: GeographicPoint;
+  showRouteDirections?: boolean;
 };
 export function GeographicMap(props: GeographicMapProps) {
   return process.env.EXPO_PUBLIC_MAP_RENDERER === 'native' ? <NativeGeographicMap {...props}/> : <LeafletMap {...props}/>;

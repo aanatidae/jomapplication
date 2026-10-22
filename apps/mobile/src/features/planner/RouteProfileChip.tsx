@@ -14,7 +14,7 @@ export function RouteProfileChip({ route, selected, onPress }: { route: Pick<Moc
   </MotionPressable>;
 }
 const styles = StyleSheet.create({
-  chip: { minHeight: theme.target, maxWidth: '100%', justifyContent: 'center', paddingHorizontal: theme.space.sm, paddingVertical: theme.space.xs, borderRadius: theme.radius.pill, borderWidth: 2, borderColor: theme.color.raised, backgroundColor: theme.color.raised },
-  selected: { backgroundColor: theme.color.selected, borderColor: theme.color.accent }, selectedLabel: { color: theme.color.accent },
+  chip: { minHeight: theme.target, maxWidth: '100%', justifyContent: 'center', paddingHorizontal: theme.space.sm, paddingVertical: theme.space.xs, borderRadius: theme.radius.pill, borderWidth: 2, borderColor: theme.color.divider, backgroundColor: theme.color.surface },
+  selected: { backgroundColor: theme.color.accent, borderColor: theme.color.accent }, selectedLabel: { color: theme.color.onAccent },
   focus: { borderColor: theme.color.focus }, pressed: { opacity: 0.7 },
 });

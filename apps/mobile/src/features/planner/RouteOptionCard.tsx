@@ -15,9 +15,9 @@ export function RouteOptionCard({ route, selected, onPress, compact = false }: {
   return <MotionPressable accessibilityRole="radio" accessibilityState={{ selected, checked: selected }}
     accessibilityLabel={`${route.mode}, ${route.minutes} minutes, ${route.distance} metres. ${detour} ${route.reasons.join('. ')}. ${route.confidence}. ${route.freshness}. ${route.dataQuality?.accessibility_incomplete ? 'Accessibility information incomplete. ' : ''}${(route.warnings ?? []).join('. ')}`}
     onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} onPress={() => { if (!selected) selectionFeedback(); onPress(); }}
-    style={({ pressed }) => [styles.card, compact && styles.compact, selected && styles.selected, focused && styles.focus, pressed && styles.pressed]}>
+    style={({ pressed }) => [styles.card, selected && styles.selected, compact && styles.compact, focused && styles.focus, pressed && styles.pressed]}>
     {!compact && <View style={styles.top}><Text style={[type.label, styles.grow]}>{route.mode}</Text><Text style={styles.selection}>{selected ? 'Selected' : 'Select route'}</Text></View>}
-    <View style={styles.metrics}><Text style={compact ? styles.compactTime : styles.time}>{route.minutes} min</Text><Text style={type.body}>{route.distance} m</Text>{!!detour && <Text style={type.caption}>{detour}</Text>}</View>
+    <View style={styles.metrics}><Text style={compact ? styles.compactTime : styles.time}>{route.minutes} min</Text><Text style={styles.distance}>{route.distance} m</Text>{!!detour && <Text style={type.caption}>{detour}</Text>}</View>
     {!compact && <>
     <View style={styles.reasons}>{route.reasons.map((reason, i) => <RouteReasonBadge key={`${i}-${reason}`} label={reason} />)}</View>
     {route.warnings?.map((warning, i) => <Text key={i} style={[type.caption, { color: theme.color.warning }]}>{warning}</Text>)}
@@ -34,8 +34,9 @@ export function RouteOptionCard({ route, selected, onPress, compact = false }: {
 const styles = StyleSheet.create({
   card: { padding: theme.space.sm, gap: theme.space.xs, borderRadius: theme.radius.lg, borderWidth: 2, borderColor: theme.color.raised, backgroundColor: theme.color.surface, minHeight: theme.target },
   selected: { borderColor: theme.color.accent, backgroundColor: theme.color.selected },
-  compact: { paddingVertical: theme.space.xxs },
-  compactTime: { ...type.heading, color: theme.color.accent, fontVariant: ['tabular-nums'] },
+  compact: { paddingVertical: theme.space.xs, borderColor: 'transparent', backgroundColor: theme.color.surface, paddingHorizontal: 0 },
+  compactTime: { ...type.display, color: theme.color.accent, fontVariant: ['tabular-nums'] },
+  distance: { ...type.title, color: theme.color.muted, fontVariant: ['tabular-nums'] },
   selection: { ...type.label, color: theme.color.accent },
   time: { ...type.display, color: theme.color.accent, fontVariant: ['tabular-nums'] },
   top: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.space.xs, alignItems: 'center', justifyContent: 'space-between' },
