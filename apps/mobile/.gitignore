@@ -49,6 +49,5 @@ local-data/
 # typescript
 *.tsbuildinfo
 
-# generated native folders
+# iOS remains generated; Android sources are tracked for Android Studio.
 /ios
-/android

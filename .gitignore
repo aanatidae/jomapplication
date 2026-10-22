@@ -39,7 +39,6 @@ local-data/
 *.aab
 *.ipa
 *.mobileprovision
-apps/mobile/android/
 apps/mobile/ios/
 apps/mobile/web-build/
 apps/mobile/.kotlin/

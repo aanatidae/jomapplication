@@ -37,5 +37,6 @@ Docs: https://docs.expo.dev/eas/index.md
 ## Rules
 
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
+- The user explicitly requested a checked-in Android Studio project on 2026-10-21. Keep `android/` tracked and openable; regenerate with the pinned Expo CLI through `npm run android:prebuild` at the repository root. Keep portable native customizations in `plugins/withAndroidStudio.js`, and review generated diffs. Do not ignore/remove the Android source folder or commit build output, SDK paths or signing keys. iOS remains generated and ignored. Setup and build evidence: `../../docs/android-studio.md`.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md

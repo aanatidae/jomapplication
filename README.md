@@ -57,6 +57,8 @@ selecting `JOM_ROUTING_DATASET=simulated_demo`; they are not geographic results.
 
 ## Prerequisites
 
+**Android Studio project:** open [`apps/mobile/android`](apps/mobile/android), let Gradle sync, select your phone/emulator and run the `app` debug configuration. Run `npm ci` at the repository root first on a fresh clone. Native sources and the Gradle wrapper are checked in; Metro and FastAPI still run separately. See [Android Studio setup, phone installation and native build evidence](docs/android-studio.md).
+
 - Node 24.x, npm 11.x (tested 24.19.0 / 11.17.0), Python 3.11.
 - Android SDK/platform-tools, Android Studio emulator or USB-debuggable phone.
 - SDK 57-compatible Expo Go. Physical Android and iOS are development targets;

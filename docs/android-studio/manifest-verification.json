@@ -1,0 +1,25 @@
+{
+  "package": "com.aanatidae.jom",
+  "min_sdk": "24",
+  "target_sdk": "36",
+  "permissions": [
+    "android.permission.ACCESS_COARSE_LOCATION",
+    "android.permission.ACCESS_FINE_LOCATION",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.FOREGROUND_SERVICE",
+    "android.permission.INTERNET",
+    "android.permission.READ_EXTERNAL_STORAGE",
+    "android.permission.RECEIVE_BOOT_COMPLETED",
+    "android.permission.SYSTEM_ALERT_WINDOW",
+    "android.permission.VIBRATE",
+    "android.permission.WAKE_LOCK",
+    "android.permission.WRITE_EXTERNAL_STORAGE",
+    "com.aanatidae.jom.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+  ],
+  "schemes": [
+    "https",
+    "jom"
+  ],
+  "navigation": "Foreground Expo location subscription only; no background-location or foreground-location-service permission. Generic FOREGROUND_SERVICE is contributed by the transitive WorkManager library.",
+  "maps_key_source": "Gradle property/environment placeholder; default Leaflet does not need a key"
+}

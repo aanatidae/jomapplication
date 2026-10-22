@@ -1,0 +1,47 @@
+// Expo SDK 57's IDE-only stub task splits quoted CMake commands at every space.
+// Replace that action locally; retain its CMake dependency and normal build PCHs.
+// Source of truth: plugins/android/expo-stub-pch.gradle (copied by prebuild).
+subprojects { dependency ->
+    if (dependency.name == 'expo-modules-core') {
+        dependency.afterEvaluate {
+            dependency.tasks.named('generateStubPCH').configure {
+                actions.clear()
+                doLast {
+                    def cxxDir = dependency.file('.cxx')
+                    if (!cxxDir.exists()) return
+
+                    cxxDir.eachFileRecurse { database ->
+                        if (database.name != 'compile_commands.json') return
+                        new groovy.json.JsonSlurper().parse(database).each { entry ->
+                            if (!entry.file.endsWith('cmake_pch.hxx.cxx')) return
+                            def source = new File(entry.file)
+                            def pch = new File(entry.file.substring(0, entry.file.length() - 4) + '.pch')
+                            if (!pch.exists() || pch.length() == 0) {
+                                def stub = new File(entry.directory, 'stub_pch.hxx')
+                                stub.text = ''
+                                // Ant handles embedded quotes (-I"path with spaces")
+                                // and preserves Windows backslashes without a shell.
+                                def arguments = entry.arguments ?: org.apache.tools.ant.types.Commandline
+                                    .translateCommandline(entry.command).toList()
+                                arguments = arguments.collect { argument ->
+                                    def normalized = argument.replace('\\', '/')
+                                    normalized.endsWith('/cmake_pch.hxx') || normalized.endsWith('/cmake_pch.hxx.cxx')
+                                        ? stub.absolutePath : argument
+                                }
+                                def process = new ProcessBuilder(arguments as List<String>)
+                                    .directory(new File(entry.directory))
+                                    .redirectErrorStream(true).start()
+                                def output = process.inputStream.getText('UTF-8')
+                                if (process.waitFor() != 0) {
+                                    throw new GradleException("Stub PCH generation failed: ${output}")
+                                }
+                            }
+                            // A normal Ninja build must still generate the full PCH.
+                            pch.setLastModified(source.lastModified() - 1)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
